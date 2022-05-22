@@ -3,40 +3,65 @@ const TOP_MARGIN = 150 /* canvasHeight ÷ 2 ideally */
 const IMG_WIDTH = 50
 const PADDING = 32
 
+const SELECTED_ALPHA = 100
+const DESELECTED_ALPHA = 60
+
 /** a list of svg icons that can be toggled on and off in the UI
  */
 class ColorStrip {
     constructor(imgList) {
         this.imgList = imgList
-        this.toggle = []
+        this.colorDict = {
+            'c': 0,
+            'w': 1,
+            'u': 2,
+            'b': 3,
+            'r': 4,
+            'g': 5,
+        }
+
+        this.selected = [] /* which colors/indices are 'selected'? */
+        for (const [key, value] of Object.entries(this.colorDict)) {
+            this.selected.push(false)
+        }
 
         for (let svg of this.imgList) {
             svg.resize(IMG_WIDTH, 0)
-            console.log(svg)
         }
     }
 
     render() {
         imageMode(CENTER)
         rectMode(CENTER)
+        ellipseMode(CENTER)
+
+
+        strokeWeight(2)
+        noFill()
 
         const RECT_PADDING = 12
         for (let i in this.imgList) {
+            const selected = this.selected[i]
+            let iconAlpha = DESELECTED_ALPHA
+            if (selected)
+                iconAlpha = SELECTED_ALPHA
+
+            tint(0, 0, 100, iconAlpha)
+            stroke(0, 0, 100, iconAlpha)
+
             const svg = this.imgList[i]
             image(svg, LEFT_MARGIN + i*(IMG_WIDTH+PADDING), TOP_MARGIN)
-            rect(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
+            circle(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
                 TOP_MARGIN,
-                IMG_WIDTH + RECT_PADDING,
-                IMG_WIDTH + RECT_PADDING,
-                3)
+                IMG_WIDTH*1.3)
         }
     }
 
-    turnOn() {
-        this.toggle = true
+    select(i) {
+        this.selected[i] = true
     }
 
-    turnOff() {
-        this.toggle = false
+    deSelect(i) {
+        this.selected[i] = false
     }
 }

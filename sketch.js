@@ -4,6 +4,15 @@
  *
  *
  *  ☒ display 7 mana symbols
+ *  ☒ toggle mana symbol highlight with keyboard input: cwubrg
+ *      clean up
+ *  ☐ see mana font css to get correct colors
+ *      c: beb9b2
+ *      w: f0f2c0
+ *      u: b5cde3
+ *      b: aca29a
+ *      r: db8664
+ *      g: 93b483
  */
 
 let font
@@ -37,19 +46,15 @@ function setup() {
     debugCorner = new CanvasDebugCorner(5)
     instructions = select('#ins')
     instructions.html(`<pre>
+        [cwubrg] → toggle icon highlight; shift+ to untoggle
         numpad 1 → freeze sketch</pre>`)
 
-    strip = new ColorStrip([w, u, b, r, g])
+    strip = new ColorStrip([c, w, u, b, r, g])
 }
 
 
 function draw() {
     background(234, 34, 24)
-
-    tint(0, 0, 100, 60)
-    stroke(0, 0, 100, 80)
-    strokeWeight(1)
-    noFill()
 
     strip.render()
 
@@ -71,6 +76,21 @@ function keyPressed() {
         noLoop()
         instructions.html(`<pre>
             sketch stopped</pre>`)
+    }
+
+    switch(key) {
+        case 'c': strip.select(0); break
+        case 'C': strip.deSelect(0); break
+        case 'w': strip.select(1); break
+        case 'W': strip.deSelect(1); break
+        case 'u': strip.select(2); break
+        case 'U': strip.deSelect(2); break
+        case 'b': strip.select(3); break
+        case 'B': strip.deSelect(3); break
+        case 'r': strip.select(4); break
+        case 'R': strip.deSelect(4); break
+        case 'g': strip.select(5); break
+        case 'G': strip.deSelect(5); break
     }
 }
 
