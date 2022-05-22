@@ -11,12 +11,8 @@ let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
 let w, u, b, r, g, c, p
-let manaSymbols = []
+let strip
 
-const LEFT_MARGIN = 60
-const TOP_MARGIN = 150 /* canvasHeight ÷ 2 ideally */
-const IMG_WIDTH = 50
-const PADDING = 32
 
 function preload() {
     font = loadFont('data/consola.ttf')
@@ -43,12 +39,7 @@ function setup() {
     instructions.html(`<pre>
         numpad 1 → freeze sketch</pre>`)
 
-    manaSymbols.push(w, u, b, r, g)
-
-    for (let svg of manaSymbols) {
-        console.log(svg)
-        svg.resize(IMG_WIDTH, 0)
-    }
+    strip = new ColorStrip([w, u, b, r, g])
 }
 
 
@@ -60,16 +51,7 @@ function draw() {
     strokeWeight(1)
     noFill()
 
-    const RECT_PADDING = 12
-    for (let i in manaSymbols) {
-        const svg = manaSymbols[i]
-        image(svg, LEFT_MARGIN + i*(IMG_WIDTH+PADDING), TOP_MARGIN)
-        rect(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
-            TOP_MARGIN,
-            IMG_WIDTH + RECT_PADDING,
-            IMG_WIDTH + RECT_PADDING,
-            3)
-    }
+    strip.render()
 
     // stroke(89, 100, 100)
     // strokeWeight(3)
@@ -80,11 +62,6 @@ function draw() {
     debugCorner.setText(`frameCount: ${frameCount}`, 2)
     debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
     debugCorner.show()
-}
-
-
-function displayManaSymbols() {
-
 }
 
 
