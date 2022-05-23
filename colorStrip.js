@@ -42,7 +42,9 @@ class ColorStrip {
         const RECT_PADDING = 12
         for (let i in this.imgList) {
             const selected = this.selected[i]
+
             let iconAlpha = DESELECTED_ALPHA
+
             if (selected)
                 iconAlpha = SELECTED_ALPHA
 
@@ -51,18 +53,31 @@ class ColorStrip {
 
             const svg = this.imgList[i]
             image(svg, LEFT_MARGIN + i*(IMG_WIDTH+PADDING), TOP_MARGIN)
-            // circle(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
-            //     TOP_MARGIN,
-            //     IMG_WIDTH*1.3)
 
             rect(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
                 TOP_MARGIN,
                 IMG_WIDTH + RECT_PADDING,
                 IMG_WIDTH + RECT_PADDING,
                 8)
+
+            // circle(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
+            //     TOP_MARGIN,
+            //     IMG_WIDTH*1.3)
         }
     }
 
+    /* return list of colors that are selected */
+    getSelectedColorChars() {
+        let selectedColors = []
+        for (const [key, value] of Object.entries(this.colorDict)) {
+            if (this.selected[value])
+            selectedColors.push(key)
+        }
+
+        return selectedColors
+    }
+
+    /*  */
     select(ch) {
         this.selected[this.colorDict[ch]] = true
     }

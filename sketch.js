@@ -20,7 +20,7 @@ let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
 let w, u, b, r, g, c, p
-let strip
+let strip /* color selector UI. a mana symbol is highlighted when selected */
 
 
 function preload() {
@@ -58,10 +58,6 @@ function draw() {
 
     strip.render()
 
-    // stroke(89, 100, 100)
-    // strokeWeight(3)
-    // point(64, 64)
-    // point(width/2, height/2)
 
     /* debugCorner needs to be last so its z-index is highest */
     debugCorner.setText(`frameCount: ${frameCount}`, 2)
@@ -86,6 +82,8 @@ function keyPressed() {
             /* if it's the uppercase version of the key, deselect it */
         else strip.deSelect(lowerCaseKey)
     }
+
+    console.log(strip.getSelectedColorChars())
 }
 
 
