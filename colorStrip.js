@@ -1,10 +1,10 @@
 const LEFT_MARGIN = 60
 const TOP_MARGIN = 150 /* canvasHeight ÷ 2 ideally */
 const IMG_WIDTH = 50
-const PADDING = 32
+const PADDING = 20
 
-const SELECTED_ALPHA = 100
-const DESELECTED_ALPHA = 60
+const SELECTED_ALPHA = 80
+const DESELECTED_ALPHA = 40
 
 /** a list of svg icons that can be toggled on and off in the UI
  */
@@ -51,17 +51,23 @@ class ColorStrip {
 
             const svg = this.imgList[i]
             image(svg, LEFT_MARGIN + i*(IMG_WIDTH+PADDING), TOP_MARGIN)
-            circle(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
+            // circle(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
+            //     TOP_MARGIN,
+            //     IMG_WIDTH*1.3)
+
+            rect(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
                 TOP_MARGIN,
-                IMG_WIDTH*1.3)
+                IMG_WIDTH + RECT_PADDING,
+                IMG_WIDTH + RECT_PADDING,
+                8)
         }
     }
 
-    select(i) {
-        this.selected[i] = true
+    select(ch) {
+        this.selected[this.colorDict[ch]] = true
     }
 
-    deSelect(i) {
-        this.selected[i] = false
+    deSelect(ch) {
+        this.selected[this.colorDict[ch]] = false
     }
 }

@@ -79,18 +79,19 @@ function keyPressed() {
     }
 
     switch(key) {
-        case 'c': strip.select(0); break
-        case 'C': strip.deSelect(0); break
-        case 'w': strip.select(1); break
-        case 'W': strip.deSelect(1); break
-        case 'u': strip.select(2); break
-        case 'U': strip.deSelect(2); break
-        case 'b': strip.select(3); break
-        case 'B': strip.deSelect(3); break
-        case 'r': strip.select(4); break
-        case 'R': strip.deSelect(4); break
-        case 'g': strip.select(5); break
-        case 'G': strip.deSelect(5); break
+        /* TODO→ use arr, check key in strip.colorDict. select(key) */
+        case 'c': strip.select('c'); break
+        case 'C': strip.deSelect('c'); break
+        case 'w': strip.select('w'); break
+        case 'W': strip.deSelect('w'); break
+        case 'u': strip.select('u'); break
+        case 'U': strip.deSelect('u'); break
+        case 'b': strip.select('b'); break
+        case 'B': strip.deSelect('b'); break
+        case 'r': strip.select('r'); break
+        case 'R': strip.deSelect('r'); break
+        case 'g': strip.select('g'); break
+        case 'G': strip.deSelect('g'); break
     }
 }
 
