@@ -78,20 +78,13 @@ function keyPressed() {
             sketch stopped</pre>`)
     }
 
-    switch(key) {
-        /* TODO→ use arr, check key in strip.colorDict. select(key) */
-        case 'c': strip.select('c'); break
-        case 'C': strip.deSelect('c'); break
-        case 'w': strip.select('w'); break
-        case 'W': strip.deSelect('w'); break
-        case 'u': strip.select('u'); break
-        case 'U': strip.deSelect('u'); break
-        case 'b': strip.select('b'); break
-        case 'B': strip.deSelect('b'); break
-        case 'r': strip.select('r'); break
-        case 'R': strip.deSelect('r'); break
-        case 'g': strip.select('g'); break
-        case 'G': strip.deSelect('g'); break
+    /** if our key is in the color dictionary, select the corresponding icon */
+    const lowerCaseKey = key.toLowerCase()
+    if (lowerCaseKey in strip.colorDict) {
+        if (lowerCaseKey === key)
+            strip.select(key)
+            /* if it's the uppercase version of the key, deselect it */
+        else strip.deSelect(lowerCaseKey)
     }
 }
 
