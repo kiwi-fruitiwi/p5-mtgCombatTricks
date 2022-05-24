@@ -6,13 +6,14 @@
  *  ☒ display 7 mana symbols
  *  ☒ toggle mana symbol highlight with keyboard input: cwubrg
  *      clean up
- *  ☐ see mana font css to get correct colors
+ *  ☒ see mana font css to get correct colors
  *      c: beb9b2
  *      w: f0f2c0
  *      u: b5cde3
  *      b: aca29a
  *      r: db8664
  *      g: 93b483
+ *  ☐ add JSON
  */
 
 let font
@@ -22,6 +23,8 @@ let debugCorner /* output debug text in the bottom left corner of the canvas */
 let w, u, b, r, g, c, p
 let strip /* color selector UI. a mana symbol is highlighted when selected */
 
+let scryfall /* json file from scryfall: set=snc */
+let cards /* packed up JSON data */
 
 function preload() {
     font = loadFont('data/consola.ttf')
@@ -32,6 +35,8 @@ function preload() {
     g = loadImage('svg/g.svg')
     p = loadImage('svg/p.svg')
     c = loadImage('svg/c.svg')
+
+    scryfall = loadJSON('scryfall-snc.json')
 }
 
 
@@ -49,7 +54,18 @@ function setup() {
         [cwubrg] → toggle icon highlight; shift+ to untoggle
         numpad 1 → freeze sketch</pre>`)
 
-    strip = new ColorStrip([c, w, u, b, r, g])
+    cards = getCardData()
+
+    let icons = []
+    icons.push(new colorIcon('c', c, color(35,6,75)))
+    icons.push(new colorIcon('w', w, color(62,31,95)))
+    icons.push(new colorIcon('u', u, color(209,40,89)))
+    icons.push(new colorIcon('b', b, color(27,10,67)))
+    icons.push(new colorIcon('r', r, color(17,60,86)))
+    icons.push(new colorIcon('g', g, color(100,40,71)))
+
+    strip = new ColorSelector(icons)
+    console.log(strip.getAvailableColorChs())
 }
 
 
@@ -58,11 +74,43 @@ function draw() {
 
     strip.render()
 
-
     /* debugCorner needs to be last so its z-index is highest */
-    debugCorner.setText(`frameCount: ${frameCount}`, 2)
-    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
+    debugCorner.setText(`frameCount: ${frameCount}`, 3)
+    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 2)
+    debugCorner.setText(`availableColorChs: ${strip.getAvailableColorChs()}`, 1)
+    debugCorner.setText(`selected: ${strip.getSelectedColorChars()}`, 0)
     debugCorner.show()
+}
+
+
+function getCardData() {
+    let results = []
+    let data = scryfall['data']
+
+    /* regex for detecting creatures and common/uncommon rarity */
+    const rarity = new RegExp('(common|uncommon|rare|mythic)')
+    // const rarity = new RegExp('(rare|mythic)')
+
+    let count = 0
+
+    for (let key of data) {
+        /* only display commons and uncommons in our color filter */
+        if (rarity.test(key['rarity'])) {
+            results.push({
+                'name': key.name,
+                'colors': key['colors'],
+                'collector_number': int(key['collector_number']),
+                'art_crop_uri': key['image_uris']['art_crop'], /*626x457 ½ MB*/
+                'normal_uri': key['image_uris']['normal'],
+                'large_uri': key['image_uris']['large'],
+                'png_uri': key['image_uris']['png'] /* 745x1040 */
+
+                /* normal 488x680 64KB, large 672x936 100KB png 745x1040 1MB*/
+            })
+            count++
+        }
+    }
+    return results
 }
 
 
@@ -76,14 +124,14 @@ function keyPressed() {
 
     /** if our key is in the color dictionary, select the corresponding icon */
     const lowerCaseKey = key.toLowerCase()
-    if (lowerCaseKey in strip.colorDict) {
-        if (lowerCaseKey === key)
+    if (strip.getAvailableColorChs().includes(lowerCaseKey)) {
+        if (lowerCaseKey === key) {
             strip.select(key)
             /* if it's the uppercase version of the key, deselect it */
-        else strip.deSelect(lowerCaseKey)
+        } else {
+            strip.deSelect(lowerCaseKey)
+        }
     }
-
-    console.log(strip.getSelectedColorChars())
 }
 
 
