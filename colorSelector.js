@@ -1,7 +1,9 @@
 const LEFT_MARGIN = 60
 const TOP_MARGIN = 150 /* canvasHeight ÷ 2 ideally */
-const IMG_WIDTH = 50
-const PADDING = 20
+const IMG_WIDTH = 24 /* 50 */
+const PADDING = 10 /* 20 */
+const RECT_PADDING = 6 /* 12 */
+const STROKE_WEIGHT = 1
 
 const SELECTED_ALPHA = 60
 const DESELECTED_ALPHA = 20
@@ -12,7 +14,7 @@ class colorIcon {
         this.img = img
         this.colorCh = colorCh
         this.color = color_
-        this.selected = true
+        this.selected = false
     }
 }
 
@@ -34,10 +36,9 @@ class ColorSelector {
         ellipseMode(CENTER)
 
 
-        strokeWeight(2)
+        strokeWeight(STROKE_WEIGHT)
         noFill()
 
-        const RECT_PADDING = 12
 
         /* fix → should probably iterate using 'let i in' */
         for (let i in this.icons) {
@@ -55,15 +56,15 @@ class ColorSelector {
                 stroke(0, 0, 100, iconAlpha)
             }
 
-            rect(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
-                TOP_MARGIN,
-                IMG_WIDTH + RECT_PADDING,
-                IMG_WIDTH + RECT_PADDING,
-                8)
-
-            // circle(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
+            // rect(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
             //     TOP_MARGIN,
-            //     IMG_WIDTH*1.3)
+            //     IMG_WIDTH + RECT_PADDING,
+            //     IMG_WIDTH + RECT_PADDING,
+            //     8)
+
+            circle(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
+                TOP_MARGIN,
+                IMG_WIDTH*1.3)
 
             const svg = icon.img
             image(svg, LEFT_MARGIN + i*(IMG_WIDTH+PADDING), TOP_MARGIN)

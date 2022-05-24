@@ -65,7 +65,6 @@ function setup() {
     icons.push(new colorIcon('g', g, color(100,40,71)))
 
     strip = new ColorSelector(icons)
-    console.log(strip.getAvailableColorChs())
 }
 
 
@@ -89,16 +88,18 @@ function getCardData() {
 
     /* regex for detecting creatures and common/uncommon rarity */
     const rarity = new RegExp('(common|uncommon|rare|mythic)')
-    // const rarity = new RegExp('(rare|mythic)')
 
     let count = 0
 
     for (let key of data) {
-        /* only display commons and uncommons in our color filter */
+        /* filter for rarity */
         if (rarity.test(key['rarity'])) {
-            results.push({
-                'name': key.name,
+            let cardData = {
+                'name': key['name'],
                 'colors': key['colors'],
+                'cmc': key['cmc'],
+                'type_line': key['type_line'],
+                'oracle_text': key['oracle_text'],
                 'collector_number': int(key['collector_number']),
                 'art_crop_uri': key['image_uris']['art_crop'], /*626x457 ½ MB*/
                 'normal_uri': key['image_uris']['normal'],
@@ -106,7 +107,9 @@ function getCardData() {
                 'png_uri': key['image_uris']['png'] /* 745x1040 */
 
                 /* normal 488x680 64KB, large 672x936 100KB png 745x1040 1MB*/
-            })
+            }
+
+            results.push(cardData)
             count++
         }
     }
@@ -131,6 +134,37 @@ function keyPressed() {
         } else {
             strip.deSelect(lowerCaseKey)
         }
+    }
+
+    if (key === 'z') {
+        /* instant / flash cards that satisfy color requirements */
+        let tricks = []
+        for (let card of cards) {
+            if (card['oracle_text'].includes('Flash') ||
+                card['type_line'] === 'Instant') {
+                tricks.push(card)
+            }
+        }
+
+        let results = [] /* tricks that satisfy selected colors in UI */
+        for (let trick of tricks) {
+            // console.log(`${trick.name}→${trick.colors}`)
+
+            /* see if this trick's colors are all selected in the UI. e.g.
+             * brokers charm requires w,u,g all to be selected */
+            let allColorsSelected = true
+            
+            /* iterate through each of the trick's colors */
+            for (let i in trick['colors']) {
+                let c = trick['colors'][i].toLowerCase()
+                if (!strip.getSelectedColorChars().includes(c))
+                    allColorsSelected = false
+            }
+
+            if (allColorsSelected)
+                results.push(trick.name)
+        }
+        console.log(results)
     }
 }
 
