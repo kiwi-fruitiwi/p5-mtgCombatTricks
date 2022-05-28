@@ -1,8 +1,8 @@
 const LEFT_MARGIN = 60
 const TOP_MARGIN = 150 /* canvasHeight ÷ 2 ideally */
-const IMG_WIDTH = 24 /* 50 */
-const PADDING = 10 /* 20 */
-const RECT_PADDING = 6 /* 12 */
+const IMG_WIDTH = 50 /* 50 */
+const PADDING = 20 /* 20 */
+const RECT_PADDING = 12 /* 12 */
 const STROKE_WEIGHT = 1
 
 const SELECTED_ALPHA = 60
@@ -15,6 +15,8 @@ class colorIcon {
         this.colorCh = colorCh
         this.color = color_
         this.selected = false
+
+        this.count = 0
     }
 }
 
@@ -31,16 +33,14 @@ class ColorSelector {
     }
 
     render() {
+        const CIRCLE_DISPLAY = false
         imageMode(CENTER)
         rectMode(CENTER)
         ellipseMode(CENTER)
 
-
         strokeWeight(STROKE_WEIGHT)
         noFill()
 
-
-        /* fix → should probably iterate using 'let i in' */
         for (let i in this.icons) {
             const icon = this.icons[i]
             const selected = icon.selected
@@ -56,18 +56,23 @@ class ColorSelector {
                 stroke(0, 0, 100, iconAlpha)
             }
 
-            // rect(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
-            //     TOP_MARGIN,
-            //     IMG_WIDTH + RECT_PADDING,
-            //     IMG_WIDTH + RECT_PADDING,
-            //     8)
-
-            circle(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
-                TOP_MARGIN,
-                IMG_WIDTH*1.3)
+            if (CIRCLE_DISPLAY) {
+                circle(LEFT_MARGIN + i * (IMG_WIDTH + PADDING),
+                    TOP_MARGIN,
+                    IMG_WIDTH * 1.3)
+            } else {
+                rect(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
+                    TOP_MARGIN,
+                    IMG_WIDTH + RECT_PADDING,
+                    IMG_WIDTH + RECT_PADDING,
+                    4)
+            }
 
             const svg = icon.img
             image(svg, LEFT_MARGIN + i*(IMG_WIDTH+PADDING), TOP_MARGIN)
+
+            /* add bar visualization for mana count above each mana icon */
+
         }
     }
 
@@ -92,7 +97,7 @@ class ColorSelector {
     }
 
     /* TODO make this work for list inputs */
-    select(ch) {
+    select(ch) { /* increase by 1 */
         for (const icon of this.icons) {
             if (icon.colorCh === ch) {
                 icon.selected = true
@@ -100,7 +105,7 @@ class ColorSelector {
         }
     }
 
-    deSelect(ch) {
+    deSelect(ch) { /* reset to 0 */
         for (let icon of this.icons) {
             if (icon.colorCh === ch) {
                 icon.selected = false

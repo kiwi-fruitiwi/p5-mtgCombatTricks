@@ -13,7 +13,21 @@
  *      b: aca29a
  *      r: db8664
  *      g: 93b483
- *  ☐ add JSON
+ *  ☒ add JSON
+ *  ☒ extract tricks
+ *  ☒ color filtering tricks
+ *
+ *  ☐ opponent available mana! → plan algorithm
+ *      add to mana via wubrg, reset to zero with WUBRG
+ *      visualize as rectangular 'stack' above each icon's square border
+ *      see 17LandsArenaUI → ✒
+ *      card scrolling or card wrap
+ *      mouseover
+ *
+ *  ☐ display card art
+ *  ☐ card title overlay
+ *  ☐ card wrap
+ *  ☐
  */
 
 let font
