@@ -16,6 +16,10 @@
  *  ☒ add JSON
  *  ☒ extract tricks
  *  ☒ color filtering tricks
+ *  ☐ add JSON pagination
+ *
+ *  → warm welcome, swooping protector, refuse to yield not showing up
+ *  → quick-draw dagger not showing up for colors
  *
  *  ☐ opponent available mana! → plan algorithm
  *      add to mana via wubrg, reset to zero with WUBRG
@@ -37,8 +41,11 @@ let debugCorner /* output debug text in the bottom left corner of the canvas */
 let w, u, b, r, g, c, p
 let strip /* color selector UI. a mana symbol is highlighted when selected */
 
-let scryfall /* json file from scryfall: set=snc */
+let initialScryfallQueryJSON /* json file from scryfall: set=snc */
 let cards /* packed up JSON data */
+let scryfallData = [] /* scryfallQuery['data'] */
+let lastRequestTime = 0
+let loadedJSON = false /* flag is set to true once all pages in JSON load */
 
 function preload() {
     font = loadFont('data/consola.ttf')
@@ -50,7 +57,10 @@ function preload() {
     p = loadImage('svg/p.svg')
     c = loadImage('svg/c.svg')
 
-    scryfall = loadJSON('scryfall-snc.json')
+    let req = 'https://api.scryfall.com/cards/search?q=set:snc'
+
+    /* this call to loadJSON finishes before sketch.setup() */
+    initialScryfallQueryJSON = loadJSON(req)
 }
 
 
@@ -62,13 +72,24 @@ function setup() {
     imageMode(CENTER)
     rectMode(CENTER)
 
+    lastRequestTime = millis()
     debugCorner = new CanvasDebugCorner(5)
     instructions = select('#ins')
     instructions.html(`<pre>
         [cwubrg] → toggle icon highlight; shift+ to untoggle
         numpad 1 → freeze sketch</pre>`)
 
-    cards = getCardData()
+    scryfallData = scryfallData.concat(initialScryfallQueryJSON['data'])
+    // console.log(`data retrieved! ${initialScryfallQueryJSON['data'].length}`)
+    // console.log(scryfallData.length)
+
+    /* check for scryfall JSON having more pages, recursively callback if so */
+    if (initialScryfallQueryJSON['has_more']) {
+        let pageTwoJSONURL = initialScryfallQueryJSON['next_page']
+        loadJSON(pageTwoJSONURL, gotData)
+    }
+
+    /* cards = getCardData() */
 
     let icons = []
     icons.push(new colorIcon('c', c, color(35,6,75)))
@@ -85,7 +106,9 @@ function setup() {
 function draw() {
     background(234, 34, 24)
 
-    strip.render()
+    if (loadedJSON) {
+        strip.render()
+    }
 
     /* debugCorner needs to be last so its z-index is highest */
     debugCorner.setText(`frameCount: ${frameCount}`, 3)
@@ -96,9 +119,31 @@ function draw() {
 }
 
 
+/* callback from scryfall API:  */
+function gotData(data) {
+    console.log(`data retrieved! ${data['data'].length}`)
+    console.log(`request time → ${millis() - lastRequestTime}`)
+    lastRequestTime = millis()
+
+    /* add all elements of returned JSON data to our current array */
+    scryfallData = scryfallData.concat(data['data'])
+
+    if (data['has_more']) {
+        loadJSON(data['next_page'], gotData)
+    } else {
+        console.log(`total request time → ${millis()}`)
+        console.log(`total data length: ${scryfallData.length}`)
+
+        cards = getCardData()
+        console.log(`cards loaded! → ${cards.length}`)
+        loadedJSON = true
+    }
+}
+
+
 function getCardData() {
     let results = []
-    let data = scryfall['data']
+    let data = scryfallData
 
     /* regex for detecting creatures and common/uncommon rarity */
     const rarity = new RegExp('(common|uncommon|rare|mythic)')
@@ -154,9 +199,11 @@ function keyPressed() {
         /* instant / flash cards that satisfy color requirements */
         let tricks = []
         for (let card of cards) {
-            if (card['oracle_text'].includes('Flash') ||
+            if (card['oracle_text'].toLowerCase().includes('flash') ||
                 card['type_line'] === 'Instant') {
                 tricks.push(card)
+            } else {
+                // console.log(`did not include → ${card['name']}`)
             }
         }
 
