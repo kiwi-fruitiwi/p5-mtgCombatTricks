@@ -8,6 +8,8 @@ const STROKE_WEIGHT = 1
 const SELECTED_ALPHA = 60
 const DESELECTED_ALPHA = 20
 
+const BAR_PADDING = 3 /* padding for mana symbol count bars above each icon */
+const BAR_HEIGHT = 5
 
 class colorIcon {
     constructor(colorCh, img, color_) {
@@ -38,7 +40,6 @@ class ColorSelector {
         rectMode(CENTER)
         ellipseMode(CENTER)
 
-        strokeWeight(STROKE_WEIGHT)
         noFill()
 
         for (let i in this.icons) {
@@ -56,13 +57,15 @@ class ColorSelector {
                 stroke(0, 0, 100, iconAlpha)
             }
 
+            const iconX = LEFT_MARGIN + i * (IMG_WIDTH+PADDING)
+            const iconY = TOP_MARGIN
+
+
+            strokeWeight(STROKE_WEIGHT)
             if (CIRCLE_DISPLAY) {
-                circle(LEFT_MARGIN + i * (IMG_WIDTH + PADDING),
-                    TOP_MARGIN,
-                    IMG_WIDTH * 1.3)
+                circle(iconX, iconY, IMG_WIDTH * 1.3)
             } else {
-                rect(LEFT_MARGIN + i*(IMG_WIDTH+PADDING),
-                    TOP_MARGIN,
+                rect(iconX, iconY,
                     IMG_WIDTH + RECT_PADDING,
                     IMG_WIDTH + RECT_PADDING,
                     4)
@@ -73,6 +76,25 @@ class ColorSelector {
 
             /* add bar visualization for mana count above each mana icon */
 
+            /* display arbitrary 3 bars above each icon */
+            const iconCenter = new p5.Vector(iconX, iconY)
+            const imgHeight = IMG_WIDTH
+
+
+            strokeWeight(5)
+            const iconTopBorderY = iconCenter.y - imgHeight/2 - RECT_PADDING/2
+
+            /* debug point at top of each icon border */
+            // stroke(91, 100, 40)
+            // point(iconX, iconTopBorderY)
+
+            stroke(icon.color, 80)
+            for (let i=1; i<5; i++) {
+                /* note RECT_PADDING/2 is extra padding from image to rect
+                 border */
+                point(iconCenter.x,
+                   iconTopBorderY - i*(BAR_PADDING+BAR_HEIGHT/2))
+            }
         }
     }
 

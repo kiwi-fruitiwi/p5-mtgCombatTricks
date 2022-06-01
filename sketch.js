@@ -116,6 +116,9 @@ function draw() {
     debugCorner.setText(`availableColorChs: ${strip.getAvailableColorChs()}`, 1)
     debugCorner.setText(`selected: ${strip.getSelectedColorChars()}`, 0)
     debugCorner.show()
+
+    if (frameCount >= 3000)
+        noLoop()
 }
 
 
