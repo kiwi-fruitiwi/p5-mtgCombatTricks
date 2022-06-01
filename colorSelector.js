@@ -1,5 +1,5 @@
 const LEFT_MARGIN = 60
-const TOP_MARGIN = 150 /* canvasHeight ÷ 2 ideally */
+const TOP_MARGIN = 180 /* canvasHeight ÷ 2 ideally */
 const IMG_WIDTH = 50 /* 50 */
 const PADDING = 20 /* 20 */
 const RECT_PADDING = 12 /* 12 */
@@ -16,6 +16,18 @@ class colorIcon {
         this.color = color_
         this.selected = false
 
+        this.count = 0
+    }
+
+    getManaCount() {
+        return this.count
+    }
+
+    addManaCount() {
+        this.count++
+    }
+
+    resetManaCount() {
         this.count = 0
     }
 }
@@ -84,15 +96,17 @@ class ColorSelector {
             /* midpoint of icon border top */
             const iconTopBorderY = iconCenter.y - imgHeight/2 - RECT_PADDING/2
 
+            /* color.levels returns RGBa */
+            // const c = icon.color.levels
             stroke(icon.color)
             strokeWeight(1.2)
-            fill(0, 0, 100, 10)
+            // fill(c[0], c[1], c[2], 30)
 
             /* padding for mana symbol count bars above each icon */
-            const barPadding = 6
-            const barHeight = 8
+            const barPadding = 4
+            const barHeight = 6
 
-            for (let i=1; i<5; i++) {
+            for (let i=1; i<= icon.getManaCount(); i++) {
                 /* note RECT_PADDING/2 is extra padding from image to rect
                  border TODO draw center point */
 
@@ -132,6 +146,10 @@ class ColorSelector {
         for (const icon of this.icons) {
             if (icon.colorCh === ch) {
                 icon.selected = true
+                if (icon.getManaCount() < 8) /* arbitrary limit */
+                    icon.addManaCount()
+                console.log(icon.getManaCount())
+                console.log(icon.color.levels)
             }
         }
     }
@@ -140,6 +158,7 @@ class ColorSelector {
         for (let icon of this.icons) {
             if (icon.colorCh === ch) {
                 icon.selected = false
+                icon.resetManaCount()
             }
 
         }
