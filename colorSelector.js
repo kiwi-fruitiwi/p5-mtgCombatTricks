@@ -98,9 +98,11 @@ class ColorSelector {
 
             /* color.levels returns RGBa */
             // const c = icon.color.levels
-            stroke(icon.color)
-            strokeWeight(1.2)
-            // fill(c[0], c[1], c[2], 30)
+            const c = icon.color
+            // stroke(icon.color)
+            // strokeWeight(1.2)
+            noStroke()
+            fill(hue(c), saturation(c), brightness(c), 80)
 
             /* padding for mana symbol count bars above each icon */
             const barPadding = 4
@@ -149,7 +151,7 @@ class ColorSelector {
                 if (icon.getManaCount() < 8) /* arbitrary limit */
                     icon.addManaCount()
                 console.log(icon.getManaCount())
-                console.log(icon.color.levels)
+                console.log(hue(icon.color))
             }
         }
     }
