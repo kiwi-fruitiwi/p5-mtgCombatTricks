@@ -155,6 +155,14 @@ function getCardData() {
 
     for (let key of data) {
         /* filter for rarity */
+        let imgURIs
+        if (key['image_uris']) {
+            imgURIs = key['image_uris']
+        } else {
+            imgURIs = key['card_faces'][0]
+        }
+
+
         if (rarity.test(key['rarity'])) {
             let cardData = {
                 'name': key['name'],
@@ -163,13 +171,15 @@ function getCardData() {
                 'type_line': key['type_line'],
                 'oracle_text': key['oracle_text'],
                 'collector_number': int(key['collector_number']),
-                'art_crop_uri': key['image_uris']['art_crop'], /*626x457 ½ MB*/
-                'normal_uri': key['image_uris']['normal'],
-                'large_uri': key['image_uris']['large'],
-                'png_uri': key['image_uris']['png'] /* 745x1040 */
+                'art_crop_uri': imgURIs['art_crop'], /*626x457 ½ MB*/
+                'normal_uri': imgURIs['normal'],
+                'large_uri': imgURIs['large'],
+                'png_uri': imgURIs['png'] /* 745x1040 */
 
                 /* normal 488x680 64KB, large 672x936 100KB png 745x1040 1MB*/
             }
+
+            // console.log(`${key['name']} → image_uris → ${imgURIs}`)
 
             results.push(cardData)
             count++
