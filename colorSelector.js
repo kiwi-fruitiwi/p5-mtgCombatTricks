@@ -8,8 +8,6 @@ const STROKE_WEIGHT = 1
 const SELECTED_ALPHA = 60
 const DESELECTED_ALPHA = 20
 
-const BAR_PADDING = 10 /* padding for mana symbol count bars above each icon */
-const BAR_HEIGHT = 8
 
 class colorIcon {
     constructor(colorCh, img, color_) {
@@ -83,18 +81,28 @@ class ColorSelector {
             // noinspection JSSuspiciousNameCombination
             const imgHeight = IMG_WIDTH
 
+            /* midpoint of icon border top */
             const iconTopBorderY = iconCenter.y - imgHeight/2 - RECT_PADDING/2
 
             stroke(icon.color)
+            strokeWeight(1.2)
             fill(0, 0, 100, 10)
+
+            /* padding for mana symbol count bars above each icon */
+            const barPadding = 6
+            const barHeight = 8
+
             for (let i=1; i<5; i++) {
                 /* note RECT_PADDING/2 is extra padding from image to rect
                  border TODO draw center point */
+
+                let yOffset = i * (barPadding + barHeight) - barHeight/2
+
                 rect(iconCenter.x,
-                   iconTopBorderY - i*(BAR_PADDING+BAR_HEIGHT/2),
+                    iconTopBorderY - yOffset,
                     IMG_WIDTH + RECT_PADDING,
-                    BAR_HEIGHT,
-                    0.5)
+                    barHeight,
+                    2)
             }
         }
     }
