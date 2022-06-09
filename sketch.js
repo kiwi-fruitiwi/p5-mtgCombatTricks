@@ -16,11 +16,12 @@
  *  ☒ add JSON
  *  ☒ extract tricks
  *  ☒ color filtering tricks
- *  ☐ add JSON pagination
+ *  ☒ add JSON pagination
  *
  *  → warm welcome, swooping protector, refuse to yield not showing up
  *  → quick-draw dagger not showing up for colors
  *
+ *  ☐ add sound effects for adding and reseting mana
  *  ☐ opponent available mana! → plan algorithm
  *      add to mana via wubrg, reset to zero with WUBRG
  *      visualize as rectangular 'stack' above each icon's square border
@@ -65,7 +66,7 @@ function preload() {
 
 
 function setup() {
-    let cnv = createCanvas(600, 300)
+    let cnv = createCanvas(500, 600)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(font, 14)

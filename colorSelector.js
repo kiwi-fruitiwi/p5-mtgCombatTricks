@@ -1,8 +1,8 @@
-const LEFT_MARGIN = 60
-const TOP_MARGIN = 180 /* canvasHeight ÷ 2 ideally */
-const IMG_WIDTH = 50 /* 50 */
-const PADDING = 20 /* 20 */
-const RECT_PADDING = 12 /* 12 */
+const LEFT_MARGIN = 50
+const TOP_MARGIN = 80 /* canvasHeight ÷ 2 ideally */
+const IMG_WIDTH = 20 /* 50 */
+const ICON_SPACING = 10 /* 20 space between icons. not padding, but spacing */
+const RECT_PADDING = 6 /* 12 */
 const STROKE_WEIGHT = 1
 
 const SELECTED_ALPHA = 60
@@ -68,7 +68,7 @@ class ColorSelector {
                 stroke(0, 0, 100, iconAlpha)
             }
 
-            const iconX = LEFT_MARGIN + i * (IMG_WIDTH+PADDING)
+            const iconX = LEFT_MARGIN + i * (IMG_WIDTH+ICON_SPACING)
             const iconY = TOP_MARGIN
 
 
@@ -83,7 +83,7 @@ class ColorSelector {
             }
 
             const svg = icon.img
-            image(svg, LEFT_MARGIN + i*(IMG_WIDTH+PADDING), TOP_MARGIN)
+            image(svg, LEFT_MARGIN + i*(IMG_WIDTH+ICON_SPACING), TOP_MARGIN)
 
             /* add bar visualization for mana count above each mana icon */
 
@@ -105,8 +105,8 @@ class ColorSelector {
             fill(hue(c), saturation(c), brightness(c), 80)
 
             /* padding for mana symbol count bars above each icon */
-            const barPadding = 4
-            const barHeight = 6
+            const barPadding = 2
+            const barHeight = 3
 
             for (let i=1; i<= icon.getManaCount(); i++) {
                 /* note RECT_PADDING/2 is extra padding from image to rect
@@ -150,8 +150,8 @@ class ColorSelector {
                 icon.selected = true
                 if (icon.getManaCount() < 8) /* arbitrary limit */
                     icon.addManaCount()
-                console.log(icon.getManaCount())
-                console.log(hue(icon.color))
+                // console.log(icon.getManaCount())
+                // console.log(hue(icon.color))
             }
         }
     }
