@@ -107,12 +107,16 @@ class ColorSelector {
             /* padding for mana symbol count bars above each icon */
             const barPadding = 2
             const barHeight = 3
+            const firstBarOffSet = 1
 
             for (let i=1; i<= icon.getManaCount(); i++) {
                 /* note RECT_PADDING/2 is extra padding from image to rect
                  border TODO draw center point */
 
-                let yOffset = i * (barPadding + barHeight) - barHeight/2
+                let yOffset = i * (barPadding + barHeight) -
+                    barHeight/2 + firstBarOffSet
+
+                /* additional spacing for first bar */
 
                 rect(iconCenter.x,
                     iconTopBorderY - yOffset,

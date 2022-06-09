@@ -222,6 +222,7 @@ function keyPressed() {
         }
 
         let results = [] /* tricks that satisfy selected colors in UI */
+
         for (let trick of tricks) {
             // console.log(`${trick.name}→${trick.colors}`)
 
@@ -236,8 +237,13 @@ function keyPressed() {
                     allColorsSelected = false
             }
 
+            let cardData = {
+                'name': trick['name'],
+                'art_crop_uri': trick['art_crop_uri'] /*626x457 ½ MB*/
+            }
+
             if (allColorsSelected)
-                results.push(trick.name)
+                results.push(cardData)
         }
         console.log(results)
     }
