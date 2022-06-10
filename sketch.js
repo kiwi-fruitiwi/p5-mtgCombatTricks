@@ -44,6 +44,7 @@ let strip /* color selector UI. a mana symbol is highlighted when selected */
 
 let initialScryfallQueryJSON /* json file from scryfall: set=snc */
 let cards /* packed up JSON data */
+let displayedTricks /* list of filtered combat tricks */
 let scryfallData = [] /* scryfallQuery['data'] */
 let lastRequestTime = 0
 let loadedJSON = false /* flag is set to true once all pages in JSON load */
@@ -91,7 +92,7 @@ function setup() {
     }
 
     /* cards = getCardData() */
-
+    let tricks = []
     let icons = []
     icons.push(new colorIcon('c', c, color(35,6,75)))
     icons.push(new colorIcon('w', w, color(62,31,95)))
@@ -120,6 +121,11 @@ function draw() {
 
     if (frameCount >= 3000)
         noLoop()
+
+    /* display list of combat tricks; populate list with 'z' key */
+    // for (const trick of displayedTricks) {
+    //
+    // }
 }
 
 
@@ -210,43 +216,51 @@ function keyPressed() {
     }
 
     if (key === 'z') {
-        /* instant / flash cards that satisfy color requirements */
-        let tricks = []
-        for (let card of cards) {
-            if (card['oracle_text'].toLowerCase().includes('flash') ||
-                card['type_line'] === 'Instant') {
-                tricks.push(card)
-            } else {
-                // console.log(`did not include → ${card['name']}`)
-            }
-        }
-
-        let results = [] /* tricks that satisfy selected colors in UI */
-
-        for (let trick of tricks) {
-            // console.log(`${trick.name}→${trick.colors}`)
-
-            /* see if this trick's colors are all selected in the UI. e.g.
-             * brokers charm requires w,u,g all to be selected */
-            let allColorsSelected = true
-            
-            /* iterate through each of the trick's colors */
-            for (let i in trick['colors']) {
-                let c = trick['colors'][i].toLowerCase()
-                if (!strip.getSelectedColorChars().includes(c))
-                    allColorsSelected = false
-            }
-
-            let cardData = {
-                'name': trick['name'],
-                'art_crop_uri': trick['art_crop_uri'] /*626x457 ½ MB*/
-            }
-
-            if (allColorsSelected)
-                results.push(cardData)
-        }
-        console.log(results)
+        populateTricks()
     }
+}
+
+
+/** loads card data so we can display cards found that match mana */
+function populateTricks() {
+    /* instant / flash cards that satisfy color requirements */
+    let tricks = []
+    for (let card of cards) {
+        if (card['oracle_text'].toLowerCase().includes('flash') ||
+            card['type_line'] === 'Instant') {
+            tricks.push(card)
+        } else {
+            // console.log(`did not include → ${card['name']}`)
+        }
+    }
+
+    let results = [] /* tricks that satisfy selected colors in UI */
+
+    for (let trick of tricks) {
+        // console.log(`${trick.name}→${trick.colors}`)
+
+        /* see if this trick's colors are all selected in the UI. e.g.
+         * brokers charm requires w,u,g all to be selected */
+        let allColorsSelected = true
+
+        /* iterate through each of the trick's colors */
+        for (let i in trick['colors']) {
+            let c = trick['colors'][i].toLowerCase()
+            if (!strip.getSelectedColorChars().includes(c))
+                allColorsSelected = false
+        }
+
+        let cardData = {
+            'name': trick['name'],
+            'art_crop_uri': trick['art_crop_uri'] /*626x457 ½ MB*/
+        }
+
+        if (allColorsSelected)
+            results.push(cardData)
+    }
+
+    console.log(results)
+    displayedTricks = results
 }
 
 

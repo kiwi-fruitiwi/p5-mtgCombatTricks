@@ -79,7 +79,7 @@ class ColorSelector {
                 rect(iconX, iconY,
                     IMG_WIDTH + RECT_PADDING,
                     IMG_WIDTH + RECT_PADDING,
-                    4)
+                    2) /* rounded borders */
             }
 
             const svg = icon.img
@@ -122,7 +122,7 @@ class ColorSelector {
                     iconTopBorderY - yOffset,
                     IMG_WIDTH + RECT_PADDING,
                     barHeight,
-                    2)
+                    1)
             }
         }
     }
