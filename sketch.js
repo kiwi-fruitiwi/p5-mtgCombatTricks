@@ -44,10 +44,12 @@ let strip /* color selector UI. a mana symbol is highlighted when selected */
 
 let initialScryfallQueryJSON /* json file from scryfall: set=snc */
 let cards /* packed up JSON data */
+let testTrick
 let displayedTricks /* list of filtered combat tricks */
 let scryfallData = [] /* scryfallQuery['data'] */
 let lastRequestTime = 0
 let loadedJSON = false /* flag is set to true once all pages in JSON load */
+
 
 function preload() {
     font = loadFont('data/consola.ttf')
@@ -92,7 +94,6 @@ function setup() {
     }
 
     /* cards = getCardData() */
-    let tricks = []
     let icons = []
     icons.push(new colorIcon('c', c, color(35,6,75)))
     icons.push(new colorIcon('w', w, color(62,31,95)))
@@ -102,6 +103,7 @@ function setup() {
     icons.push(new colorIcon('g', g, color(100,40,71)))
 
     strip = new ColorSelector(icons)
+    displayedTricks = []
 }
 
 
@@ -123,9 +125,15 @@ function draw() {
         noLoop()
 
     /* display list of combat tricks; populate list with 'z' key */
-    // for (const trick of displayedTricks) {
-    //
-    // }
+    const y = 300
+    const lMargin = 50
+    const spacing = 5
+    if (displayedTricks) {
+        for (const i in displayedTricks) {
+            let trick = displayedTricks[i]
+            trick.render(i*(trick.scale+spacing)+lMargin, y)
+        }
+    }
 }
 
 
@@ -218,6 +226,10 @@ function keyPressed() {
     if (key === 'z') {
         populateTricks()
     }
+
+    if (key === 'x') {
+        console.log(testTrick)
+    }
 }
 
 
@@ -250,18 +262,40 @@ function populateTricks() {
                 allColorsSelected = false
         }
 
-        let cardData = {
-            'name': trick['name'],
-            'art_crop_uri': trick['art_crop_uri'] /*626x457 ½ MB*/
-        }
+        let t = new Trick(trick['name'], trick['art_crop_uri'])
 
         if (allColorsSelected)
-            results.push(cardData)
+            results.push(t)
     }
 
     console.log(results)
     displayedTricks = results
 }
+
+
+/** one card to display in our list of tricks */
+class Trick {
+    constructor(name, imgURL) {
+        this.name = name
+        this.artCrop = loadImage(imgURL)
+        this.scale = 75
+    }
+
+    render(x, y) {
+        const w = this.scale
+        const h = this.scale*457/626
+
+        /* art crops are 626x457, ½ MB */
+        tint(0, 0, 80)
+        image(this.artCrop, x, y, w, h)
+
+        noFill()
+        stroke(0, 0, 80)
+        strokeWeight(1)
+        rect(x, y, w, h)
+    }
+}
+
 
 
 /** 🧹 shows debugging info using text() 🧹 */
