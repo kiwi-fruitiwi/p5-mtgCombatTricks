@@ -114,16 +114,6 @@ function draw() {
         strip.render()
     }
 
-    /* debugCorner needs to be last so its z-index is highest */
-    debugCorner.setText(`frameCount: ${frameCount}`, 3)
-    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 2)
-    debugCorner.setText(`availableColorChs: ${strip.getAvailableColorChs()}`, 1)
-    debugCorner.setText(`selected: ${strip.getSelectedColorChars()}`, 0)
-    debugCorner.show()
-
-    if (frameCount >= 3000)
-        noLoop()
-
     /* display list of combat tricks; populate list with 'z' key */
     const y = 150
     const lMargin = 50
@@ -144,6 +134,16 @@ function draw() {
             xPos += trick.scaleWidth + spacing
         }
     }
+
+    /* debugCorner needs to be last so its z-index is highest */
+    debugCorner.setText(`frameCount: ${frameCount}`, 3)
+    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 2)
+    debugCorner.setText(`availableColorChs: ${strip.getAvailableColorChs()}`, 1)
+    debugCorner.setText(`selected: ${strip.getSelectedColorChars()}`, 0)
+    debugCorner.show()
+
+    if (frameCount >= 3000)
+        noLoop()
 }
 
 
@@ -257,8 +257,7 @@ function populateTricks() {
         }
     }
 
-    let results = [] /* tricks that satisfy selected colors in UI */
-
+    displayedTricks = [] /* reset displayedTricks */
     for (let trick of tricks) {
         // console.log(`${trick.name}→${trick.colors}`)
 
@@ -273,25 +272,27 @@ function populateTricks() {
                 allColorsSelected = false
         }
 
-        let t = new Trick(trick['name'], trick['art_crop_uri'])
-
-        if (allColorsSelected)
-            results.push(t)
+        /* load image asynchronously if the trick satisfies mv requirements!
+         * add to displayedTricks array when done loading */
+        if (allColorsSelected) {
+            loadImage(trick['art_crop_uri'], data => {
+                    displayedTricks.push(new Trick(trick['name'], data))
+                })
+        }
     }
-
-    console.log(results)
-    displayedTricks = results
 }
 
 
 /** one card to display in our list of tricks */
 class Trick {
-    constructor(name, imgURL) {
+    constructor(name, img) {
         this.name = name
-        this.artCrop = loadImage(imgURL)
+        this.artCrop = img
         this.scaleWidth = 80
         this.scaleHeight = this.scaleWidth * 457/626
-        this.opacity = 90
+        this.opacity = 100
+
+        this.artCrop.resize(this.scaleWidth, 0)
     }
 
     render(x, y) {
@@ -300,7 +301,7 @@ class Trick {
 
         /* art crops are 626x457, ½ MB */
         tint(0, 0, this.opacity)
-        image(this.artCrop, x, y, w, h)
+        image(this.artCrop, x, y)
 
         noFill()
         stroke(0, 0, this.opacity)
