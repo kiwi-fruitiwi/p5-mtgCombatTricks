@@ -125,13 +125,23 @@ function draw() {
         noLoop()
 
     /* display list of combat tricks; populate list with 'z' key */
-    const y = 300
+    const y = 150
     const lMargin = 50
     const spacing = 5
+
+    let xPos = lMargin
+    let yOffset = 0
+
     if (displayedTricks) {
         for (const i in displayedTricks) {
             let trick = displayedTricks[i]
-            trick.render(i*(trick.scale+spacing)+lMargin, y)
+            // xPos = i*(trick.scale+spacing)+lMargin
+            if (xPos + trick.scaleWidth / 2 >= width) {
+                xPos = lMargin
+                yOffset += trick.scaleHeight + spacing
+            }
+            trick.render(xPos, y+yOffset)
+            xPos += trick.scaleWidth + spacing
         }
     }
 }
@@ -169,7 +179,7 @@ function getCardData() {
     let count = 0
 
     for (let key of data) {
-        /* filter for rarity */
+
         let imgURIs
         if (key['image_uris']) {
             imgURIs = key['image_uris']
@@ -177,7 +187,7 @@ function getCardData() {
             imgURIs = key['card_faces'][0]
         }
 
-
+        /* filter for rarity */
         if (rarity.test(key['rarity'])) {
             let cardData = {
                 'name': key['name'],
@@ -238,6 +248,7 @@ function populateTricks() {
     /* instant / flash cards that satisfy color requirements */
     let tricks = []
     for (let card of cards) {
+        console.log(`${card['name']} → ${card['oracle_text']}`)
         if (card['oracle_text'].toLowerCase().includes('flash') ||
             card['type_line'] === 'Instant') {
             tricks.push(card)
@@ -278,19 +289,21 @@ class Trick {
     constructor(name, imgURL) {
         this.name = name
         this.artCrop = loadImage(imgURL)
-        this.scale = 75
+        this.scaleWidth = 80
+        this.scaleHeight = this.scaleWidth * 457/626
+        this.opacity = 90
     }
 
     render(x, y) {
-        const w = this.scale
-        const h = this.scale*457/626
+        const w = this.scaleWidth
+        const h = this.scaleHeight
 
         /* art crops are 626x457, ½ MB */
-        tint(0, 0, 80)
+        tint(0, 0, this.opacity)
         image(this.artCrop, x, y, w, h)
 
         noFill()
-        stroke(0, 0, 80)
+        stroke(0, 0, this.opacity)
         strokeWeight(1)
         rect(x, y, w, h)
     }
