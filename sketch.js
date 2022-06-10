@@ -61,7 +61,7 @@ function preload() {
     p = loadImage('svg/p.svg')
     c = loadImage('svg/c.svg')
 
-    let req = 'https://api.scryfall.com/cards/search?q=set:snc'
+    let req = 'https://api.scryfall.com/cards/search?q=set:stx'
 
     /* this call to loadJSON finishes before sketch.setup() */
     initialScryfallQueryJSON = loadJSON(req)
@@ -69,7 +69,7 @@ function preload() {
 
 
 function setup() {
-    let cnv = createCanvas(500, 600)
+    let cnv = createCanvas(800, 800)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(font, 14)
@@ -115,19 +115,19 @@ function draw() {
     }
 
     /* display list of combat tricks; populate list with 'z' key */
-    const y = 150
-    const lMargin = 50
-    const spacing = 5
 
-    let xPos = lMargin
-    let yOffset = 0
+    if (displayedTricks && displayedTricks.length > 0) {
+        const y = 150
+        const spacing = 5
 
-    if (displayedTricks) {
+        let xPos = displayedTricks[0].scaleWidth * .75
+        let yOffset = 0
+
         for (const i in displayedTricks) {
             let trick = displayedTricks[i]
-            // xPos = i*(trick.scale+spacing)+lMargin
+
             if (xPos + trick.scaleWidth / 2 >= width) {
-                xPos = lMargin
+                xPos = displayedTricks[0].scaleWidth * .75
                 yOffset += trick.scaleHeight + spacing
             }
             trick.render(xPos, y+yOffset)
@@ -179,23 +179,29 @@ function getCardData() {
     let count = 0
 
     for (let key of data) {
+        /* double-sided cards like lessons, vampires, MDFCs have card image
+          data inside an array within card_faces. card_faces[0] always gives
+          the front card */
 
-        let imgURIs
-        if (key['image_uris']) {
-            imgURIs = key['image_uris']
+        let frontFace, imgURIs
+
+        if (key['card_faces']) {
+            frontFace = key['card_faces'][0]
         } else {
-            imgURIs = key['card_faces'][0]
+            frontFace = key
         }
 
+        imgURIs = frontFace['image_uris']
+
         /* filter for rarity */
-        if (rarity.test(key['rarity'])) {
+        if (rarity.test(frontFace['rarity'])) {
             let cardData = {
-                'name': key['name'],
-                'colors': key['colors'],
-                'cmc': key['cmc'],
-                'type_line': key['type_line'],
-                'oracle_text': key['oracle_text'],
-                'collector_number': int(key['collector_number']),
+                'name': frontFace['name'],
+                'colors': frontFace['colors'],
+                'cmc': frontFace['cmc'],
+                'type_line': frontFace['type_line'],
+                'oracle_text': frontFace['oracle_text'],
+                'collector_number': int(frontFace['collector_number']),
                 'art_crop_uri': imgURIs['art_crop'], /*626x457 ½ MB*/
                 'normal_uri': imgURIs['normal'],
                 'large_uri': imgURIs['large'],
@@ -236,10 +242,6 @@ function keyPressed() {
     if (key === 'z') {
         populateTricks()
     }
-
-    if (key === 'x') {
-        console.log(testTrick)
-    }
 }
 
 
@@ -248,7 +250,12 @@ function populateTricks() {
     /* instant / flash cards that satisfy color requirements */
     let tricks = []
     for (let card of cards) {
-        console.log(`${card['name']} → ${card['oracle_text']}`)
+
+        /* check only the front face of the card
+           TODO some instant speed interaction are on the back face. we'd need
+           to iterate through every face! */
+
+        // console.log(`${card['name']} → ${card['oracle_text']}`)
         if (card['oracle_text'].toLowerCase().includes('flash') ||
             card['type_line'] === 'Instant') {
             tricks.push(card)
@@ -288,7 +295,7 @@ class Trick {
     constructor(name, img) {
         this.name = name
         this.artCrop = img
-        this.scaleWidth = 80
+        this.scaleWidth = 120
         this.scaleHeight = this.scaleWidth * 457/626
         this.opacity = 100
 

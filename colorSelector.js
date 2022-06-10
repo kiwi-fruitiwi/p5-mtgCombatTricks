@@ -122,7 +122,7 @@ class ColorSelector {
                     iconTopBorderY - yOffset,
                     IMG_WIDTH + RECT_PADDING,
                     barHeight,
-                    1)
+                    0)
             }
         }
     }
