@@ -21,7 +21,7 @@
  *  → warm welcome, swooping protector, refuse to yield not showing up
  *  → quick-draw dagger not showing up for colors
  *
- *  ☐ add sound effects for adding and reseting mana
+ *  ☐ add sound effects for adding and resetting mana
  *  ☐ opponent available mana! → plan algorithm
  *      add to mana via wubrg, reset to zero with WUBRG
  *      visualize as rectangular 'stack' above each icon's square border
@@ -35,9 +35,17 @@
  *  ☐
  */
 
-let font
+let consolas, meiryo
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
+
+/* empty dictionary for our character length cache. used for
+ dialogBox.charWidth to get around the fact that textWidth does not work for
+  VDL-GigaMaruJr.ttf ← giga.ttf */
+let cache = {}
+const FONT_SIZE = 10 // this needs to be even. note: the font in-game is bold
+const LETTER_SPACING = 1.1
+const SPACE_WIDTH = FONT_SIZE / 2
 
 let w, u, b, r, g, c, p
 let strip /* color selector UI. a mana symbol is highlighted when selected */
@@ -52,7 +60,8 @@ let loadedJSON = false /* flag is set to true once all pages in JSON load */
 
 
 function preload() {
-    font = loadFont('data/consola.ttf')
+    consolas = loadFont('data/consola.ttf')
+    meiryo = loadFont('data/meiryo.ttf')
     w = loadImage('svg/w.svg')
     u = loadImage('svg/u.svg')
     b = loadImage('svg/b.svg')
@@ -61,7 +70,7 @@ function preload() {
     p = loadImage('svg/p.svg')
     c = loadImage('svg/c.svg')
 
-    let req = 'https://api.scryfall.com/cards/search?q=set:stx'
+    let req = 'https://api.scryfall.com/cards/search?q=set:snc'
 
     /* this call to loadJSON finishes before sketch.setup() */
     initialScryfallQueryJSON = loadJSON(req)
@@ -72,7 +81,7 @@ function setup() {
     let cnv = createCanvas(800, 800)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
-    textFont(font, 14)
+    textFont(consolas, 14)
     imageMode(CENTER)
     rectMode(CENTER)
 
@@ -117,8 +126,9 @@ function draw() {
     /* display list of combat tricks; populate list with 'z' key */
 
     if (displayedTricks && displayedTricks.length > 0) {
-        const y = 150
+        const y = 200
         const spacing = 5
+        const tricksDisplayRightMargin = 600
 
         let xPos = displayedTricks[0].scaleWidth * .75
         let yOffset = 0
@@ -126,7 +136,7 @@ function draw() {
         for (const i in displayedTricks) {
             let trick = displayedTricks[i]
 
-            if (xPos + trick.scaleWidth / 2 >= width) {
+            if (xPos + trick.scaleWidth / 2 >= tricksDisplayRightMargin) {
                 xPos = displayedTricks[0].scaleWidth * .75
                 yOffset += trick.scaleHeight + spacing
             }
@@ -242,6 +252,10 @@ function keyPressed() {
     if (key === 'z') {
         populateTricks()
     }
+
+    if (key === 'x') {
+        displayedTricks.shift()
+    }
 }
 
 
@@ -282,6 +296,7 @@ function populateTricks() {
         /* load image asynchronously if the trick satisfies mv requirements!
          * add to displayedTricks array when done loading */
         if (allColorsSelected) {
+            // console.log(`${trick['name']}`)
             loadImage(trick['art_crop_uri'], data => {
                     displayedTricks.push(new Trick(trick['name'], data))
                 })
@@ -295,7 +310,7 @@ class Trick {
     constructor(name, img) {
         this.name = name
         this.artCrop = img
-        this.scaleWidth = 120
+        this.scaleWidth = 130
         this.scaleHeight = this.scaleWidth * 457/626
         this.opacity = 100
 
@@ -303,20 +318,59 @@ class Trick {
     }
 
     render(x, y) {
-        const w = this.scaleWidth
-        const h = this.scaleHeight
+        const FONT_SIZE = 10
+        textFont(meiryo, FONT_SIZE)
+
+        tint(0, 0, this.opacity)
 
         /* art crops are 626x457, ½ MB */
-        tint(0, 0, this.opacity)
         image(this.artCrop, x, y)
 
+        /* art border */
         noFill()
         stroke(0, 0, this.opacity)
         strokeWeight(1)
-        rect(x, y, w, h)
+        rectMode(CENTER)
+        rect(x, y, this.scaleWidth, this.scaleHeight)
+
+        /*
+        rectMode(CORNERS) interprets the first two parameters as the location
+        of one of the corners, and the third and fourth parameters as the
+        location of the diagonally opposite corner. Note, the rectangle is
+        drawn between the coordinates, so it is not necessary that the first
+        corner be the upper left corner.
+         */
+
+        /* our corners will be bottom left corner, top right corner */
+        const TEXTBOX_MARGIN = 3
+        const TEXT_PADDING = 6 /* space between text and artCrop border */
+
+        const BLC = new p5.Vector(x-this.scaleWidth/2, y+this.scaleHeight/2)
+
+        const BOX_BLC = new p5.Vector(
+            BLC.x+TEXTBOX_MARGIN,
+            BLC.y-TEXTBOX_MARGIN)
+
+        const BOX_TRC = new p5.Vector(
+            BLC.x+TEXT_PADDING*2 + textWidth(this.name),
+            // BLC.y-TEXTBOX_MARGIN*2 - textAscent() - textDescent()
+            /* textAscent and textDescent don't work for meiryo */
+            BLC.y-TEXTBOX_MARGIN*2 - FONT_SIZE
+        )
+
+        /* textbox to surround cardName */
+        rectMode(CORNERS)
+        strokeWeight(1)
+        fill(0, 0, 0, 50)
+        stroke(0, 0, 100)
+        rect(BOX_BLC.x, BOX_BLC.y, BOX_TRC.x, BOX_TRC.y)
+
+        /* cardName */
+        strokeWeight(0.5)
+        fill(0, 0, 100)
+        text(this.name, BLC.x+TEXT_PADDING, BLC.y-TEXT_PADDING)
     }
 }
-
 
 
 /** 🧹 shows debugging info using text() 🧹 */
@@ -335,7 +389,7 @@ class CanvasDebugCorner {
     }
 
     show() {
-        textFont(font, 14)
+        textFont(consolas, 14)
         strokeWeight(1)
 
         const LEFT_MARGIN = 10
