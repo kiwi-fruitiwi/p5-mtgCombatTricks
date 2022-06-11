@@ -39,20 +39,14 @@ let consolas, meiryo
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
-/* empty dictionary for our character length cache. used for
- dialogBox.charWidth to get around the fact that textWidth does not work for
-  VDL-GigaMaruJr.ttf ← giga.ttf */
-let cache = {}
 const FONT_SIZE = 10 // this needs to be even. note: the font in-game is bold
-const LETTER_SPACING = 1.1
-const SPACE_WIDTH = FONT_SIZE / 2
 
 let w, u, b, r, g, c, p
 let strip /* color selector UI. a mana symbol is highlighted when selected */
 
 let initialScryfallQueryJSON /* json file from scryfall: set=snc */
 let cards /* packed up JSON data */
-let testTrick
+let tricksDataLastFrame /* helps check if we need to resort list */
 let displayedTricks /* list of filtered combat tricks */
 let scryfallData = [] /* scryfallQuery['data'] */
 let lastRequestTime = 0
@@ -123,11 +117,28 @@ function draw() {
         strip.render()
     }
 
-    /* TODO ideally this should be done once after all cards are done loading */
-    displayedTricks.sort(sortCardsByMV)
-
     /* display list of combat tricks; populate list with 'z' key */
     if (displayedTricks && displayedTricks.length > 0) {
+        /* do we need to sort the tricks list? since tricks are pushed
+           asynchronously to the tricks array due to image loading, we need
+           to wait before we can sort:
+
+           compare a simple 'hash' of tricks in displayedTricks last frame.
+           if there's been any changes to the tricks array, sort. this
+           results in a few extra sorts per populateTricks call
+         */
+        let tricksDataThisFrame = ''
+        for (const trick of displayedTricks) {
+            tricksDataThisFrame += trick.name
+        }
+
+        if (tricksDataThisFrame !== tricksDataLastFrame) {
+            displayedTricks.sort(sortCardsByMV)
+            console.log(`sorting! ${displayedTricks.length} tricks`)
+        }
+
+        tricksDataLastFrame = tricksDataThisFrame
+
         const y = 200
         const spacing = 5
         const tricksDisplayRightMargin = 600
