@@ -123,8 +123,10 @@ function draw() {
         strip.render()
     }
 
-    /* display list of combat tricks; populate list with 'z' key */
+    /* TODO ideally this should be done once after all cards are done loading */
+    displayedTricks.sort(sortCardsByMV)
 
+    /* display list of combat tricks; populate list with 'z' key */
     if (displayedTricks && displayedTricks.length > 0) {
         const y = 200
         const spacing = 5
@@ -140,6 +142,7 @@ function draw() {
                 xPos = displayedTricks[0].scaleWidth * .75
                 yOffset += trick.scaleHeight + spacing
             }
+
             trick.render(xPos, y+yOffset)
             xPos += trick.scaleWidth + spacing
         }
@@ -220,6 +223,7 @@ function getCardData() {
                 /* normal 488x680 64KB, large 672x936 100KB png 745x1040 1MB*/
             }
 
+            // console.log(`${key['name']} → ${key['cmc']}`)
             // console.log(`${key['name']} → image_uris → ${imgURIs}`)
 
             results.push(cardData)
@@ -254,7 +258,8 @@ function keyPressed() {
     }
 
     if (key === 'x') {
-        displayedTricks.shift()
+        // console.log(`sorting`)
+        // displayedTricks.sort(sortCardsByMV)
     }
 }
 
@@ -262,7 +267,7 @@ function keyPressed() {
 /** loads card data so we can display cards found that match mana */
 function populateTricks() {
     /* instant / flash cards that satisfy color requirements */
-    let tricks = []
+    let filteredCards = []
     for (let card of cards) {
 
         /* check only the front face of the card
@@ -272,14 +277,14 @@ function populateTricks() {
         // console.log(`${card['name']} → ${card['oracle_text']}`)
         if (card['oracle_text'].toLowerCase().includes('flash') ||
             card['type_line'] === 'Instant') {
-            tricks.push(card)
+            filteredCards.push(card)
         } else {
             // console.log(`did not include → ${card['name']}`)
         }
     }
 
     displayedTricks = [] /* reset displayedTricks */
-    for (let trick of tricks) {
+    for (let card of filteredCards) {
         // console.log(`${trick.name}→${trick.colors}`)
 
         /* see if this trick's colors are all selected in the UI. e.g.
@@ -287,8 +292,8 @@ function populateTricks() {
         let allColorsSelected = true
 
         /* iterate through each of the trick's colors */
-        for (let i in trick['colors']) {
-            let c = trick['colors'][i].toLowerCase()
+        for (let i in card['colors']) {
+            let c = card['colors'][i].toLowerCase()
             if (!strip.getSelectedColorChars().includes(c))
                 allColorsSelected = false
         }
@@ -297,18 +302,29 @@ function populateTricks() {
          * add to displayedTricks array when done loading */
         if (allColorsSelected) {
             // console.log(`${trick['name']}`)
-            loadImage(trick['art_crop_uri'], data => {
-                    displayedTricks.push(new Trick(trick['name'], data))
+            loadImage(card['art_crop_uri'], data => {
+                    displayedTricks.push(
+                        new Trick(card['name'], card['cmc'], data))
                 })
         }
     }
 }
 
 
+function sortCardsByMV(a, b) {
+    if (a['cmc'] === b['cmc']) {
+        // console.log(`${a['name']}→${a['cmc']}, ${b['name']}→${b['cmc']}`)
+        return 0
+    } else
+        return (a['cmc'] < b['cmc']) ? -1 : 1
+}
+
+
 /** one card to display in our list of tricks */
 class Trick {
-    constructor(name, img) {
+    constructor(name, cmc, img) {
         this.name = name
+        this.cmc = cmc
         this.artCrop = img
         this.scaleWidth = 130
         this.scaleHeight = this.scaleWidth * 457/626
