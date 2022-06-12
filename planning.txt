@@ -1,0 +1,53 @@
+
+
+
+
+
+
+
+
+
+planning draft for 🐻²
+	template project using dropbox/code/javascript/template
+		notice new semi-transparent background in sketch.draw from template
+	add relevant parts from p5-APIQuery
+		https://api.scryfall.com/cards/search?q=set:stx
+		note many sets have more than one card_face
+			→ display front face and oracle text of every card in the set
+	svg exploration ← see 17LArenaUI project, Fireship tutorial on svg → tinker
+	colorSelector composed of manaIcons ← make a diagram with coordinates
+		colorIcon
+			constructor(colorCharacter, img, color_)
+			getManaCount
+			addManaCount
+			resetManaCount
+
+		toggle to highlight mana symbols
+
+2022.6.13 git commit log
+    add template project → base project p5-17LandsArenaUI
+    encapsulate magic color icons into ColorStrip class
+    add toggling of highlighted mana symbols
+    add colorStrip.select based on ch instead of index
+    programmatically generate keyPressed selection / deSelection
+    add colorStrip.getSelectedColorChars
+    encapsulate each mana symbol's state. add JSON data
+    add color filtering for tricks
+    add planning diagram for mana count UI. add coding plan. add CIRCLE_DISPLAY toggle in render
+    add scryfall api pagination handling
+    add mana color count indicators above each mana symbol
+    add fix for double faced cards' image_uris → default to first face
+    update visual style for color for available mana bars
+    fix available mana bar spacing math
+    add keypress activated mana count for each symbol
+    add correct hsv values for mana bars
+    adjust sizes and constants to prep for card display
+    add firstBarOffset constant to colorSelector.render(). add name and art_crop_uri data to results of color filtering
+    encapsulate populateTricks via 'z' keybinding
+    add artCrop display of tricks results
+    add Trick wrap
+    fix FPS bug by eliminating resize in Trick.render: load image asynchronously before invoking Trick constructor
+    fix double-faced card oracle text, imgURI npe. parameterize left margin of tricksDisplayUI
+    add card display with cardName boxes
+    add sortCardsByMV, but sort happens every frame
+    eliminate constant sorting of displayedTricks

@@ -52,6 +52,7 @@ let scryfallData = [] /* scryfallQuery['data'] */
 let lastRequestTime = 0
 let loadedJSON = false /* flag is set to true once all pages in JSON load */
 
+let manaColors
 
 function preload() {
     consolas = loadFont('data/consola.ttf')
@@ -97,13 +98,22 @@ function setup() {
     }
 
     /* cards = getCardData() */
+    manaColors = {
+        'c': color(35,6,75),
+        'w': color(62,31,95),
+        'u': color(209,40,89),
+        'b': color(27,10,67),
+        'r': color(17,60,86),
+        'g': color(100,40,71)
+    }
+
     let icons = []
-    icons.push(new colorIcon('c', c, color(35,6,75)))
-    icons.push(new colorIcon('w', w, color(62,31,95)))
-    icons.push(new colorIcon('u', u, color(209,40,89)))
-    icons.push(new colorIcon('b', b, color(27,10,67)))
-    icons.push(new colorIcon('r', r, color(17,60,86)))
-    icons.push(new colorIcon('g', g, color(100,40,71)))
+    icons.push(new colorIcon('c', c, manaColors['c']))
+    icons.push(new colorIcon('w', w, manaColors['w']))
+    icons.push(new colorIcon('u', u, manaColors['u']))
+    icons.push(new colorIcon('b', b, manaColors['b']))
+    icons.push(new colorIcon('r', r, manaColors['r']))
+    icons.push(new colorIcon('g', g, manaColors['g']))
 
     strip = new ColorSelector(icons)
     displayedTricks = []
@@ -417,14 +427,22 @@ class CanvasDebugCorner {
 
     show() {
         textFont(consolas, 14)
-        strokeWeight(1)
+        noStroke()
 
         const LEFT_MARGIN = 10
         const DEBUG_Y_OFFSET = height - 10 /* floor of debug corner */
         const LINE_SPACING = 2
         const LINE_HEIGHT = textAscent() + textDescent() + LINE_SPACING
+
+        /* semi-transparent background */
+        fill(0, 0, 0, 50)
+        rectMode(CORNERS)
+        rect(
+            0, height,
+            width, DEBUG_Y_OFFSET - LINE_HEIGHT * this.debugMsgList.length
+        )
+
         fill(0, 0, 100, 100) /* white */
-        strokeWeight(0)
 
         for (let index in this.debugMsgList) {
             const msg = this.debugMsgList[index]
