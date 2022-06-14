@@ -1,5 +1,15 @@
 /** one card to display in our list of tricks */
 class Trick {
+    /*  each trick needs a position
+        sketch.js sets positions instead of rendering at position
+        then list of tricks call render
+        once you have a position inside each Trick object, can check mouse
+            check rect collision → if inside, highlighted=true, border!
+                set global mouseover image to this.png → render
+                if mouse out, set image to blank pixel or null
+                    mouseover image only displays if (mouseOverImage)
+     */
+
     constructor(name, cmc, img) {
         this.name = name
         this.cmc = cmc
