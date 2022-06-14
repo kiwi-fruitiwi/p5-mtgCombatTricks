@@ -73,7 +73,7 @@ function preload() {
 
 
 function setup() {
-    let cnv = createCanvas(800, 800)
+    let cnv = createCanvas(800, 1500)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(consolas, 14)
@@ -175,8 +175,8 @@ function draw() {
     debugCorner.setText(`frameCount: ${frameCount}`, 3)
     debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 2)
     debugCorner.setText(`availableColorChs: ${strip.getAvailableColorChs()}`, 1)
-    debugCorner.setText(`selected: ${strip.getSelectedColorChars()}`, 0)
-    debugCorner.show()
+    // debugCorner.setText(`selected: ${strip.getSelectedColorChars()}`, 0)
+    debugCorner.render()
 
     if (frameCount >= 3000)
         noLoop()
@@ -256,6 +256,16 @@ function getCardData() {
     return results
 }
 
+
+function mouseMoved() {
+    debugCorner.setText(`mouse: ${mouseX}, ${mouseY}`, 4)
+
+    if (displayedTricks) {
+        for (const trick of displayedTricks) {
+            trick.detectHover()
+        }
+    }
+}
 
 function keyPressed() {
     /* stop sketch */
@@ -358,7 +368,7 @@ class CanvasDebugCorner {
         } else this.debugMsgList[index] = text
     }
 
-    show() {
+    render() {
         textFont(consolas, 14)
         noStroke()
 

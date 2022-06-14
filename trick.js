@@ -15,7 +15,7 @@ class Trick {
         this.cmc = cmc
         this.artCrop = img
         this.scaleWidth = 150
-        this.scaleHeight = this.scaleWidth * 457/626
+        this.scaleHeight = this.scaleWidth * 457/626 /* artCrop scale factor*/
         this.opacity = 100
 
         this.pos = new p5.Vector(0, 0)
@@ -26,6 +26,20 @@ class Trick {
     setPos(x, y) {
         this.pos.x = x
         this.pos.y = y
+    }
+
+    /** if we're mousing over this trick, highlight us and set
+        sketch.mouseOverImg */
+    detectHover() {
+        if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
+            (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
+            debugCorner.setText(`hovering over: ${this.name}`, 0)
+        }
+    }
+
+    /* finds the difference between two coordinates */
+    #dist1D(a, b) {
+        return abs(a-b)
     }
 
     render() {
