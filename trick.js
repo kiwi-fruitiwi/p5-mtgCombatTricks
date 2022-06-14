@@ -18,10 +18,20 @@ class Trick {
         this.scaleHeight = this.scaleWidth * 457/626
         this.opacity = 100
 
+        this.pos = new p5.Vector(0, 0)
+
         this.artCrop.resize(this.scaleWidth, 0)
     }
 
-    render(x, y) {
+    setPos(x, y) {
+        this.pos.x = x
+        this.pos.y = y
+    }
+
+    render() {
+        const x = this.pos.x
+        const y = this.pos.y
+
         const FONT_SIZE = 10
         textFont(meiryo, FONT_SIZE)
 

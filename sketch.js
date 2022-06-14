@@ -156,7 +156,7 @@ function draw() {
         let xPos = displayedTricks[0].scaleWidth * .75
         let yOffset = 0
 
-        /** render tricks artwork and titles on canvas */
+        /** set position for tricks on canvas, then render */
         for (const i in displayedTricks) {
             let trick = displayedTricks[i]
 
@@ -165,7 +165,8 @@ function draw() {
                 yOffset += trick.scaleHeight + spacing
             }
 
-            trick.render(xPos, y+yOffset)
+            trick.setPos(xPos, y + yOffset)
+            trick.render()
             xPos += trick.scaleWidth + spacing
         }
     }
