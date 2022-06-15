@@ -261,6 +261,8 @@ function mouseMoved() {
     debugCorner.setText(`mouse: ${mouseX}, ${mouseY}`, 4)
 
     if (displayedTricks) {
+
+        debugCorner.setText(`hovering over: none`, 0)
         for (const trick of displayedTricks) {
             trick.detectHover()
         }
