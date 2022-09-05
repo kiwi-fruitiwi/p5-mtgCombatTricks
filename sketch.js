@@ -65,7 +65,7 @@ function preload() {
     p = loadImage('svg/p.svg')
     c = loadImage('svg/c.svg')
 
-    let req = 'https://api.scryfall.com/cards/search?q=set:snc'
+    let req = 'https://api.scryfall.com/cards/search?q=set:dmu'
 
     /* this call to loadJSON finishes before sketch.setup() */
     initialScryfallQueryJSON = loadJSON(req)
@@ -79,6 +79,9 @@ function setup() {
     textFont(consolas, 14)
     imageMode(CENTER)
     rectMode(CENTER)
+
+    mouseX = width/2
+    mouseY = height/2
 
     lastRequestTime = millis()
     debugCorner = new CanvasDebugCorner(5)
@@ -261,7 +264,6 @@ function mouseMoved() {
     debugCorner.setText(`mouse: ${mouseX}, ${mouseY}`, 4)
 
     if (displayedTricks) {
-
         debugCorner.setText(`hovering over: none`, 0)
         for (const trick of displayedTricks) {
             trick.detectHover()
