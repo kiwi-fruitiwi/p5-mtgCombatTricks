@@ -35,7 +35,8 @@
  *  ☐
  */
 
-let consolas, meiryo
+let fixedWidthFont
+let variableWidthFont
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
@@ -55,8 +56,8 @@ let loadedJSON = false /* flag is set to true once all pages in JSON load */
 let manaColors
 
 function preload() {
-    consolas = loadFont('data/consola.ttf')
-    meiryo = loadFont('data/meiryo.ttf')
+    fixedWidthFont = loadFont('data/consola.ttf')
+    variableWidthFont = loadFont('data/meiryo.ttf')
     w = loadImage('svg/w.svg')
     u = loadImage('svg/u.svg')
     b = loadImage('svg/b.svg')
@@ -76,7 +77,7 @@ function setup() {
     let cnv = createCanvas(800, 1500)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
-    textFont(consolas, 14)
+    textFont(fixedWidthFont, 14)
     imageMode(CENTER)
     rectMode(CENTER)
 
@@ -89,6 +90,8 @@ function setup() {
     instructions.html(`<pre>
         [cwubrg] → toggle icon highlight; shift+ to untoggle
         numpad 1 → freeze sketch</pre>`)
+
+
 
     scryfallData = scryfallData.concat(initialScryfallQueryJSON['data'])
     // console.log(`data retrieved! ${initialScryfallQueryJSON['data'].length}`)
@@ -175,13 +178,13 @@ function draw() {
     }
 
     /* debugCorner needs to be last so its z-index is highest */
-    debugCorner.setText(`frameCount: ${frameCount}`, 3)
-    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 2)
-    debugCorner.setText(`availableColorChs: ${strip.getAvailableColorChs()}`, 1)
-    // debugCorner.setText(`selected: ${strip.getSelectedColorChars()}`, 0)
-    debugCorner.render()
+    debugCorner.setText(`frameCount: ${frameCount}`, 2)
+    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
+    debugCorner.setText(`availableColorChs: ${strip.getAvailableColorChs()}`, 0)
 
-    if (frameCount >= 3000)
+    debugCorner.showTop()
+
+    if (frameCount > 3000)
         noLoop()
 }
 
@@ -261,9 +264,11 @@ function getCardData() {
 
 
 function mouseMoved() {
-    debugCorner.setText(`mouse: ${mouseX}, ${mouseY}`, 4)
+    if (debugCorner) {
+        debugCorner.setText(`mouse: ${mouseX}, ${mouseY}`, 4)
+    }
 
-    if (displayedTricks) {
+    if (displayedTricks && debugCorner) {
         debugCorner.setText(`hovering over: none`, 0)
         for (const trick of displayedTricks) {
             trick.detectHover()
@@ -277,6 +282,11 @@ function keyPressed() {
         noLoop()
         instructions.html(`<pre>
             sketch stopped</pre>`)
+    }
+
+    if (key === '`') { /* toggle debug corner visibility */
+        debugCorner.visible = !debugCorner.visible
+        console.log(`debugCorner visibility set to ${debugCorner.visible}`)
     }
 
     /** if our key is in the color dictionary, select the corresponding icon */
@@ -360,6 +370,7 @@ function sortCardsByMV(a, b) {
 /** 🧹 shows debugging info using text() 🧹 */
 class CanvasDebugCorner {
     constructor(lines) {
+        this.visible = true
         this.size = lines
         this.debugMsgList = [] /* initialize all elements to empty string */
         for (let i in lines)
@@ -372,28 +383,69 @@ class CanvasDebugCorner {
         } else this.debugMsgList[index] = text
     }
 
-    render() {
-        textFont(consolas, 14)
-        noStroke()
+    showBottom() {
+        if (this.visible) {
+            noStroke()
+            textFont(fixedWidthFont, 14)
 
-        const LEFT_MARGIN = 10
-        const DEBUG_Y_OFFSET = height - 10 /* floor of debug corner */
-        const LINE_SPACING = 2
-        const LINE_HEIGHT = textAscent() + textDescent() + LINE_SPACING
+            const LEFT_MARGIN = 10
+            const DEBUG_Y_OFFSET = height - 10 /* floor of debug corner */
+            const LINE_SPACING = 2
+            const LINE_HEIGHT = textAscent() + textDescent() + LINE_SPACING
 
-        /* semi-transparent background */
-        fill(0, 0, 0, 50)
-        rectMode(CORNERS)
-        rect(
-            0, height,
-            width, DEBUG_Y_OFFSET - LINE_HEIGHT * this.debugMsgList.length
-        )
+            /* semi-transparent background */
+            fill(0, 0, 0, 10)
+            rectMode(CORNERS)
+            const TOP_PADDING = 3 /* extra padding on top of the 1st line */
+            rect(
+                0,
+                height,
+                width,
+                DEBUG_Y_OFFSET - LINE_HEIGHT * this.debugMsgList.length - TOP_PADDING
+            )
 
-        fill(0, 0, 100, 100) /* white */
+            fill(0, 0, 100, 100) /* white */
+            strokeWeight(0)
 
-        for (let index in this.debugMsgList) {
-            const msg = this.debugMsgList[index]
-            text(msg, LEFT_MARGIN, DEBUG_Y_OFFSET - LINE_HEIGHT * index)
+            for (let index in this.debugMsgList) {
+                const msg = this.debugMsgList[index]
+                text(msg, LEFT_MARGIN, DEBUG_Y_OFFSET - LINE_HEIGHT * index)
+            }
+        }
+    }
+
+    showTop() {
+        if (this.visible) {
+            noStroke()
+            textFont(fixedWidthFont, 14)
+
+            const LEFT_MARGIN = 10
+            const TOP_PADDING = 3 /* extra padding on top of the 1st line */
+
+            /* offset from top of canvas */
+            const DEBUG_Y_OFFSET = textAscent() + TOP_PADDING
+            const LINE_SPACING = 2
+            const LINE_HEIGHT = textAscent() + textDescent() + LINE_SPACING
+
+            /* semi-transparent background, a console-like feel */
+            fill(0, 0, 0, 10)
+            rectMode(CORNERS)
+
+            rect( /* x, y, w, h */
+                0,
+                0,
+                width,
+                DEBUG_Y_OFFSET + LINE_HEIGHT*this.debugMsgList.length/*-TOP_PADDING*/
+            )
+
+            fill(0, 0, 100, 100) /* white */
+            strokeWeight(0)
+
+            textAlign(LEFT)
+            for (let i in this.debugMsgList) {
+                const msg = this.debugMsgList[i]
+                text(msg, LEFT_MARGIN, LINE_HEIGHT*i + DEBUG_Y_OFFSET)
+            }
         }
     }
 }

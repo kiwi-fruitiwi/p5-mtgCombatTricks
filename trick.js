@@ -47,7 +47,7 @@ class Trick {
         const y = this.pos.y
 
         const FONT_SIZE = 10
-        textFont(meiryo, FONT_SIZE)
+        textFont(variableWidthFont, FONT_SIZE)
 
         tint(0, 0, this.opacity)
 

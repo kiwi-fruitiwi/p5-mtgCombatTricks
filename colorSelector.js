@@ -1,5 +1,5 @@
 const LEFT_MARGIN = 50
-const TOP_MARGIN = 80 /* canvasHeight ÷ 2 ideally */
+const TOP_MARGIN = 120 /* canvasHeight ÷ 2 ideally */
 const IMG_WIDTH = 20 /* 50 */
 const ICON_SPACING = 10 /* 20 space between icons. not padding, but spacing */
 const RECT_PADDING = 6 /* 12 */
