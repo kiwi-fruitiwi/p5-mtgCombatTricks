@@ -8,6 +8,12 @@ class Trick {
                 set global mouseover image to this.png → render
                 if mouse out, set image to blank pixel or null
                     mouseover image only displays if (mouseOverImage)
+
+        ↑ the above is the p5 canvas version of this project
+        ↓ using CSS and HTML, we'd use a flexbox to lay out cards
+            each Trick would put an item in the flexbox with an hover attribute
+            hovers link to a card's pngUri
+            use css:hover to make each appear
      */
 
     constructor(name, cmc, img) {
