@@ -42,7 +42,7 @@ class Trick {
         /* remember we're in CENTER rectMode! */
         if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
             (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
-            debugCorner.setText(`hovering over: ${this.name}`, 0)
+            debugCorner.setText(`hovering over: ${this.name}`, 2)
             this.selected = true
         } else this.selected = false
     }
