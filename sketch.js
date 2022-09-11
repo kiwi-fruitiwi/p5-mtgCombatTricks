@@ -216,15 +216,18 @@ function getCardData() {
 
     /* regex for detecting creatures and common/uncommon rarity */
     const rarity = new RegExp('(common|uncommon|rare|mythic)')
+    const creature = new RegExp('[Cc]reature|Vehicle')
 
     let count = 0
+    let typeText = ''
 
     for (let key of data) {
         /* double-sided cards like lessons, vampires, MDFCs have card image
           data inside an array within card_faces. card_faces[0] always gives
           the front card */
 
-        let frontFace, imgURIs
+        let frontFace
+        let imgURIs
 
         if (key['card_faces']) {
             frontFace = key['card_faces'][0]
@@ -233,6 +236,23 @@ function getCardData() {
         }
 
         imgURIs = frontFace['image_uris']
+
+        /* if mana value is 0, skip displaying the space */
+        let manaCost = key['mana_cost']
+        if (manaCost !== '')
+            manaCost = ' ' + manaCost
+
+        typeText = `${key.name}${manaCost}\n${key['type_line']}\n${key['oracle_text']}\n`
+        /* sometimes p/t don't exist. check type */
+        if (creature.test(key['type_line']))
+            typeText += `${key['power']}/${key['toughness']}\n`
+        /* we need whitespace at end for passage end detection to work */
+
+        if (key['flavor_text'])
+            typeText += `\n${key['flavor_text']}\n`
+        else typeText += '\n'
+
+        typeText += ' ' /* extra space makes user able to hit 'enter' at end*/
 
         /* filter for rarity */
         if (rarity.test(frontFace['rarity'])) {
@@ -243,6 +263,7 @@ function getCardData() {
                 'type_line': frontFace['type_line'],
                 'oracle_text': frontFace['oracle_text'],
                 'collector_number': int(frontFace['collector_number']),
+                'typeText': typeText,
                 'art_crop_uri': imgURIs['art_crop'], /*626x457 ½ MB*/
                 'normal_uri': imgURIs['normal'],
                 'large_uri': imgURIs['large'],
@@ -250,9 +271,6 @@ function getCardData() {
 
                 /* normal 488x680 64KB, large 672x936 100KB png 745x1040 1MB*/
             }
-
-            // console.log(`${key['name']} → ${key['cmc']}`)
-            // console.log(`${key['name']} → image_uris → ${imgURIs}`)
 
             results.push(cardData)
             count++
@@ -354,7 +372,8 @@ function populateTricks() {
             // console.log(`${trick['name']}`)
             loadImage(card['art_crop_uri'], data => {
                     displayedTricks.push(
-                        new Trick(card['name'], card['cmc'], data))
+                        new Trick(
+                            card['name'], card['cmc'], card['typeText'], data))
                 })
         }
     }

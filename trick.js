@@ -16,9 +16,10 @@ class Trick {
             use css:hover to make each appear
      */
 
-    constructor(name, cmc, img) {
+    constructor(name, cmc, typeText, img) {
         this.name = name
         this.cmc = cmc
+        this.typeText = typeText /* magicalTyperC oracle text, title, mv, etc */
         this.artCrop = img
         this.scaleWidth = 150
         this.scaleHeight = this.scaleWidth * 457/626 /* artCrop scale factor*/
@@ -51,7 +52,7 @@ class Trick {
         /* remember we're in CENTER rectMode! */
         if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
             (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
-            console.log(this.name)
+            console.log(this.typeText)
         }
     }
 
@@ -76,7 +77,7 @@ class Trick {
         noFill()
 
         this.#setSelectionStroke() /* sets opacity of border */
-        strokeWeight(1)
+        strokeWeight(2)
         rectMode(CENTER)
         rect(x, y, this.scaleWidth, this.scaleHeight)
 
