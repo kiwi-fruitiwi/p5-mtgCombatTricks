@@ -271,6 +271,14 @@ function mouseMoved() {
     }
 }
 
+function mousePressed() {
+    if (displayedTricks) {
+        for (const trick of displayedTricks) {
+            trick.detectClick()
+        }
+    }
+}
+
 function keyPressed() {
     /* stop sketch */
     if (keyCode === 97) { /* numpad 1 */

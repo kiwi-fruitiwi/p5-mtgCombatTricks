@@ -47,6 +47,14 @@ class Trick {
         } else this.selected = false
     }
 
+    detectClick() {
+        /* remember we're in CENTER rectMode! */
+        if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
+            (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
+            console.log(this.name)
+        }
+    }
+
     /* finds the difference between two coordinates */
     #dist1D(a, b) {
         return abs(a-b)
