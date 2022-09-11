@@ -2,6 +2,12 @@
     vehicle class with
         steering behaviors: seek, flee, arrive, return
         default particle behaviors: edges, wrap, applyForce, update, render/show
+
+    tasks 🌊
+    ☐ clean up 🚂.tSL code. add comments
+    ☐ add elements of Vehicle class to Trick: position first
+    ☐ collision check for each Trick
+    ☐ create highlight border upon checking tricksList for collision
  */
 class Vehicle {
     constructor(x, y) {

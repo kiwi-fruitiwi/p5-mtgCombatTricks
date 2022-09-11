@@ -22,11 +22,13 @@ class Trick {
         this.artCrop = img
         this.scaleWidth = 150
         this.scaleHeight = this.scaleWidth * 457/626 /* artCrop scale factor*/
-        this.opacity = 100
+        this.unselectedOpacity = 20
+        this.selectedOpacity = 100
 
         this.pos = new p5.Vector(0, 0)
 
         this.artCrop.resize(this.scaleWidth, 0)
+        this.selected = false /* is the mouse hovering over me? */
     }
 
     setPos(x, y) {
@@ -37,10 +39,12 @@ class Trick {
     /** if we're mousing over this trick, highlight us and set
         sketch.mouseOverImg */
     detectHover() {
+        /* remember we're in CENTER rectMode! */
         if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
             (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
             debugCorner.setText(`hovering over: ${this.name}`, 0)
-        }
+            this.selected = true
+        } else this.selected = false
     }
 
     /* finds the difference between two coordinates */
@@ -55,14 +59,15 @@ class Trick {
         const FONT_SIZE = 10
         textFont(variableWidthFont, FONT_SIZE)
 
-        tint(0, 0, this.opacity)
+        tint(0, 0, 100)
 
         /* art crops are 626x457, ½ MB */
         image(this.artCrop, x, y)
 
         /* art border */
         noFill()
-        stroke(0, 0, this.opacity)
+
+        this.#setSelectionStroke() /* sets opacity of border */
         strokeWeight(1)
         rectMode(CENTER)
         rect(x, y, this.scaleWidth, this.scaleHeight)
@@ -96,12 +101,19 @@ class Trick {
         rectMode(CORNERS)
         strokeWeight(1)
         fill(0, 0, 0, 50)
-        stroke(0, 0, 100)
+
+        this.#setSelectionStroke()
         rect(BOX_BLC.x, BOX_BLC.y, BOX_TRC.x, BOX_TRC.y)
 
         /* cardName */
         strokeWeight(0.5)
         fill(0, 0, 100)
         text(this.name, BLC.x+TEXT_PADDING, BLC.y-TEXT_PADDING)
+    }
+
+    #setSelectionStroke() {
+        stroke(0, 0, 100, this.selected?
+            this.selectedOpacity: this.unselectedOpacity)
+
     }
 }

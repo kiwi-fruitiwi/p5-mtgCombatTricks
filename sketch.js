@@ -85,13 +85,11 @@ function setup() {
     mouseY = height/2
 
     lastRequestTime = millis()
-    debugCorner = new CanvasDebugCorner(5)
+    debugCorner = new CanvasDebugCorner(3)
     instructions = select('#ins')
     instructions.html(`<pre>
         [cwubrg] → toggle icon highlight; shift+ to untoggle
         numpad 1 → freeze sketch</pre>`)
-
-
 
     scryfallData = scryfallData.concat(initialScryfallQueryJSON['data'])
     // console.log(`data retrieved! ${initialScryfallQueryJSON['data'].length}`)
@@ -178,9 +176,10 @@ function draw() {
     }
 
     /* debugCorner needs to be last so its z-index is highest */
-    debugCorner.setText(`frameCount: ${frameCount}`, 2)
-    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
-    debugCorner.setText(`availableColorChs: ${strip.getAvailableColorChs()}`, 0)
+    debugCorner.setText(`frameCount: ${frameCount}`, 1)
+    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 0)
+
+    // debugCorner.setText(`availableColorChs:${strip.getAvailableColorChs()}`, 0)
 
     debugCorner.showTop()
 
@@ -264,12 +263,8 @@ function getCardData() {
 
 
 function mouseMoved() {
-    if (debugCorner) {
-        debugCorner.setText(`mouse: ${mouseX}, ${mouseY}`, 4)
-    }
-
     if (displayedTricks && debugCorner) {
-        debugCorner.setText(`hovering over: none`, 0)
+        debugCorner.setText(`hovering over: none`, 2)
         for (const trick of displayedTricks) {
             trick.detectHover()
         }
