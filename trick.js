@@ -16,11 +16,12 @@ class Trick {
             use css:hover to make each appear
      */
 
-    constructor(name, cmc, typeText, img) {
+    constructor(name, cmc, typeText, artCrop, imgURI) {
         this.name = name
         this.cmc = cmc
         this.typeText = typeText /* magicalTyperC oracle text, title, mv, etc */
-        this.artCrop = img
+        this.artCrop = artCrop /* the actual cropped art image, not URL */
+        this.imgURI = imgURI /* URL of full image */
         this.scaleWidth = 150
         this.scaleHeight = this.scaleWidth * 457/626 /* artCrop scale factor*/
         this.unselectedOpacity = 20
@@ -45,7 +46,9 @@ class Trick {
             (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
             debugCorner.setText(`hovering over: ${this.name}`, 2)
             this.selected = true
-        } else this.selected = false
+        } else {
+            this.selected = false
+        }
     }
 
     detectClick() {
@@ -53,8 +56,14 @@ class Trick {
         if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
             (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
             console.log(this.typeText)
+
+            hoverImg = null
+            hoverImg = loadImage(this.imgURI)
+            console.log(`clicked on ${this.name} containing normal imgURI ${this.imgURI}`)
+
         }
-    }
+
+           }
 
     /* finds the difference between two coordinates */
     #dist1D(a, b) {

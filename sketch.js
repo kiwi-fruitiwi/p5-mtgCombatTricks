@@ -25,11 +25,11 @@
  *      visualize as rectangular 'stack' above each icon's square border
  *      see 17LandsArenaUI → ✒
  *      card scrolling or card wrap
- *      mouseover
  *
  *  ☒ display card art
  *  ☒ card title overlay
  *  ☒ card wrap
+ *  ☐ mouseover popup on Trick after hoverStart delay
  *
  *  make each card a vehicle
  *      ☐ figure out how to use arrive behavior → implement
@@ -55,11 +55,13 @@ let initialScryfallQueryJSON /* json file from scryfall: set=snc */
 let cards /* packed up JSON data */
 let tricksDataLastFrame /* helps check if we need to resort list */
 let displayedTricks /* list of filtered combat tricks */
+
 let scryfallData = [] /* scryfallQuery['data'] */
 let lastRequestTime = 0
 let loadedJSON = false /* flag is set to true once all pages in JSON load */
 
-let manaColors
+let manaColors /* js object of cwubrg char keys mapped to colors */
+let hoverImg /* image of currently hovered card */
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -186,6 +188,11 @@ function draw() {
     debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 0)
 
     // debugCorner.setText(`availableColorChs:${strip.getAvailableColorChs()}`, 0)
+    /* show always-on hover image */
+    if (hoverImg) {
+        image(hoverImg, mouseX, mouseY)
+    }
+
 
     debugCorner.showTop()
 
@@ -379,7 +386,11 @@ function populateTricks() {
             loadImage(card['art_crop_uri'], data => {
                     displayedTricks.push(
                         new Trick(
-                            card['name'], card['cmc'], card['typeText'], data))
+                            card['name'],
+                            card['cmc'],
+                            card['typeText'],
+                            data,
+                            card['normal_uri']))
                 })
         }
     }
