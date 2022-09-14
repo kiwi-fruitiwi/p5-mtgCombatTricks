@@ -63,6 +63,10 @@ let loadedJSON = false /* flag is set to true once all pages in JSON load */
 let manaColors /* js object of cwubrg char keys mapped to colors */
 let hoverImg /* image of currently hovered card */
 
+const CARD_WIDTH_PX = 745
+const CARD_HEIGHT_PX = 1040
+const CARD_SCALE_FACTOR = 0.4
+
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
     variableWidthFont = loadFont('data/meiryo.ttf')
@@ -190,7 +194,9 @@ function draw() {
     // debugCorner.setText(`availableColorChs:${strip.getAvailableColorChs()}`, 0)
     /* show always-on hover image */
     if (hoverImg) {
-        image(hoverImg, mouseX, mouseY)
+        const w = CARD_WIDTH_PX * CARD_SCALE_FACTOR
+        const h = CARD_HEIGHT_PX * CARD_SCALE_FACTOR
+        image(hoverImg, mouseX, mouseY, w, h)
     }
 
 
@@ -277,12 +283,10 @@ function getCardData() {
                 'oracle_text': frontFace['oracle_text'],
                 'collector_number': int(frontFace['collector_number']),
                 'typeText': typeText,
-                'art_crop_uri': imgURIs['art_crop'], /*626x457 ½ MB*/
-                'normal_uri': imgURIs['normal'],
-                'large_uri': imgURIs['large'],
-                'png_uri': imgURIs['png'] /* 745x1040 */
-
-                /* normal 488x680 64KB, large 672x936 100KB png 745x1040 1MB*/
+                'art_crop_uri': imgURIs['art_crop'], /* 626x457 ½ MB*/
+                'normal_uri': imgURIs['normal'], /* normal 488x680 64KB */
+                'large_uri': imgURIs['large'], /* large 672x936 100KB */
+                'png_uri': imgURIs['png'] /* png 745x1040 1MB */
             }
 
             results.push(cardData)
@@ -390,7 +394,7 @@ function populateTricks() {
                             card['cmc'],
                             card['typeText'],
                             data,
-                            card['normal_uri']))
+                            card['png_uri']))
                 })
         }
     }

@@ -21,7 +21,7 @@ class Trick {
         this.cmc = cmc
         this.typeText = typeText /* magicalTyperC oracle text, title, mv, etc */
         this.artCrop = artCrop /* the actual cropped art image, not URL */
-        this.imgURI = imgURI /* URL of full image */
+        this.cardImg = loadImage(imgURI) /* full image */
         this.scaleWidth = 150
         this.scaleHeight = this.scaleWidth * 457/626 /* artCrop scale factor*/
         this.unselectedOpacity = 20
@@ -41,6 +41,10 @@ class Trick {
     /** if we're mousing over this trick, highlight us and set
         sketch.mouseOverImg */
     detectHover() {
+
+        /* hack! resets hoverImg on mousemove */
+        hoverImg = null
+
         /* remember we're in CENTER rectMode! */
         if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
             (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
@@ -57,13 +61,12 @@ class Trick {
             (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
             console.log(this.typeText)
 
+            /* reset hoverImg probably not necessary after constructor
+             loading of full card img; used to be loaded here */
             hoverImg = null
-            hoverImg = loadImage(this.imgURI)
-            console.log(`clicked on ${this.name} containing normal imgURI ${this.imgURI}`)
-
+            hoverImg = this.cardImg
         }
-
-           }
+    }
 
     /* finds the difference between two coordinates */
     #dist1D(a, b) {
