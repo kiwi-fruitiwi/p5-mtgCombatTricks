@@ -306,6 +306,11 @@ function mouseMoved() {
     }
 }
 
+function mouseReleased() {
+    /* reset  */
+    hoverImg = null
+}
+
 function mousePressed() {
     if (displayedTricks) {
         for (const trick of displayedTricks) {

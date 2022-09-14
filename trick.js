@@ -41,10 +41,6 @@ class Trick {
     /** if we're mousing over this trick, highlight us and set
         sketch.mouseOverImg */
     detectHover() {
-
-        /* hack! resets hoverImg on mousemove */
-        hoverImg = null
-
         /* remember we're in CENTER rectMode! */
         if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
             (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
