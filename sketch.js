@@ -2,7 +2,6 @@
  *  @author kiwi
  *  @date 2022.05.22
  *
- *
  *  ☒ display 7 mana symbols
  *  ☒ toggle mana symbol highlight with keyboard input: cwubrg
  *      clean up
@@ -17,22 +16,29 @@
  *  ☒ extract tricks
  *  ☒ color filtering tricks
  *  ☒ add JSON pagination
- *
- *  → warm welcome, swooping protector, refuse to yield not showing up
- *  → quick-draw dagger not showing up for colors
+ *  ☒  warm welcome, swooping protector, refuse to yield not showing up
+ *  ☒ quick-draw dagger not showing up for colors
  *
  *  ☐ add sound effects for adding and resetting mana
- *  ☐ opponent available mana! → plan algorithm
+ *  ☒ opponent available mana!
  *      add to mana via wubrg, reset to zero with WUBRG
  *      visualize as rectangular 'stack' above each icon's square border
  *      see 17LandsArenaUI → ✒
  *      card scrolling or card wrap
  *      mouseover
  *
- *  ☐ display card art
- *  ☐ card title overlay
- *  ☐ card wrap
- *  ☐
+ *  ☒ display card art
+ *  ☒ card title overlay
+ *  ☒ card wrap
+ *
+ *  make each card a vehicle
+ *      ☐ figure out how to use arrive behavior → implement
+ *
+ *  plan 'opponent available mana' algorithm
+ *      🔗 diligence-dev.github.io/mtg_sirprise
+ *
+ *
+ *
  */
 
 let fixedWidthFont
