@@ -16,20 +16,21 @@
  *  ☒ extract tricks
  *  ☒ color filtering tricks
  *  ☒ add JSON pagination
- *  ☒  warm welcome, swooping protector, refuse to yield not showing up
- *  ☒ quick-draw dagger not showing up for colors
- *
- *  ☐ add sound effects for adding and resetting mana
- *  ☒ opponent available mana!
- *      add to mana via wubrg, reset to zero with WUBRG
- *      visualize as rectangular 'stack' above each icon's square border
- *      see 17LandsArenaUI → ✒
- *      card scrolling or card wrap
+ *      ☒ warm welcome, swooping protector, refuse to yield not showing up
+ *      ☒ quick-draw dagger not showing up for colors
+ *  opponent available mana!
+ *      ☒ add to mana via wubrg, reset to zero with WUBRG
+ *      ☒ visualize as rectangular 'stack' above each icon's square border
+ *      ☐ see 17LandsArenaUI → ✒
+ *      ☒ card scrolling or card wrap
  *
  *  ☒ display card art
  *  ☒ card title overlay
  *  ☒ card wrap
- *  ☐ mouseover popup on Trick after hoverStart delay
+ *  ☒ mouseover popup on Trick on click / disappear on release
+ *      ☐ consider hoverStart delay instead of click
+ *      ☐ p5js.org/reference/#/p5/mouseButton
+ *
  *
  *  make each card a vehicle
  *      ☐ figure out how to use arrive behavior → implement
@@ -37,7 +38,7 @@
  *  plan 'opponent available mana' algorithm
  *      🔗 diligence-dev.github.io/mtg_sirprise
  *
- *
+ *  ☐ add sound effects for adding and resetting mana
  *
  */
 
@@ -61,7 +62,7 @@ let lastRequestTime = 0
 let loadedJSON = false /* flag is set to true once all pages in JSON load */
 
 let manaColors /* js object of cwubrg char keys mapped to colors */
-let hoverImg /* image of currently hovered card */
+let clickedImg /* image of currently clicked card */
 
 const CARD_WIDTH_PX = 745
 const CARD_HEIGHT_PX = 1040
@@ -78,7 +79,7 @@ function preload() {
     p = loadImage('svg/p.svg')
     c = loadImage('svg/c.svg')
 
-    let req = 'https://api.scryfall.com/cards/search?q=set:dmu'
+    let req = 'https://api.scryfall.com/cards/search?q=set:bro'
 
     /* this call to loadJSON finishes before sketch.setup() */
     initialScryfallQueryJSON = loadJSON(req)
@@ -193,16 +194,16 @@ function draw() {
 
     // debugCorner.setText(`availableColorChs:${strip.getAvailableColorChs()}`, 0)
     /* show always-on hover image */
-    if (hoverImg) {
+    if (clickedImg) {
         const w = CARD_WIDTH_PX * CARD_SCALE_FACTOR
         const h = CARD_HEIGHT_PX * CARD_SCALE_FACTOR
-        image(hoverImg, mouseX, mouseY, w, h)
+        image(clickedImg, mouseX, mouseY, w, h)
     }
 
 
     debugCorner.showTop()
 
-    if (frameCount > 3000)
+    if (frameCount > 300000)
         noLoop()
 }
 
@@ -308,7 +309,7 @@ function mouseMoved() {
 
 function mouseReleased() {
     /* reset  */
-    hoverImg = null
+    clickedImg = null
 }
 
 function mousePressed() {

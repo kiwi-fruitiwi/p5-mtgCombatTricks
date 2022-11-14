@@ -38,12 +38,19 @@ class Trick {
         this.pos.y = y
     }
 
+    /* returns true if mouse position is 'over' this Trick */
+    #mouseCollisionDetected() {
+        if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
+            (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
+            return true
+        } else return false
+    }
+
     /** if we're mousing over this trick, highlight us and set
         sketch.mouseOverImg */
     detectHover() {
         /* remember we're in CENTER rectMode! */
-        if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
-            (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
+        if (this.#mouseCollisionDetected()) {
             debugCorner.setText(`hovering over: ${this.name}`, 2)
             this.selected = true
         } else {
@@ -53,14 +60,13 @@ class Trick {
 
     detectClick() {
         /* remember we're in CENTER rectMode! */
-        if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
-            (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
+        if (this.#mouseCollisionDetected()) {
             console.log(this.typeText)
 
             /* reset hoverImg probably not necessary after constructor
              loading of full card img; used to be loaded here */
-            hoverImg = null
-            hoverImg = this.cardImg
+            clickedImg = null
+            clickedImg = this.cardImg
         }
     }
 
