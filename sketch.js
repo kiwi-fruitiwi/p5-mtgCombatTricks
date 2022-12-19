@@ -181,15 +181,17 @@ function draw() {
             console.log(output)
 
             /* trick wrapping */
-            /* TASKS:
-             *   mv → tricks
-             *   console.log tricks list when pressing Z?
-             *
-             */
             if (xPos + trick.scaleWidth / 2 >= tricksDisplayRightMargin) {
                 xPos = displayedTricks[0].scaleWidth * .75
                 yOffset += trick.scaleHeight + spacing
             }
+
+            /* let's wrap by mv instead!
+             *   obtain list of all mv values in displayedTricks
+             *   find all unique values
+             *   for each ascending value, populate on that row by itself →wrap
+             *     later we can wrap individual rows
+             */
 
             trick.setPos(xPos, y + yOffset)
             trick.render()
