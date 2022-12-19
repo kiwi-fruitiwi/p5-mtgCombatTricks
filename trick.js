@@ -16,9 +16,9 @@ class Trick {
             use css:hover to make each appear
      */
 
-    constructor(name, cmc, typeText, artCrop, imgURI) {
+    constructor(name, mv, typeText, artCrop, imgURI) {
         this.name = name
-        this.cmc = cmc
+        this.mv = mv
         this.typeText = typeText /* magicalTyperC oracle text, title, mv, etc */
         this.artCrop = artCrop /* the actual cropped art image, not URL */
         this.cardImg = loadImage(imgURI) /* full image */

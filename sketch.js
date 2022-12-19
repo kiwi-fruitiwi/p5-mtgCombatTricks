@@ -177,6 +177,15 @@ function draw() {
         for (const i in displayedTricks) {
             let trick = displayedTricks[i]
 
+            let output = `${trick.name}: ${trick.mv}`
+            console.log(output)
+
+            /* trick wrapping */
+            /* TASKS:
+             *   mv → tricks
+             *   console.log tricks list when pressing Z?
+             *
+             */
             if (xPos + trick.scaleWidth / 2 >= tricksDisplayRightMargin) {
                 xPos = displayedTricks[0].scaleWidth * .75
                 yOffset += trick.scaleHeight + spacing
