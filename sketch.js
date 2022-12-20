@@ -98,7 +98,7 @@ function setup() {
     mouseY = height/2
 
     lastRequestTime = millis()
-    debugCorner = new CanvasDebugCorner(3)
+    debugCorner = new CanvasDebugCorner(4)
     instructions = select('#ins')
     instructions.html(`<pre>
         [cwubrg] → toggle icon highlight; shift+ to untoggle
@@ -173,25 +173,38 @@ function draw() {
         let xPos = displayedTricks[0].scaleWidth * .75
         let yOffset = 0
 
+        let manaValues = []
+        /** create a list of ascending mana values of all cards */
+        for (const c of displayedTricks) {
+            if (!(c.mv in manaValues)) {
+                manaValues.push(c.mv)
+            }
+        }
+
+        debugCorner.setText(manaValues, 3)
+
         /** set position for tricks on canvas, then render */
         for (const i in displayedTricks) {
             let trick = displayedTricks[i]
 
             let output = `${trick.name}: ${trick.mv}`
-            console.log(output)
+            // console.log(output)
 
-            /* trick wrapping */
-            if (xPos + trick.scaleWidth / 2 >= tricksDisplayRightMargin) {
-                xPos = displayedTricks[0].scaleWidth * .75
-                yOffset += trick.scaleHeight + spacing
-            }
+            /** trick wrapping by card */
+            /*
+                if (xPos + trick.scaleWidth / 2 >= tricksDisplayRightMargin) {
+                    xPos = displayedTricks[0].scaleWidth * .75
+                    yOffset += trick.scaleHeight + spacing
+                }
+            */
 
-            /* let's wrap by mv instead!
+            /** let's wrap by mv instead!
              *   obtain list of all mv values in displayedTricks
-             *   find all unique values
+             *   find all unique values → print or set debugMsg
              *   for each ascending value, populate on that row by itself →wrap
              *     later we can wrap individual rows
              */
+
 
             trick.setPos(xPos, y + yOffset)
             trick.render()
@@ -429,7 +442,12 @@ function sortCardsByMV(a, b) {
 
 /** 🧹 shows debugging info using text() 🧹 */
 class CanvasDebugCorner {
-    constructor(lines) {
+
+    /**
+     * creates a new debugCorner with a set number of total visible lines
+     * @param lines
+     */
+    constructor(lines) { /*  */
         this.visible = true
         this.size = lines
         this.debugMsgList = [] /* initialize all elements to empty string */
