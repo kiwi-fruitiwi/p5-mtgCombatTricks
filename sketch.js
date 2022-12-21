@@ -87,7 +87,7 @@ function preload() {
 
 
 function setup() {
-    let cnv = createCanvas(800, 1500)
+    let cnv = createCanvas(1200, 1500)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(fixedWidthFont, 14)
@@ -181,14 +181,12 @@ function draw() {
             }
         }
 
-        debugCorner.setText(manaValues, 3)
+        manaValues = [...new Set(manaValues)]
+        debugCorner.setText(manaValues.sort(), 3)
 
         /** set position for tricks on canvas, then render */
         for (const i in displayedTricks) {
             let trick = displayedTricks[i]
-
-            let output = `${trick.name}: ${trick.mv}`
-            // console.log(output)
 
             /** trick wrapping by card */
             /*
@@ -197,18 +195,32 @@ function draw() {
                     yOffset += trick.scaleHeight + spacing
                 }
             */
+            /*
+                trick.setPos(xPos, y + yOffset)
+                trick.render()
+                xPos += trick.scaleWidth + spacing
+            */
+        }
 
-            /** let's wrap by mv instead!
-             *   obtain list of all mv values in displayedTricks
-             *   find all unique values → print or set debugMsg
-             *   for each ascending value, populate on that row by itself →wrap
-             *     later we can wrap individual rows
-             */
+        /** let's wrap by mv instead!
+         *   obtain list of all mv values in displayedTricks
+         *   find all unique values → print or set debugMsg
+         *   for each ascending value, populate on that row by itself →wrap
+         *     later we can wrap individual rows
+         */
+        for (const mv of manaValues) {
+            for (const trick of displayedTricks) {
+                if (trick.mv === mv) {
+                    /* setPos, render, increase xPos */
+                    trick.setPos(xPos, y + yOffset)
+                    trick.render()
+                    xPos += trick.scaleWidth + spacing
+                }
+            }
 
-
-            trick.setPos(xPos, y + yOffset)
-            trick.render()
-            xPos += trick.scaleWidth + spacing
+            /* reset each row: xPos returns to original, y goes to new row */
+            xPos = displayedTricks[0].scaleWidth * .75
+            yOffset += displayedTricks[0].scaleHeight + spacing
         }
     }
 
