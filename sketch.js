@@ -87,7 +87,7 @@ function preload() {
 
 
 function setup() {
-    let cnv = createCanvas(1200, 1500)
+    let cnv = createCanvas(800, 1500)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(fixedWidthFont, 14)
@@ -137,13 +137,7 @@ function setup() {
 }
 
 
-function draw() {
-    background(234, 34, 24)
-
-    if (loadedJSON) {
-        strip.render()
-    }
-
+function displayCombatTricks() {
     /* display list of combat tricks; populate list with 'z' key */
     if (displayedTricks && displayedTricks.length > 0) {
         /* do we need to sort the tricks list? since tricks are pushed
@@ -161,7 +155,7 @@ function draw() {
 
         if (tricksDataThisFrame !== tricksDataLastFrame) {
             displayedTricks.sort(sortCardsByMV)
-            console.log(`sorting! ${displayedTricks.length} tricks`)
+            console.log(`sorting! ${displayedTricks.length} tricks: ${displayedTricks}`)
         }
 
         tricksDataLastFrame = tricksDataThisFrame
@@ -224,17 +218,31 @@ function draw() {
         }
     }
 
-    /* debugCorner needs to be last so its z-index is highest */
-    debugCorner.setText(`frameCount: ${frameCount}`, 1)
-    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 0)
-
     // debugCorner.setText(`availableColorChs:${strip.getAvailableColorChs()}`, 0)
+
     /* show always-on hover image */
     if (clickedImg) {
         const w = CARD_WIDTH_PX * CARD_SCALE_FACTOR
         const h = CARD_HEIGHT_PX * CARD_SCALE_FACTOR
         image(clickedImg, mouseX, mouseY, w, h)
     }
+}
+
+
+function draw() {
+    background(234, 34, 24)
+
+    if (loadedJSON) {
+        strip.render()
+    }
+
+    displayCombatTricks()
+
+
+    /* debugCorner needs to be last so its z-index is highest */
+    debugCorner.setText(`frameCount: ${frameCount}`, 1)
+    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 0)
+
 
 
     debugCorner.showTop()
@@ -387,6 +395,7 @@ function keyPressed() {
     if (key === 'x') {
         // console.log(`sorting`)
         // displayedTricks.sort(sortCardsByMV)
+        console.log(`${displayedTricks}: ${displayedTricks.length}`)
     }
 }
 

@@ -134,6 +134,10 @@ class Trick {
         text(this.name, BLC.x+TEXT_PADDING, BLC.y-TEXT_PADDING)
     }
 
+    toString() {
+        return `${this.name}`
+    }
+
     #setSelectionStroke() {
         stroke(0, 0, 100, this.selected?
             this.selectedOpacity: this.unselectedOpacity)
