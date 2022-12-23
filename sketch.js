@@ -170,12 +170,12 @@ function displayCombatTricks() {
         let manaValues = []
         /** create a list of ascending mana values of all cards */
         for (const c of displayedTricks) {
-            if (!(c.mv in manaValues)) {
+            if ( !(manaValues.includes(c.mv)) ) {
                 manaValues.push(c.mv)
             }
         }
 
-        manaValues = [...new Set(manaValues)]
+        // manaValues = [...new Set(manaValues)]
         debugCorner.setText(manaValues.sort(), 3)
 
         /** set position for tricks on canvas, then render */
@@ -396,6 +396,18 @@ function keyPressed() {
         // console.log(`sorting`)
         // displayedTricks.sort(sortCardsByMV)
         console.log(`${displayedTricks}: ${displayedTricks.length}`)
+
+        let manaValues = []
+        /** create a list of ascending mana values of all cards */
+        for (const c of displayedTricks) {
+            console.log(`${c.name}, ${c.mv}`)
+            if ( !(manaValues.includes(c.mv)) ) {
+                manaValues.push(c.mv)
+                console.log(`pushing ${c.mv} from ${c.name}`)
+            }
+        }
+
+        console.log(`${manaValues}`)
     }
 }
 
