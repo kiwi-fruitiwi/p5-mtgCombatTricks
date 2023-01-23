@@ -431,6 +431,8 @@ function populateTricks() {
         // console.log(`${card['name']} → ${card['oracle_text']}`)
         if (card['oracle_text'].toLowerCase().includes('flash') ||
             card['type_line'] === 'Instant') {
+
+            /* TODO this triggers 'flashback', so that's bad :P */
             filteredCards.push(card)
         } else {
             // console.log(`did not include → ${card['name']}`)
