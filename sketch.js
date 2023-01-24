@@ -51,7 +51,7 @@ function preload() {
     p = loadImage('svg/p.svg')
     c = loadImage('svg/c.svg')
 
-    let req = 'https://api.scryfall.com/cards/search?q=set:one'
+    let req = 'https://api.scryfall.com/cards/search?q=set:bro'
 
     /* we're in preload; this loadJSON call finishes before setup() starts */
     initialScryfallQueryJSON = loadJSON(req)
@@ -124,67 +124,14 @@ function displayCombatTricks() {
 
         if (tricksDataThisFrame !== tricksDataLastFrame) {
             displayedTricks.sort(sortCardsByMV)
-            console.log(`sorting! ${displayedTricks.length} tricks: ${displayedTricks}`)
+            console.log(`sorting! ${displayedTricks.length} 
+                         tricks: ${displayedTricks}`)
         }
 
         tricksDataLastFrame = tricksDataThisFrame
 
-        const y = 200
-        const spacing = 5
-        const tricksDisplayRightMargin = width
-
-        let xPos = displayedTricks[0].scaleWidth * .75
-        let yOffset = 0
-
-        let manaValues = []
-        /** create a list of ascending mana values of all cards */
-        for (const c of displayedTricks) {
-            if ( !(manaValues.includes(c.mv)) ) {
-                manaValues.push(c.mv)
-            }
-        }
-
-        // manaValues = [...new Set(manaValues)]
-        debugCorner.setText(manaValues.sort(), 3)
-
-        /** set position for tricks on canvas, then render */
-        for (const i in displayedTricks) {
-            let trick = displayedTricks[i]
-
-            /** trick wrapping by card */
-            /*
-                if (xPos + trick.scaleWidth / 2 >= tricksDisplayRightMargin) {
-                    xPos = displayedTricks[0].scaleWidth * .75
-                    yOffset += trick.scaleHeight + spacing
-                }
-            */
-            /*
-                trick.setPos(xPos, y + yOffset)
-                trick.render()
-                xPos += trick.scaleWidth + spacing
-            */
-        }
-
-        /** let's wrap by mv instead!
-         *   obtain list of all mv values in displayedTricks
-         *   find all unique values → print or set debugMsg
-         *   for each ascending value, populate on that row by itself →wrap
-         *     later we can wrap individual rows
-         */
-        for (const mv of manaValues) {
-            for (const trick of displayedTricks) {
-                if (trick.mv === mv) {
-                    /* setPos, render, increase xPos */
-                    trick.setPos(xPos, y + yOffset)
-                    trick.render()
-                    xPos += trick.scaleWidth + spacing
-                }
-            }
-
-            /* reset each row: xPos returns to original, y goes to new row */
-            xPos = displayedTricks[0].scaleWidth * .75
-            yOffset += displayedTricks[0].scaleHeight + spacing
-        }
+        wrapTricksByCard()
+        // wrapTricksByMv()
     }
 
     // debugCorner.setText(`availableColorChs:${strip.getAvailableColorChs()}`, 0)
@@ -199,6 +146,71 @@ function displayCombatTricks() {
             imgX = CARD_WIDTH_PX/2
 
         image(clickedImg, width/2, clickedPos.y, w, h)
+    }
+}
+
+
+/** let's wrap by mv instead!
+ *   obtain list of all mv values in displayedTricks
+ *   find all unique values → print or set debugMsg
+ *   for each ascending value, populate on that row by itself →wrap
+ *     TODO wrap individual rows
+ */
+function wrapTricksByMv() {
+    const y = 200
+    const spacing = 5
+    let xPos = displayedTricks[0].scaleWidth * .75  /* TODO constant? */
+    let yOffset = 0
+
+    /** create a list of unique ascending mana values of all cards */
+    let manaValues = []
+    for (const c of displayedTricks) {
+        if ( !(manaValues.includes(c.mv)) ) {
+            manaValues.push(c.mv)
+        }
+    }
+
+    // manaValues = [...new Set(manaValues)]
+    debugCorner.setText(manaValues.sort(), 3)
+
+    for (const mv of manaValues) {
+        for (const trick of displayedTricks) {
+            if (trick.mv === mv) {
+                /* setPos, render, increase xPos */
+                trick.setPos(xPos, y + yOffset)
+                trick.render()
+                xPos += trick.scaleWidth + spacing
+            }
+        }
+
+        /* reset each row: xPos returns to original, y goes to new row */
+        xPos = displayedTricks[0].scaleWidth * .75
+        yOffset += displayedTricks[0].scaleHeight + spacing
+    }
+}
+
+
+/* displays cards on the canvas, wrapping by card */
+function wrapTricksByCard () {
+    const tricksDisplayRightMargin = width
+
+    const y = 200
+    const spacing = 5
+    let xPos = displayedTricks[0].scaleWidth * .75  /* TODO constant? */
+    let yOffset = 0
+
+    /** set position for tricks on canvas, then render */
+    for (const i in displayedTricks) {
+        let trick = displayedTricks[i]
+
+        if (xPos + trick.scaleWidth / 2 >= tricksDisplayRightMargin) {
+            xPos = displayedTricks[0].scaleWidth * .75
+            yOffset += trick.scaleHeight + spacing
+        }
+
+        trick.setPos(xPos, y + yOffset)
+        trick.render()
+        xPos += trick.scaleWidth + spacing
     }
 }
 
