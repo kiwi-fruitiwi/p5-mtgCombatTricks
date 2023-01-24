@@ -1,36 +1,7 @@
 /**
  *  @author kiwi
  *  @date 2022.05.22
- *
- *  ☒ display 7 mana symbols
- *  ☒ toggle mana symbol highlight with keyboard input: cwubrg
- *      clean up
- *  ☒ see mana font css to get correct colors
- *      c: beb9b2
- *      w: f0f2c0
- *      u: b5cde3
- *      b: aca29a
- *      r: db8664
- *      g: 93b483
- *  ☒ add JSON
- *  ☒ extract tricks
- *  ☒ color filtering tricks
- *  ☒ add JSON pagination
- *      ☒ warm welcome, swooping protector, refuse to yield not showing up
- *      ☒ quick-draw dagger not showing up for colors
- *  opponent available mana!
- *      ☒ add to mana via wubrg, reset to zero with WUBRG
- *      ☒ visualize as rectangular 'stack' above each icon's square border
- *      ☐ see 17LandsArenaUI → ✒
- *      ☒ card scrolling or card wrap
- *
- *  ☒ display card art
- *  ☒ card title overlay
- *  ☒ card wrap
- *  ☒ mouseover popup on Trick on click / disappear on release
- *      ☐ consider hoverStart delay instead of click
- *      ☐ p5js.org/reference/#/p5/mouseButton
- *
+ *  @ver2 2023.01.28
  *
  *  make each card a vehicle
  *      ☐ figure out how to use arrive behavior → implement
@@ -39,7 +10,6 @@
  *      🔗 diligence-dev.github.io/mtg_sirprise
  *
  *  ☐ add sound effects for adding and resetting mana
- *
  */
 
 let fixedWidthFont
@@ -47,10 +17,8 @@ let variableWidthFont
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
-const FONT_SIZE = 10 // this needs to be even. note: the font in-game is bold
-
-let w, u, b, r, g, c, p
-let strip /* color selector UI. a mana symbol is highlighted when selected */
+let w, u, b, r, g, c, p  /* svg images for WUBRG mana symbols + generic */
+let colorBar /* color selector UI. a mana symbol is highlighted when selected */
 
 let initialScryfallQueryJSON /* json file from scryfall: set=snc */
 let cards /* packed up JSON data */
@@ -69,9 +37,12 @@ const CARD_WIDTH_PX = 745
 const CARD_HEIGHT_PX = 1040
 const CARD_SCALE_FACTOR = 0.4
 
+const FIXED_WIDTH_FONT_SIZE = 14
+
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
     variableWidthFont = loadFont('data/meiryo.ttf')
+
     w = loadImage('svg/w.svg')
     u = loadImage('svg/u.svg')
     b = loadImage('svg/b.svg')
@@ -82,7 +53,7 @@ function preload() {
 
     let req = 'https://api.scryfall.com/cards/search?q=set:one'
 
-    /* this call to loadJSON finishes before sketch.setup() */
+    /* we're in preload; this loadJSON call finishes before setup() starts */
     initialScryfallQueryJSON = loadJSON(req)
 }
 
@@ -91,12 +62,9 @@ function setup() {
     let cnv = createCanvas(800, 1500)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
-    textFont(fixedWidthFont, 14)
+    textFont(fixedWidthFont, FIXED_WIDTH_FONT_SIZE)
     imageMode(CENTER)
     rectMode(CENTER)
-
-    mouseX = width/2
-    mouseY = height/2
 
     lastRequestTime = millis()
     debugCorner = new CanvasDebugCorner(4)
@@ -106,8 +74,8 @@ function setup() {
         numpad 1 → freeze sketch</pre>`)
 
     scryfallData = scryfallData.concat(initialScryfallQueryJSON['data'])
-    // console.log(`data retrieved! ${initialScryfallQueryJSON['data'].length}`)
-    // console.log(scryfallData.length)
+    console.log(`data retrieved! ${initialScryfallQueryJSON['data'].length}`)
+    console.log(scryfallData.length)
 
     /* check for scryfall JSON having more pages, recursively callback if so */
     if (initialScryfallQueryJSON['has_more']) {
@@ -115,8 +83,7 @@ function setup() {
         loadJSON(pageTwoJSONURL, gotData)
     }
 
-    /* cards = getCardData() */
-    manaColors = {
+    manaColors = { /* colors possibly from Andrew Gioia's Mana project */
         'c': color(35,6,75),
         'w': color(62,31,95),
         'u': color(209,40,89),
@@ -125,7 +92,7 @@ function setup() {
         'g': color(100,40,71)
     }
 
-    let icons = []
+    let icons = [] /* a list of colorIcons: manaChar, svg, rgb */
     icons.push(new colorIcon('c', c, manaColors['c']))
     icons.push(new colorIcon('w', w, manaColors['w']))
     icons.push(new colorIcon('u', u, manaColors['u']))
@@ -133,7 +100,8 @@ function setup() {
     icons.push(new colorIcon('r', r, manaColors['r']))
     icons.push(new colorIcon('g', g, manaColors['g']))
 
-    strip = new ColorSelector(icons)
+    /* this is the UI element that tracks filter colors for combat tricks */
+    colorBar = new ColorSelector(icons)
     displayedTricks = []
 }
 
@@ -239,7 +207,7 @@ function draw() {
     background(234, 34, 24)
 
     if (loadedJSON) {
-        strip.render()
+        colorBar.render()
     }
 
     displayCombatTricks()
@@ -385,12 +353,12 @@ function keyPressed() {
 
     /** if our key is in the color dictionary, select the corresponding icon */
     const lowerCaseKey = key.toLowerCase()
-    if (strip.getAvailableColorChs().includes(lowerCaseKey)) {
+    if (colorBar.getAvailableColorChs().includes(lowerCaseKey)) {
         if (lowerCaseKey === key) {
-            strip.select(key)
+            colorBar.select(key)
             /* if it's the uppercase version of the key, deselect it */
         } else {
-            strip.deSelect(lowerCaseKey)
+            colorBar.deSelect(lowerCaseKey)
         }
     }
 
@@ -450,7 +418,7 @@ function populateTricks() {
         /* iterate through each of the trick's colors */
         for (let i in card['colors']) {
             let c = card['colors'][i].toLowerCase()
-            if (!strip.getSelectedColorChars().includes(c))
+            if (!colorBar.getSelectedColorChars().includes(c))
                 allColorsSelected = false
         }
 

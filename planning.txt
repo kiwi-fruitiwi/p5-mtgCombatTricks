@@ -3,7 +3,35 @@
 
 
 
+04:02 pm Saturday, January 28, 2023
+ ☒ display 7 mana symbols
+ ☒ toggle mana symbol highlight with keyboard input: cwubrg
+     clean up
+ ☒ see mana font css to get correct colors
+     c: beb9b2
+     w: f0f2c0
+     u: b5cde3
+     b: aca29a
+     r: db8664
+     g: 93b483
+ ☒ add JSON
+ ☒ extract tricks
+ ☒ color filtering tricks
+ ☒ add JSON pagination
+     ☒ warm welcome, swooping protector, refuse to yield not showing up
+     ☒ quick-draw dagger not showing up for colors
+ opponent available mana!
+     ☒ add to mana via wubrg, reset to zero with WUBRG
+     ☒ visualize as rectangular 'stack' above each icon's square border
+     ☐ see 17LandsArenaUI → ✒
+     ☒ card scrolling or card wrap
 
+ ☒ display card art
+ ☒ card title overlay
+ ☒ card wrap
+ ☒ mouseover popup on Trick on click / disappear on release
+     ☐ consider hoverStart delay instead of click
+     ☐ p5js.org/reference/#/p5/mouseButton
 
 
 
