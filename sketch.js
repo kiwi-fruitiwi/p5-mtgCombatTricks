@@ -130,20 +130,18 @@ function displayCombatTricks() {
 
         tricksDataLastFrame = tricksDataThisFrame
 
-        wrapTricksByCard()
-        // wrapTricksByMv()
+        // wrapTricksByCard()
+        wrapTricksByMv()
     }
 
-    // debugCorner.setText(`availableColorChs:${strip.getAvailableColorChs()}`, 0)
-
-    /* show always-on hover image */
+    /* show full size card image when mouse is clicked on a trick */
     if (clickedImg) {
         const w = CARD_WIDTH_PX * CARD_SCALE_FACTOR
         const h = CARD_HEIGHT_PX * CARD_SCALE_FACTOR
 
         let imgX = mouseX
         if (mouseX < CARD_WIDTH_PX/2)
-            imgX = CARD_WIDTH_PX/2
+            imgX = CARD_WIDTH_PX/2 /*  */
 
         image(clickedImg, width/2, clickedPos.y, w, h)
     }
@@ -158,8 +156,12 @@ function displayCombatTricks() {
  */
 function wrapTricksByMv() {
     const y = 200
-    const spacing = 5
-    let xPos = displayedTricks[0].scaleWidth * .75  /* TODO constant? */
+    const SPACING = 5 /* spacing between each displayed Trick */
+
+    /* recall Tricks render by RectMode(CENTER)! */
+    const LEFT_MARGIN = 20
+    const TRICK_START_XPOS = displayedTricks[0].scaleWidth/2 + LEFT_MARGIN
+    let xPos = TRICK_START_XPOS
     let yOffset = 0
 
     /** create a list of unique ascending mana values of all cards */
@@ -179,13 +181,14 @@ function wrapTricksByMv() {
                 /* setPos, render, increase xPos */
                 trick.setPos(xPos, y + yOffset)
                 trick.render()
-                xPos += trick.scaleWidth + spacing
+                xPos += trick.scaleWidth + SPACING
             }
         }
 
         /* reset each row: xPos returns to original, y goes to new row */
-        xPos = displayedTricks[0].scaleWidth * .75
-        yOffset += displayedTricks[0].scaleHeight + spacing
+
+        xPos = LEFT_MARGIN
+        yOffset += displayedTricks[0].scaleHeight + SPACING
     }
 }
 

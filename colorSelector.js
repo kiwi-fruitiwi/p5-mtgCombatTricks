@@ -1,8 +1,13 @@
-const LEFT_MARGIN = 50
+
 const TOP_MARGIN = 120 /* canvasHeight ÷ 2 ideally */
 const IMG_WIDTH = 20 /* 50 */
-const ICON_SPACING = 10 /* 20 space between icons. not padding, but spacing */
 const RECT_PADDING = 6 /* 12 */
+
+const LEFT_MARGIN = 20
+/* accounts for CENTER RectMode: x position of left-most colorIcon img center */
+const ICON_XPOS = LEFT_MARGIN + IMG_WIDTH/2 + RECT_PADDING/2
+
+const ICON_SPACING = 10 /* 20 space between icons. not padding, but spacing */
 const STROKE_WEIGHT = 1
 
 const SELECTED_ALPHA = 60
@@ -49,28 +54,26 @@ class ColorSelector {
         imageMode(CENTER)
         rectMode(CENTER)
         ellipseMode(CENTER)
-
         noFill()
 
-        // noinspection JSSuspiciousNameCombination
+        /** iterate through icons, displaying each one */
         for (let i in this.icons) {
             const icon = this.icons[i]
             const selected = icon.selected
 
             let iconAlpha = DESELECTED_ALPHA
-            if (selected) {
+            if (selected) { /* add color if selected */
                 tint(icon.color, 100)
                 fill(0, 0, 100, 10)
                 stroke(icon.color, 80)
-            } else {
+            } else { /* gray otherwise */
                 noFill()
                 tint(0, 0, 100, iconAlpha)
                 stroke(0, 0, 100, iconAlpha)
             }
 
-            const iconX = LEFT_MARGIN + i * (IMG_WIDTH+ICON_SPACING)
+            const iconX = ICON_XPOS + i * (IMG_WIDTH+ICON_SPACING)
             const iconY = TOP_MARGIN
-
 
             strokeWeight(STROKE_WEIGHT)
             if (CIRCLE_DISPLAY) {
@@ -83,7 +86,7 @@ class ColorSelector {
             }
 
             const svg = icon.img
-            image(svg, LEFT_MARGIN + i*(IMG_WIDTH+ICON_SPACING), TOP_MARGIN)
+            image(svg, ICON_XPOS + i*(IMG_WIDTH+ICON_SPACING), TOP_MARGIN)
 
             /* add bar visualization for mana count above each mana icon */
 

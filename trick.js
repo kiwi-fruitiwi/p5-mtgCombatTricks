@@ -22,7 +22,8 @@ class Trick {
         this.typeText = typeText /* magicalTyperC oracle text, title, mv, etc */
         this.artCrop = artCrop /* the actual cropped art image, not URL */
         this.cardImg = loadImage(imgURI) /* full image */
-        this.scaleWidth = 150
+
+        this.scaleWidth = 150 /* width of each card in the UI */
         this.scaleHeight = this.scaleWidth * 457/626 /* artCrop scale factor*/
         this.unselectedOpacity = 20
         this.selectedOpacity = 100
