@@ -130,8 +130,8 @@ function displayCombatTricks() {
 
         tricksDataLastFrame = tricksDataThisFrame
 
-        wrapTricksByCard()
-        // wrapTricksByMv()
+        // wrapTricksByCard()
+        wrapTricksByMv()
     }
 
     /* show full size card image when mouse is clicked on a trick */
@@ -231,21 +231,20 @@ function draw() {
 
     displayCombatTricks()
 
-
     /* debugCorner needs to be last so its z-index is highest */
     debugCorner.setText(`frameCount: ${frameCount}`, 1)
     debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 0)
-
-
-
     debugCorner.showTop()
 
-    if (frameCount > 300000)
+    if (frameCount > 30000) /* stop refreshing the screen after 30s */
         noLoop()
 }
 
 
-/* callback from scryfall API:  */
+/**
+ * callback from scryfall API: add 'data' values to local variable
+ * recursively calls itself until 🔑:has_more is false.
+ */
 function gotData(data) {
     console.log(`data retrieved! ${data['data'].length}`)
     console.log(`request time → ${millis() - lastRequestTime}`)
@@ -322,8 +321,10 @@ function getCardData() {
                 'collector_number': int(frontFace['collector_number']),
                 'typeText': typeText,
                 'art_crop_uri': imgURIs['art_crop'], /* 626x457 ½ MB*/
+                'small_uri': imgURIs['small'], /* 146x204 */
                 'normal_uri': imgURIs['normal'], /* normal 488x680 64KB */
                 'large_uri': imgURIs['large'], /* large 672x936 100KB */
+                'border_crop_uri': imgURIs['border_crop'], /* 480x680 104KB */
                 'png_uri': imgURIs['png'] /* png 745x1040 1MB */
             }
 
@@ -445,7 +446,7 @@ function populateTricks() {
          * add to displayedTricks array when done loading */
         if (allColorsSelected) {
             // console.log(`${trick['name']}`)
-            loadImage(card['art_crop_uri'], data => {
+            loadImage(card['border_crop_uri'], data => {
                     displayedTricks.push(
                         new Trick(
                             card['name'],
