@@ -31,8 +31,12 @@ class Trick {
         /* artCrop scale factor is 457/626 */
         /* borderCrop scale factor is 680/480 */
         this.scaleHeight = this.scaleWidth * 680/480
-        this.unselectedOpacity = 20
+
+        this.unselectedOpacity = 100
+        this.unSelectedBrightness = 10
+
         this.selectedOpacity = 100
+        this.selectedBrightness = 25
 
         this.pos = new p5.Vector(0, 0)
 
@@ -102,7 +106,7 @@ class Trick {
         noFill()
 
         this.#setSelectionStroke() /* sets opacity of border */
-        strokeWeight(2)
+        strokeWeight(6) /* card black border thickness */
         rectMode(CENTER)
         rect(x, y, this.scaleWidth, this.scaleHeight, BORDER_RADIUS)
 
@@ -157,8 +161,11 @@ class Trick {
     }
 
     #setSelectionStroke() {
-        stroke(0, 0, 100, this.selected?
-            this.selectedOpacity: this.unselectedOpacity)
+        stroke( /* hue, saturation, brightness, alpha */
+            0,
+            0,
+            this.selected? this.selectedBrightness: this.unSelectedBrightness,
+            this.selected? this.selectedOpacity: this.unselectedOpacity)
 
     }
 }

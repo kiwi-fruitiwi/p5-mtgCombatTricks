@@ -155,8 +155,8 @@ function displayCombatTricks() {
  *     TODO wrap individual rows
  */
 function wrapTricksByMv() {
-    const y = 200
-    const SPACING = 5 /* spacing between each displayed Trick */
+    const y = 260
+    const SPACING = 10 /* spacing between each displayed Trick */
 
     /* recall Tricks render by RectMode(CENTER)! */
     const LEFT_MARGIN = 20
