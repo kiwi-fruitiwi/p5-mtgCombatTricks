@@ -130,8 +130,8 @@ function displayCombatTricks() {
 
         tricksDataLastFrame = tricksDataThisFrame
 
-        // wrapTricksByCard()
-        wrapTricksByMv()
+        wrapTricksByCard()
+        // wrapTricksByMv()
     }
 
     /* show full size card image when mouse is clicked on a trick */
@@ -160,8 +160,8 @@ function wrapTricksByMv() {
 
     /* recall Tricks render by RectMode(CENTER)! */
     const LEFT_MARGIN = 20
-    const TRICK_START_XPOS = displayedTricks[0].scaleWidth/2 + LEFT_MARGIN
-    let xPos = TRICK_START_XPOS
+    const X_START = displayedTricks[0].scaleWidth / 2 + LEFT_MARGIN
+    let xPos = X_START
     let yOffset = 0
 
     /** create a list of unique ascending mana values of all cards */
@@ -187,7 +187,7 @@ function wrapTricksByMv() {
 
         /* reset each row: xPos returns to original, y goes to new row */
 
-        xPos = LEFT_MARGIN
+        xPos = X_START
         yOffset += displayedTricks[0].scaleHeight + SPACING
     }
 }
@@ -195,25 +195,29 @@ function wrapTricksByMv() {
 
 /* displays cards on the canvas, wrapping by card */
 function wrapTricksByCard () {
-    const tricksDisplayRightMargin = width
-
     const y = 200
-    const spacing = 5
-    let xPos = displayedTricks[0].scaleWidth * .75  /* TODO constant? */
+    const SPACING = 5 /* spacing between each displayed Trick */
+    const TRICKS_DISPLAY_RIGHT_MARGIN = width
+
+    /* recall Tricks render by RectMode(CENTER)! */
+    const LEFT_MARGIN = 20
+    const X_START = displayedTricks[0].scaleWidth / 2 + LEFT_MARGIN
+    let xPos = X_START
     let yOffset = 0
 
     /** set position for tricks on canvas, then render */
     for (const i in displayedTricks) {
         let trick = displayedTricks[i]
 
-        if (xPos + trick.scaleWidth / 2 >= tricksDisplayRightMargin) {
-            xPos = displayedTricks[0].scaleWidth * .75
-            yOffset += trick.scaleHeight + spacing
+        if (xPos + trick.scaleWidth / 2 >= TRICKS_DISPLAY_RIGHT_MARGIN) {
+            /* reset x position */
+            xPos = X_START
+            yOffset += trick.scaleHeight + SPACING
         }
 
         trick.setPos(xPos, y + yOffset)
         trick.render()
-        xPos += trick.scaleWidth + spacing
+        xPos += trick.scaleWidth + SPACING
     }
 }
 
