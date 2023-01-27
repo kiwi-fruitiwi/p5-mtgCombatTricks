@@ -62,6 +62,7 @@ let lastRequestTime = 0
 let loadedJSON = false /* flag is set to true once all pages in JSON load */
 
 let manaColors /* js object of cwubrg char keys mapped to colors */
+let clickedPos /* position of card that was last clicked on */
 let clickedImg /* image of currently clicked card */
 
 const CARD_WIDTH_PX = 745
@@ -79,7 +80,7 @@ function preload() {
     p = loadImage('svg/p.svg')
     c = loadImage('svg/c.svg')
 
-    let req = 'https://api.scryfall.com/cards/search?q=set:bro'
+    let req = 'https://api.scryfall.com/cards/search?q=set:one'
 
     /* this call to loadJSON finishes before sketch.setup() */
     initialScryfallQueryJSON = loadJSON(req)
@@ -224,7 +225,12 @@ function displayCombatTricks() {
     if (clickedImg) {
         const w = CARD_WIDTH_PX * CARD_SCALE_FACTOR
         const h = CARD_HEIGHT_PX * CARD_SCALE_FACTOR
-        image(clickedImg, mouseX, mouseY, w, h)
+
+        let imgX = mouseX
+        if (mouseX < CARD_WIDTH_PX/2)
+            imgX = CARD_WIDTH_PX/2
+
+        image(clickedImg, width/2, clickedPos.y, w, h)
     }
 }
 

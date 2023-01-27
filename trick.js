@@ -67,7 +67,12 @@ class Trick {
              loading of full card img; used to be loaded here */
             clickedImg = null
             clickedImg = this.cardImg
+            clickedPos = this.pos
         }
+    }
+
+    getPosition() {
+        return this.pos
     }
 
     /* finds the difference between two coordinates */
