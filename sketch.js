@@ -59,7 +59,7 @@ function preload() {
 
 
 function setup() {
-    let cnv = createCanvas(800, 1500)
+    let cnv = createCanvas(1000, 1500)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(fixedWidthFont, FIXED_WIDTH_FONT_SIZE)
@@ -156,7 +156,8 @@ function displayCombatTricks() {
  */
 function wrapTricksByMv() {
     const y = 260
-    const SPACING = 10 /* spacing between each displayed Trick */
+    const SPACING = 15 /* spacing between each displayed Trick + divider */
+    const DIVIDER_HEIGHT = 12
 
     /* recall Tricks render by RectMode(CENTER)! */
     const LEFT_MARGIN = 20
@@ -185,10 +186,18 @@ function wrapTricksByMv() {
             }
         }
 
-        /* reset each row: xPos returns to original, y goes to new row */
+        /* add a rectangle separator after each mv */
+        fill(0, 0, 0, 30)
+        strokeWeight(0)
+        rect( /* remember we are RectMode(CENTER): x, y, w, h */
+            width/2,
+            y + yOffset + displayedTricks[0].scaleHeight/2 + SPACING/2 + DIVIDER_HEIGHT/2,
+            width,
+            DIVIDER_HEIGHT)
 
+        /* reset each row: xPos returns to original, y goes to new row */
         xPos = X_START
-        yOffset += displayedTricks[0].scaleHeight + SPACING
+        yOffset += displayedTricks[0].scaleHeight + SPACING + DIVIDER_HEIGHT
     }
 }
 

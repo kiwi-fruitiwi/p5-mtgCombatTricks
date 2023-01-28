@@ -110,7 +110,7 @@ class Trick {
         rectMode(CENTER)
         rect(x, y, this.scaleWidth, this.scaleHeight, BORDER_RADIUS)
 
-        // this.#displayTextBox()
+        /* this.#displayTextBox() */
     }
 
     #displayTextBox() {
@@ -166,6 +166,5 @@ class Trick {
             0,
             this.selected? this.selectedBrightness: this.unSelectedBrightness,
             this.selected? this.selectedOpacity: this.unselectedOpacity)
-
     }
 }
