@@ -161,7 +161,8 @@ function wrapTricksByMv() {
 
     /* recall Tricks render by RectMode(CENTER)! */
     const LEFT_MARGIN = 20
-    const X_START = displayedTricks[0].scaleWidth / 2 + LEFT_MARGIN
+    const MV_START = 10
+    const X_START = displayedTricks[0].scaleWidth / 2 + LEFT_MARGIN + MV_START
     let xPos = X_START
     let yOffset = 0
 
@@ -177,6 +178,14 @@ function wrapTricksByMv() {
     debugCorner.setText(manaValues.sort(), 3)
 
     for (const mv of manaValues) {
+        /* add mv and update xPos based on current rectMode setting */
+        textFont(fixedWidthFont, 50)
+        // stroke(0, 0, 100, 25)
+        fill(0, 0, 100, 20)
+        strokeWeight(0)
+        text(mv, MV_START, y + yOffset)
+        xPos += 20
+
         for (const trick of displayedTricks) {
             if (trick.mv === mv) {
                 /* setPos, render, increase xPos */
@@ -187,7 +196,7 @@ function wrapTricksByMv() {
         }
 
         /* add a rectangle separator after each mv */
-        fill(0, 0, 0, 30)
+        fill(0, 0, 0, 25)
         strokeWeight(0)
         rect( /* remember we are RectMode(CENTER): x, y, w, h */
             width/2,
