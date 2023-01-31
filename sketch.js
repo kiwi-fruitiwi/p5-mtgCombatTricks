@@ -59,7 +59,7 @@ function preload() {
 
 
 function setup() {
-    let cnv = createCanvas(1000, 1500)
+    let cnv = createCanvas(1000, 2200)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(fixedWidthFont, FIXED_WIDTH_FONT_SIZE)
@@ -162,6 +162,7 @@ function wrapTricksByMv() {
     /* recall Tricks render by RectMode(CENTER)! */
     const LEFT_MARGIN = 20
     const MV_START = 10
+    const MV_RIGHT_MARGIN = 20
     const X_START = displayedTricks[0].scaleWidth / 2 + LEFT_MARGIN + MV_START
     let xPos = X_START
     let yOffset = 0
@@ -178,35 +179,45 @@ function wrapTricksByMv() {
     debugCorner.setText(manaValues.sort(), 3)
 
     for (const mv of manaValues) {
+        /* add a rectangle separator after each mv */
+        /* fill(0, 0, 0, 25) */
+        fill(237, 37.3, 20, 100)
+        strokeWeight(0)
+        const CARD_HEIGHT = displayedTricks[0].scaleHeight
+        rect( /* remember we are RectMode(CENTER): x, y, w, h */
+            width/2,
+            y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT/2,
+            width,
+            DIVIDER_HEIGHT)
+
         /* add mv and update xPos based on current rectMode setting */
         textFont(fixedWidthFont, 50)
         // stroke(0, 0, 100, 25)
         fill(0, 0, 100, 20)
         strokeWeight(0)
         text(mv, MV_START, y + yOffset)
-        xPos += 20
+        xPos += MV_RIGHT_MARGIN
 
+
+        const TRICKS_DISPLAY_RIGHT_MARGIN = width - 20
         for (const trick of displayedTricks) {
             if (trick.mv === mv) {
                 /* setPos, render, increase xPos */
                 trick.setPos(xPos, y + yOffset)
                 trick.render()
                 xPos += trick.scaleWidth + SPACING
+
+                if (xPos + trick.scaleWidth / 2 >= TRICKS_DISPLAY_RIGHT_MARGIN) {
+                    /* reset x position */
+                    xPos = X_START + MV_RIGHT_MARGIN
+                    yOffset += trick.scaleHeight + SPACING
+                }
             }
         }
 
-        /* add a rectangle separator after each mv */
-        fill(0, 0, 0, 25)
-        strokeWeight(0)
-        rect( /* remember we are RectMode(CENTER): x, y, w, h */
-            width/2,
-            y + yOffset + displayedTricks[0].scaleHeight/2 + SPACING/2 + DIVIDER_HEIGHT/2,
-            width,
-            DIVIDER_HEIGHT)
-
         /* reset each row: xPos returns to original, y goes to new row */
         xPos = X_START
-        yOffset += displayedTricks[0].scaleHeight + SPACING + DIVIDER_HEIGHT
+        yOffset += CARD_HEIGHT + SPACING + DIVIDER_HEIGHT
     }
 }
 
