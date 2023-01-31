@@ -156,7 +156,7 @@ function displayCombatTricks() {
  */
 function wrapTricksByMv() {
     const y = 260
-    const SPACING = 15 /* spacing between each displayed Trick + divider */
+    const SPACING = 20 /* spacing between each displayed Trick + divider */
     const DIVIDER_HEIGHT = 12
 
     /* recall Tricks render by RectMode(CENTER)! */
@@ -197,7 +197,6 @@ function wrapTricksByMv() {
         strokeWeight(0)
         text(mv, MV_START, y + yOffset)
         xPos += MV_RIGHT_MARGIN
-
 
         const TRICKS_DISPLAY_RIGHT_MARGIN = width - 20
         for (const trick of displayedTricks) {

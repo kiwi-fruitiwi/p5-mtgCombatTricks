@@ -32,11 +32,11 @@ class Trick {
         /* borderCrop scale factor is 680/480 */
         this.scaleHeight = this.scaleWidth * 680/480
 
-        this.unselectedOpacity = 100
-        this.unSelectedBrightness = 10
-
+        /* border stroke brightness and opacity when selected vs unselected */
+        this.selectedBrightness = 20
+        this.unSelectedBrightness = 15
         this.selectedOpacity = 100
-        this.selectedBrightness = 25
+        this.unselectedOpacity = 100
 
         this.pos = new p5.Vector(0, 0)
 
@@ -97,7 +97,8 @@ class Trick {
 
         textFont(variableWidthFont, FONT_SIZE)
 
-        tint(0, 0, 100)
+        /* slight highlight when selected */
+        tint(0, 0, this.selected? 100: 90)
 
         /* art crops are 626x457, ½ MB */
         image(this.borderCrop, x, y)
