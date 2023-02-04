@@ -41,6 +41,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 
 /* the canvas height needs to be large enough to show all the cards */
 let necessaryCanvasHeight = 400
+let setName = 'bro'
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -54,7 +55,7 @@ function preload() {
     p = loadImage('svg/p.svg')
     c = loadImage('svg/c.svg')
 
-    let req = 'https://api.scryfall.com/cards/search?q=set:bro'
+    let req = `https://api.scryfall.com/cards/search?q=set:${setName}`
 
     /* we're in preload; this loadJSON call finishes before setup() starts */
     initialScryfallQueryJSON = loadJSON(req)
@@ -464,17 +465,28 @@ function populateTricks() {
     /* instant / flash cards that satisfy color requirements */
     let filteredCards = []
     for (let card of cards) {
-
         /* check only the front face of the card
            TODO some instant speed interaction are on the back face. we'd need
-           to iterate through every face! */
+            to iterate through every face! */
 
-        // console.log(`${card['name']} → ${card['oracle_text']}`)
         if (card['oracle_text'].toLowerCase().includes('flash') ||
             card['type_line'] === 'Instant') {
 
-            /* TODO this triggers 'flashback', so that's bad :P */
-            filteredCards.push(card)
+            /* sets these days have promos not part of the draft set
+             * e.g. Rescue Retriever, ID 291 of 287 in BRO */
+            switch (setName.toLowerCase()) {
+                case 'bro':
+                    if (card['collector_number'] <= 287)
+                        filteredCards.push(card)
+                    break;
+                case 'one':
+                    if (card['collector_number'] <= 271)
+                        filteredCards.push(card)
+                    break;
+                default:
+                    /* TODO this triggers 'flashback', so that's bad :P */
+                    filteredCards.push(card)
+            }
         } else {
             // console.log(`did not include → ${card['name']}`)
         }
