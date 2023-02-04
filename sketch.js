@@ -39,6 +39,9 @@ const CARD_SCALE_FACTOR = 0.4
 
 const FIXED_WIDTH_FONT_SIZE = 14
 
+/* the canvas height needs to be large enough to show all the cards */
+let necessaryCanvasHeight = 400
+
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
     variableWidthFont = loadFont('data/meiryo.ttf')
@@ -59,7 +62,7 @@ function preload() {
 
 
 function setup() {
-    let cnv = createCanvas(1000, 2200)
+    let cnv = createCanvas(1000, necessaryCanvasHeight)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(fixedWidthFont, FIXED_WIDTH_FONT_SIZE)
@@ -106,6 +109,12 @@ function setup() {
 }
 
 
+function changeCanvasSize(newHeight) {
+    resizeCanvas(width, newHeight, false);
+    console.log(`resized canvas to ${width}, ${newHeight}`)
+}
+
+
 function displayCombatTricks() {
     /* display list of combat tricks; populate list with 'z' key */
     if (displayedTricks && displayedTricks.length > 0) {
@@ -130,8 +139,13 @@ function displayCombatTricks() {
 
         tricksDataLastFrame = tricksDataThisFrame
 
-        // wrapTricksByCard()
-        wrapTricksByMv()
+        let newCanvasHeight = wrapTricksByMv() /* wrapTricksByCard() */
+
+        /* TODO call updateCanvasHeight only when tricks data changes */
+        if (newCanvasHeight !== necessaryCanvasHeight) {
+            changeCanvasSize(newCanvasHeight)
+            necessaryCanvasHeight = newCanvasHeight
+        }
     }
 
     /* show full size card image when mouse is clicked on a trick */
@@ -152,12 +166,12 @@ function displayCombatTricks() {
  *   obtain list of all mv values in displayedTricks
  *   find all unique values → print or set debugMsg
  *   for each ascending value, populate on that row by itself →wrap
- *     TODO wrap individual rows
  */
 function wrapTricksByMv() {
-    const y = 260
+    const Y = 260 /* starting y-position of first card */
     const SPACING = 20 /* spacing between each displayed Trick + divider */
     const DIVIDER_HEIGHT = 12
+    const CARD_HEIGHT = displayedTricks[0].scaleHeight
 
     /* recall Tricks render by RectMode(CENTER)! */
     const LEFT_MARGIN = 20
@@ -183,34 +197,34 @@ function wrapTricksByMv() {
         /* fill(0, 0, 0, 25) */
         fill(237, 37.3, 20, 100)
         strokeWeight(0)
-        const CARD_HEIGHT = displayedTricks[0].scaleHeight
         rect( /* remember we are RectMode(CENTER): x, y, w, h */
             width/2,
-            y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT/2,
+            Y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT/2,
             width,
             DIVIDER_HEIGHT)
 
         /* add mv and update xPos based on current rectMode setting */
         textFont(fixedWidthFont, 50)
         // stroke(0, 0, 100, 25)
-        fill(0, 0, 100, 20)
+        fill(0, 0, 100, 40)
         strokeWeight(0)
-        text(mv, MV_START, y + yOffset)
+        text(mv, MV_START, Y + yOffset)
         xPos += MV_RIGHT_MARGIN
 
         const TRICKS_DISPLAY_RIGHT_MARGIN = width - 20
         for (const trick of displayedTricks) {
             if (trick.mv === mv) {
+                if (xPos + trick.scaleWidth / 2 >= TRICKS_DISPLAY_RIGHT_MARGIN) {
+                    /* reset x position; this is a wrap without dividers
+                     * ∴ there is no DIVIDER_HEIGHT term */
+                    xPos = X_START + MV_RIGHT_MARGIN
+                    yOffset += CARD_HEIGHT + SPACING
+                }
+
                 /* setPos, render, increase xPos */
-                trick.setPos(xPos, y + yOffset)
+                trick.setPos(xPos, Y + yOffset)
                 trick.render()
                 xPos += trick.scaleWidth + SPACING
-
-                if (xPos + trick.scaleWidth / 2 >= TRICKS_DISPLAY_RIGHT_MARGIN) {
-                    /* reset x position */
-                    xPos = X_START + MV_RIGHT_MARGIN
-                    yOffset += trick.scaleHeight + SPACING
-                }
             }
         }
 
@@ -218,6 +232,10 @@ function wrapTricksByMv() {
         xPos = X_START
         yOffset += CARD_HEIGHT + SPACING + DIVIDER_HEIGHT
     }
+
+    /* y-center of lowest card. note we added more yOffset after last loop
+     * so we have to subtract some. */
+    return Y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT
 }
 
 

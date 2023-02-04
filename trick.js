@@ -36,7 +36,7 @@ class Trick {
         this.selectedBrightness = 20
         this.unSelectedBrightness = 15
         this.selectedOpacity = 100
-        this.unselectedOpacity = 100
+        this.unselectedOpacity = 95
 
         this.pos = new p5.Vector(0, 0)
 
@@ -98,7 +98,7 @@ class Trick {
         textFont(variableWidthFont, FONT_SIZE)
 
         /* slight highlight when selected */
-        tint(0, 0, this.selected? 100: 90)
+        tint(0, 0, this.selected? this.selectedOpacity: this.unselectedOpacity)
 
         /* art crops are 626x457, ½ MB */
         image(this.borderCrop, x, y)
@@ -166,6 +166,6 @@ class Trick {
             0,
             0,
             this.selected? this.selectedBrightness: this.unSelectedBrightness,
-            this.selected? this.selectedOpacity: this.unselectedOpacity)
+            100)
     }
 }
