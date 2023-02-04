@@ -41,7 +41,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 
 /* the canvas height needs to be large enough to show all the cards */
 let necessaryCanvasHeight = 400
-let setName = 'bro'
+let setName = 'one'
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -158,7 +158,11 @@ function displayCombatTricks() {
         if (mouseX < CARD_WIDTH_PX/2)
             imgX = CARD_WIDTH_PX/2 /*  */
 
-        image(clickedImg, width/2, clickedPos.y, w, h)
+        image(
+            clickedImg,
+            windowWidth/2,
+            windowHeight/2 + window.scrollY - 30, /* make sure not too low */
+            w, h)
     }
 }
 
