@@ -240,7 +240,7 @@ function wrapTricksByMv() {
 }
 
 
-/* displays cards on the canvas, wrapping by card */
+/* deprecated: displays cards on the canvas, wrapping by card */
 function wrapTricksByCard () {
     const y = 200
     const SPACING = 5 /* spacing between each displayed Trick */
@@ -266,6 +266,11 @@ function wrapTricksByCard () {
         trick.render()
         xPos += trick.scaleWidth + SPACING
     }
+}
+
+
+function windowResized() {
+    // resizeCanvas(windowWidth-40, necessaryCanvasHeight);
 }
 
 
@@ -313,6 +318,7 @@ function gotData(data) {
 }
 
 
+/**  */
 function getCardData() {
     let results = []
     let data = scryfallData
