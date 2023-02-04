@@ -234,7 +234,8 @@ function wrapTricksByMv() {
     }
 
     /* y-center of lowest card. note we added more yOffset after last loop
-     * so we have to subtract some. */
+     * so we have to subtract some. see canvasHeight ✒️ drawingPad entry for
+     * details */
     return Y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT
 }
 
