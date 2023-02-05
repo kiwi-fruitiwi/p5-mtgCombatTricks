@@ -160,7 +160,7 @@ function displayCombatTricks() {
 
         image(
             clickedImg,
-            windowWidth/2,
+            windowWidth/2 - 30, /* subtracts scrollbar width */
             windowHeight/2 + window.scrollY - 30, /* make sure not too low */
             w, h)
     }
@@ -473,7 +473,7 @@ function populateTricks() {
            TODO some instant speed interaction are on the back face. we'd need
             to iterate through every face! */
 
-        if (card['oracle_text'].toLowerCase().includes('flash') ||
+        if (card['oracle_text'].toLowerCase().includes('flash\n') ||
             card['type_line'] === 'Instant') {
 
             /* sets these days have promos not part of the draft set

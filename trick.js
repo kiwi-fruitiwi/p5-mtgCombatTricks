@@ -97,8 +97,13 @@ class Trick {
 
         textFont(variableWidthFont, FONT_SIZE)
 
-        /* slight highlight when selected */
-        tint(0, 0, this.selected? this.selectedOpacity: this.unselectedOpacity)
+        /** vary tint depending on if the Trick is selected.
+            currently 100 all the time
+
+            slight highlight when selected:
+            this.selected? this.selectedOpacity: this.unselectedOpacity
+         */
+        tint(0, 0, 100)
 
         /* art crops are 626x457, ½ MB */
         image(this.borderCrop, x, y)
@@ -110,6 +115,9 @@ class Trick {
         strokeWeight(6) /* card black border thickness */
         rectMode(CENTER)
         rect(x, y, this.scaleWidth, this.scaleHeight, BORDER_RADIUS)
+
+        /** add white glow if this Trick is selected */
+
 
         /* this.#displayTextBox() */
     }
@@ -165,7 +173,10 @@ class Trick {
         stroke( /* hue, saturation, brightness, alpha */
             0,
             0,
-            this.selected? this.selectedBrightness: this.unSelectedBrightness,
+            this.unSelectedBrightness,
             100)
+
+        /* to vary by selection we can use this for brightness:
+           this.selected? this.selectedBrightness: this.unSelectedBrightness */
     }
 }
