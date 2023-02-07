@@ -105,8 +105,17 @@ class Trick {
          */
         tint(0, 0, 100)
 
+        /** add white glow if this Trick is selected */
+        const MILK = color(207, 7, 99)
+
+        if (this.selected) {
+            drawingContext.shadowBlur = 10
+            drawingContext.shadowColor = MILK
+        }
+
         /* art crops are 626x457, ½ MB */
         image(this.borderCrop, x, y)
+        this.#resetDcShadow()
 
         /* art border */
         noFill()
@@ -116,10 +125,14 @@ class Trick {
         rectMode(CENTER)
         rect(x, y, this.scaleWidth, this.scaleHeight, BORDER_RADIUS)
 
-        /** add white glow if this Trick is selected */
-
-
         /* this.#displayTextBox() */
+    }
+
+
+    #resetDcShadow() {
+        drawingContext.shadowBlur = 0
+        drawingContext.shadowOffsetY = 0
+        drawingContext.shadowOffsetX = 0
     }
 
     #displayTextBox() {
