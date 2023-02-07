@@ -33,10 +33,6 @@ let manaColors /* js object of cwubrg char keys mapped to colors */
 let clickedPos /* position of card that was last clicked on */
 let clickedImg /* image of currently clicked card */
 
-const CARD_WIDTH_PX = 745
-const CARD_HEIGHT_PX = 1040
-const CARD_SCALE_FACTOR = 0.4
-
 const FIXED_WIDTH_FONT_SIZE = 14
 
 /* the canvas height needs to be large enough to show all the cards */
@@ -151,18 +147,11 @@ function displayCombatTricks() {
 
     /* show full size card image when mouse is clicked on a trick */
     if (clickedImg) {
-        const w = CARD_WIDTH_PX * CARD_SCALE_FACTOR
-        const h = CARD_HEIGHT_PX * CARD_SCALE_FACTOR
-
-        let imgX = mouseX
-        if (mouseX < CARD_WIDTH_PX/2)
-            imgX = CARD_WIDTH_PX/2 /*  */
-
         image(
             clickedImg,
             windowWidth/2 - 30, /* subtracts scrollbar width */
             windowHeight/2 + window.scrollY - 30, /* make sure not too low */
-            w, h)
+        )
     }
 }
 

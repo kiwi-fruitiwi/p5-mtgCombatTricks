@@ -1,6 +1,10 @@
 const BORDER_RADIUS = 5
 const FONT_SIZE = 10
 
+const FULL_CARD_WIDTH_PX = 745
+const FULL_CARD_HEIGHT_PX = 1040
+const FULL_CARD_SCALE_FACTOR = 0.6
+
 /** one card to display in our list of tricks */
 class Trick {
     /*  each trick needs a position
@@ -19,12 +23,18 @@ class Trick {
             use css:hover to make each appear
      */
 
-    constructor(name, mv, typeText, borderCrop, imgURI) {
+    constructor(name, mv, typeText, borderCrop, pngURI) {
         this.name = name
         this.mv = mv
         this.typeText = typeText /* magicalTyperC oracle text, title, mv, etc */
         this.borderCrop = borderCrop /* the actual cropped art image, not URL */
-        this.cardImg = loadImage(imgURI) /* full image */
+        loadImage(pngURI, data => {
+            this.cardImg = data
+            this.cardImg.resize(
+                FULL_CARD_WIDTH_PX * FULL_CARD_SCALE_FACTOR,
+                FULL_CARD_HEIGHT_PX * FULL_CARD_SCALE_FACTOR
+            )
+        }) /* asynchronous callback to load and resize the full png image */
 
         this.scaleWidth = 150 /* width of each card in the UI */
 
@@ -82,10 +92,6 @@ class Trick {
         }
     }
 
-    getPosition() {
-        return this.pos
-    }
-
     /* finds the difference between two coordinates */
     #dist1D(a, b) {
         return abs(a-b)
@@ -109,7 +115,7 @@ class Trick {
         const MILK = color(207, 7, 99)
 
         if (this.selected) {
-            drawingContext.shadowBlur = 10
+            drawingContext.shadowBlur = 20
             drawingContext.shadowColor = MILK
         }
 
