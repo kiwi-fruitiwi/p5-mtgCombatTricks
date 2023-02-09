@@ -57,6 +57,22 @@ function preload() {
     initialScryfallQueryJSON = loadJSON(req)
 }
 
+/**
+ *  returns the reduced mana cost of a 🔑 cmc key value from scryfall JSON
+ *  note we need "this spell costs" AND "less to cast", otherwise cards like
+ *  Mindsplice Apparatus will be included in cost reduction
+ *
+ *  examples:
+ *      {3}{W}{W}   → 2         plated onslaught
+ *      {2}{R}      → 1         rebel salvo
+ *      {1}{U}      → 1         machine over matter
+ *      {4}{B}      → 1         overwhelming remorse
+ *  @param {string} manaCost
+ */
+function countMV(manaCost) {
+
+}
+
 
 function setup() {
     let cnv = createCanvas(1000, necessaryCanvasHeight)
@@ -305,15 +321,17 @@ function gotData(data) {
         console.log(`total request time → ${millis()}`)
         console.log(`total data length: ${scryfallData.length}`)
 
-        cards = getCardData()
+        cards = getCardDataFromScryfall()
         console.log(`cards loaded! → ${cards.length}`)
         loadedJSON = true
     }
 }
 
 
-/**  */
-function getCardData() {
+/** populates card data list from scryfall. this is used in the callback
+ *  function after scryfall data finishes loading completely
+ */
+function getCardDataFromScryfall() {
     let results = []
     let data = scryfallData
 
@@ -327,8 +345,7 @@ function getCardData() {
     for (let key of data) {
         /* double-sided cards like lessons, vampires, MDFCs have card image
           data inside an array within card_faces. card_faces[0] always gives
-          the front card */
-
+          the front card. e.g. Kazandu Mammoth from ZNR */
         let frontFace
         let imgURIs
 
@@ -359,6 +376,17 @@ function getCardData() {
 
         /* filter for rarity */
         if (rarity.test(frontFace['rarity'])) {
+
+            /* debug: test for mv and card text */
+            let oracleText = frontFace['oracle_text'].toLowerCase()
+
+            let costMatch = oracleText.includes('this spell costs')
+            let lessMatch = oracleText.includes('less to cast')
+
+            if (costMatch && lessMatch) {
+                console.log(frontFace['name'])
+            }
+
             let cardData = {
                 'name': frontFace['name'],
                 'colors': frontFace['colors'],
