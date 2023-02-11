@@ -69,8 +69,42 @@ function preload() {
  *      {4}{B}      → 1         overwhelming remorse
  *  @param {string} manaCost
  */
-function countMV(manaCost) {
+function reduceMV(manaCost) {
+    /*  we're guaranteed every mana value is within {}
 
+        ☒ string-builder to add a space after each }
+        ☒ use string.split to create array of {} values?
+        ☒ strip opening and closing brackets
+        ☒ remove all integer elements using isNaN
+        ☒ count the remaining elements → that's our mv!
+     */
+    let spacesAdded = ''
+    for (const character of manaCost) {
+        switch (character) {
+            case '{':
+                /* skip this character */
+                break
+            case '}':
+                /* skip this character but add a space */
+                spacesAdded += ' '
+                break
+            default:
+                spacesAdded += character
+        }
+    }
+
+    /* we need to call trim to remove the trailing space
+        otherwise it actually counts as an empty array element for split
+     */
+    let manaList = spacesAdded.trim().split(' ')
+
+    let result = []
+    for (const element of manaList) {
+        if (isNaN(element)) /* isNaN returns true if it's not a number */
+            result.push(element)
+    }
+
+    return result.length
 }
 
 
@@ -376,17 +410,6 @@ function getCardDataFromScryfall() {
 
         /* filter for rarity */
         if (rarity.test(frontFace['rarity'])) {
-
-            /* debug: test for mv and card text */
-            let oracleText = frontFace['oracle_text'].toLowerCase()
-
-            let costMatch = oracleText.includes('this spell costs')
-            let lessMatch = oracleText.includes('less to cast')
-
-            if (costMatch && lessMatch) {
-                console.log(frontFace['name'])
-            }
-
             let cardData = {
                 'name': frontFace['name'],
                 'colors': frontFace['colors'],
@@ -401,6 +424,17 @@ function getCardDataFromScryfall() {
                 'large_uri': imgURIs['large'], /* large 672x936 100KB */
                 'border_crop_uri': imgURIs['border_crop'], /* 480x680 104KB */
                 'png_uri': imgURIs['png'] /* png 745x1040 1MB */
+            }
+
+            /* debug: test for mv and card text */
+            let oracleText = frontFace['oracle_text'].toLowerCase()
+            let costMatch = oracleText.includes('this spell costs')
+            let lessMatch = oracleText.includes('less to cast')
+
+            if (costMatch && lessMatch) {
+                /* convert {3}{W}{W} to 2 */
+                cardData['cmc'] = reduceMV(frontFace['mana_cost'])
+                console.log(`${cardData['name']} → ${cardData['cmc']}`)
             }
 
             results.push(cardData)
