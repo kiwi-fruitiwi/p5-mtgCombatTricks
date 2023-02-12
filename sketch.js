@@ -239,7 +239,7 @@ function wrapTricksByMv() {
     for (const mv of manaValues) {
         /* add a rectangle separator after each mv */
         /* fill(0, 0, 0, 25) */
-        fill(237, 37.3, 20, 100)
+        fill(237, 37.3, 20, 50)
         strokeWeight(0)
         rect( /* remember we are RectMode(CENTER): x, y, w, h */
             width/2,
@@ -319,7 +319,9 @@ function windowResized() {
 
 
 function draw() {
-    background(234, 34, 24)
+    clear()
+    background(234, 34, 24, 40)
+
 
     if (loadedJSON) {
         colorBar.render()

@@ -4,9 +4,16 @@ html, body {
 }
 
 body {
+    padding-top: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
+
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("backgrounds/transplanttheorist.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
 }
 
 #ins {
