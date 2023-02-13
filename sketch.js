@@ -320,7 +320,7 @@ function windowResized() {
 
 function draw() {
     clear()
-    background(234, 34, 24, 40)
+    background(234, 34, 24, 50)
 
 
     if (loadedJSON) {
@@ -415,6 +415,7 @@ function getCardDataFromScryfall() {
             let cardData = {
                 'name': frontFace['name'],
                 'colors': frontFace['colors'],
+                'keywords': frontFace['keywords'],
                 'cmc': frontFace['cmc'],
                 'type_line': frontFace['type_line'],
                 'oracle_text': frontFace['oracle_text'],
@@ -526,7 +527,7 @@ function populateTricks() {
            TODO some instant speed interaction are on the back face. we'd need
             to iterate through every face! */
 
-        if (card['oracle_text'].toLowerCase().includes('flash\n') ||
+        if (card['keywords'].includes('Flash') ||
             card['type_line'] === 'Instant') {
 
             /* sets these days have promos not part of the draft set
