@@ -241,11 +241,14 @@ function wrapTricksByMv() {
         /* fill(0, 0, 0, 25) */
         fill(237, 37.3, 20, 50)
         strokeWeight(0)
+
+        erase()
         rect( /* remember we are RectMode(CENTER): x, y, w, h */
             width/2,
             Y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT/2,
             width,
             DIVIDER_HEIGHT)
+        noErase()
 
         /* add mv and update xPos based on current rectMode setting */
         textFont(fixedWidthFont, 50)
