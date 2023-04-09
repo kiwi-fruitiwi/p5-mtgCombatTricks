@@ -37,7 +37,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 
 /* the canvas height needs to be large enough to show all the cards */
 let necessaryCanvasHeight = 400
-let setName = 'one'
+let setName = 'mom'
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -241,8 +241,7 @@ function wrapTricksByMv() {
         /* fill(0, 0, 0, 25) */
         fill(237, 37.3, 20, 50)
         strokeWeight(0)
-
-        erase()
+        erase() /* use erase to create negative space instead */
         rect( /* remember we are RectMode(CENTER): x, y, w, h */
             width/2,
             Y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT/2,
