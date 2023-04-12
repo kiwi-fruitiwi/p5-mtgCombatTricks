@@ -37,7 +37,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 
 /* the canvas height needs to be large enough to show all the cards */
 let necessaryCanvasHeight = 400
-let setName = 'mom'
+let setName = 'one'
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -153,6 +153,11 @@ function setup() {
     /* this is the UI element that tracks filter colors for combat tricks */
     colorBar = new ColorSelector(icons)
     displayedTricks = []
+
+    let body = select('body')
+    let bgURL = `url("backgrounds/${setName}/bluesunstwilight.jpg")`
+    body.style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
+        ` rgba(0,0,0,0.4)), ${bgURL}`)
 }
 
 
