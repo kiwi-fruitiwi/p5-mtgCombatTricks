@@ -164,10 +164,32 @@ function setup() {
       randomly select an element of this list to load as the URL for style.css
      */
 
+    const wallpapers = {
+        'bro': [
+            'platoondispenser.jpg',
+            'urzascommand.jpg',
+            'zephyrsentinel.jpg'
+
+        ],
+        'one': [
+            'bluesunstwilight.jpg',
+            'ossification.jpg',
+            'transplanttheorist.jpg',
+            'whitesunstwilight.jpg',
+        ],
+        'mom': [
+            'angelicintervention.jpg',
+            'angelicintervention.jpg',
+            'angelicintervention.jpg',
+        ]
+    }
+
+    const body = select('body')
+    const setImgArr = wallpapers[setName]
 
 
-    let body = select('body')
-    let bgURL = `url("backgrounds/${setName}/bluesunstwilight.jpg")`
+
+    const bgURL = `url("backgrounds/${setName}/bluesunstwilight.jpg")`
     body.style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
         ` rgba(0,0,0,0.4)), ${bgURL}`)
 }
