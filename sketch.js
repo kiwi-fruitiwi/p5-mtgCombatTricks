@@ -154,6 +154,18 @@ function setup() {
     colorBar = new ColorSelector(icons)
     displayedTricks = []
 
+    /** → populate wallpaper images lists for each set
+      create a list of wallpaper images for every set as we work on them:
+         BRO, ONE, MOM
+         wallpapers dictionary keyed by setName
+             list values filled with local filenames
+         concat with setName to generate URL for css background-image +gradient
+      manually keep this list updated to mirror local file structure, file names
+      randomly select an element of this list to load as the URL for style.css
+     */
+
+
+
     let body = select('body')
     let bgURL = `url("backgrounds/${setName}/bluesunstwilight.jpg")`
     body.style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
