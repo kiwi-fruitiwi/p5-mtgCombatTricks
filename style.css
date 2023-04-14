@@ -8,10 +8,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    background-image:
-        linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
-        url("backgrounds/angelicIntervention.jpg");
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center;

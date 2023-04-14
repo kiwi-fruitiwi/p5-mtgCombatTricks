@@ -37,7 +37,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 
 /* the canvas height needs to be large enough to show all the cards */
 let necessaryCanvasHeight = 400
-let setName = 'one'
+let setName = 'bro'
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -162,14 +162,21 @@ function setup() {
          concat with setName to generate URL for css background-image +gradient
       manually keep this list updated to mirror local file structure, file names
       randomly select an element of this list to load as the URL for style.css
+
+      wallpapers can be retrieved from 🔗 mtgpics.com/set?set=n where n is:
+         396 Brother's War
+         401 Brother's War: Retro Artifacts
+         406 Phyrexia: All Will Be One
+         410 March of the Machine
      */
 
     const wallpapers = {
         'bro': [
             'platoondispenser.jpg',
             'urzascommand.jpg',
-            'zephyrsentinel.jpg'
-
+            'zephyrsentinel.jpg',
+            'awakenthewoods.jpg',
+            'skitterbeambattalion.jpg'
         ],
         'one': [
             'bluesunstwilight.jpg',
@@ -179,17 +186,19 @@ function setup() {
         ],
         'mom': [
             'angelicintervention.jpg',
-            'angelicintervention.jpg',
-            'angelicintervention.jpg',
+            'inveasionofmuraganda.jpg',
+            'invasionofkaladesh.jpg',
         ]
     }
 
     const body = select('body')
     const setImgArr = wallpapers[setName]
 
+    /* use the array length as a scaling factor for random's [0,1) generator */
+    const randomIndex = Math.floor(Math.random() * setImgArr.length)
+    const wallpaperFileName = setImgArr[randomIndex];
 
-
-    const bgURL = `url("backgrounds/${setName}/bluesunstwilight.jpg")`
+    const bgURL = `url("backgrounds/${setName}/${wallpaperFileName}")`
     body.style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
         ` rgba(0,0,0,0.4)), ${bgURL}`)
 }
