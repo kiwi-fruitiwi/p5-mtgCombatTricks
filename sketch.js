@@ -37,7 +37,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 
 /* the canvas height needs to be large enough to show all the cards */
 let necessaryCanvasHeight = 400
-let setName = 'bro'
+let setName = 'mom'
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -479,16 +479,28 @@ function getCardDataFromScryfall() {
                 'png_uri': imgURIs['png'] /* png 745x1040 1MB */
             }
 
-            /* debug: test for mv and card text */
+            /** convert {3}{W}{W} to 2 to handle affinity type effects
+                that reduce mv by generic mana:
+                    Machine Over Matter (BRO)
+                    Plated Onslaught (ONE)
+             */
             let oracleText = frontFace['oracle_text'].toLowerCase()
             let costMatch = oracleText.includes('this spell costs')
             let lessMatch = oracleText.includes('less to cast')
 
             if (costMatch && lessMatch) {
-                /* convert {3}{W}{W} to 2 */
                 cardData['cmc'] = reduceMV(frontFace['mana_cost'])
                 console.log(`${cardData['name']} → ${cardData['cmc']}`)
             }
+
+            /** handles convoke cards which will always register an mv of 0
+                    Cut Short (MOM) 2W → 0 if 'W' is selected
+                    Artistic Refusal (MOM) 4UU → 0 if 'U' selected
+
+                if card's keywords include 'convoke':
+                    reduce MV to 0
+             */
+
 
             results.push(cardData)
             count++
@@ -574,8 +586,8 @@ function populateTricks() {
     let filteredCards = []
     for (let card of cards) {
         /* check only the front face of the card
-           TODO some instant speed interaction are on the back face. we'd need
-            to iterate through every face! */
+           TODO some instant speed interaction are on the back face. to
+             handle this, we'd to iterate through every face! */
 
         if (card['keywords'].includes('Flash') ||
             card['type_line'] === 'Instant') {
