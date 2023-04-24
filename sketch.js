@@ -499,8 +499,13 @@ function getCardDataFromScryfall() {
 
                 if card's keywords include 'convoke':
                     reduce MV to 0
-             */
 
+                note keywords are capitalized as of 2023.Apr
+             */
+            if (cardData['keywords'].includes('Convoke')) {
+                console.log(`🐳 ${cardData['name']}`)
+                cardData['cmc'] = 0
+            }
 
             results.push(cardData)
             count++
