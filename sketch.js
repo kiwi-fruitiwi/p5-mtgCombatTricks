@@ -39,6 +39,9 @@ const FIXED_WIDTH_FONT_SIZE = 14
 let necessaryCanvasHeight = 400
 let setName = 'mom'
 
+let combineSecondSet = true
+let secondSetName = 'mat'
+
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
     variableWidthFont = loadFont('data/meiryo.ttf')
@@ -52,6 +55,9 @@ function preload() {
     c = loadImage('svg/c.svg')
 
     let req = `https://api.scryfall.com/cards/search?q=set:${setName}`
+    if (combineSecondSet) {
+        req += `+OR+set:${secondSetName}`
+    }
 
     /* we're in preload; this loadJSON call finishes before setup() starts */
     initialScryfallQueryJSON = loadJSON(req)
@@ -186,7 +192,7 @@ function setup() {
         ],
         'mom': [
             'angelicintervention.jpg',
-            'inveasionofmuraganda.jpg',
+            'invasionofmuraganda.jpg',
             'invasionofkaladesh.jpg',
         ]
     }
@@ -502,10 +508,8 @@ function getCardDataFromScryfall() {
 
                 note keywords are capitalized as of 2023.Apr
              */
-            if (cardData['keywords'].includes('Convoke')) {
-                console.log(`🐳 ${cardData['name']}`)
+            if (cardData['keywords'].includes('Convoke'))
                 cardData['cmc'] = 0
-            }
 
             results.push(cardData)
             count++
@@ -514,15 +518,6 @@ function getCardDataFromScryfall() {
     return results
 }
 
-
-function mouseMoved() {
-    if (displayedTricks && debugCorner) {
-        debugCorner.setText(`hovering over: none`, 2)
-        for (const trick of displayedTricks) {
-            trick.detectHover()
-        }
-    }
-}
 
 function mouseReleased() {
     /* reset  */
