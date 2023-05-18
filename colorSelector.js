@@ -1,6 +1,7 @@
 
 const TOP_MARGIN = 110 /* canvasHeight ÷ 2 ideally */
 const IMG_WIDTH = 20 /* 50 */
+const IMG_HEIGHT = 20 /* 50 */
 const RECT_PADDING = 6 /* 12 */
 
 const LEFT_MARGIN = 20
@@ -12,7 +13,7 @@ const STROKE_WEIGHT = 1
 
 const SELECTED_ALPHA = 60
 const DESELECTED_ALPHA = 20
-
+const CIRCLE_DISPLAY = false
 
 class colorIcon {
     constructor(colorCh, img, color_) {
@@ -35,6 +36,76 @@ class colorIcon {
     resetManaCount() {
         this.count = 0
     }
+
+    /**
+     * render this colorIcon depending on its index inside colorSelector
+     * draw indicators for mana count: rectangles above
+     * @param index
+     */
+    render(index) {
+        let iconAlpha = DESELECTED_ALPHA
+        if (this.selected) { /* add color if selected */
+            tint(this.color, 100)
+            fill(0, 0, 100, 10)
+            stroke(this.color, 80)
+        } else { /* gray otherwise */
+            noFill()
+            tint(0, 0, 100, iconAlpha)
+            stroke(0, 0, 100, iconAlpha)
+        }
+
+        const iconX = ICON_XPOS + index * (IMG_WIDTH+ICON_SPACING)
+        const iconY = TOP_MARGIN
+
+        strokeWeight(STROKE_WEIGHT)
+        if (CIRCLE_DISPLAY) {
+            circle(iconX, iconY, IMG_WIDTH * 1.3)
+        } else {
+            rect(iconX, iconY,
+                IMG_WIDTH + RECT_PADDING,
+                IMG_WIDTH + RECT_PADDING,
+                2) /* rounded borders */
+        }
+
+        const svg = this.img
+        image(svg, ICON_XPOS + index * (IMG_WIDTH+ICON_SPACING), TOP_MARGIN)
+
+        /* add bar visualization for mana count above each mana icon */
+
+        /* display bars above each icon */
+        const iconCenter = new p5.Vector(iconX, iconY)
+
+        /* midpoint of icon border top */
+        const iconTopBorderY = iconCenter.y - IMG_HEIGHT/2 - RECT_PADDING/2
+
+        /* color.levels returns RGBa */
+        // const c = icon.color.levels
+        const c = this.color
+        // stroke(icon.color)
+        // strokeWeight(1.2)
+        noStroke()
+        fill(hue(c), saturation(c), brightness(c), 80)
+
+        /* padding for mana symbol count bars above each icon */
+        const barPadding = 2
+        const barHeight = 3
+        const firstBarOffSet = 1
+
+        for (let i=1; i<= this.getManaCount(); i++) {
+            /* note RECT_PADDING/2 is extra padding from image to rect
+             border TODO draw center point */
+
+            let yOffset = i * (barPadding + barHeight) -
+                barHeight/2 + firstBarOffSet
+
+            /* additional spacing for first bar */
+            rect(iconCenter.x,
+                iconTopBorderY - yOffset,
+                IMG_WIDTH + RECT_PADDING,
+                barHeight,
+                0)
+        }
+    }
 }
 
 
@@ -50,7 +121,6 @@ class ColorSelector {
     }
 
     render() {
-        const CIRCLE_DISPLAY = false
         imageMode(CENTER)
         rectMode(CENTER)
         ellipseMode(CENTER)
@@ -59,74 +129,7 @@ class ColorSelector {
         /** iterate through icons, displaying each one */
         for (let i in this.icons) {
             const icon = this.icons[i]
-            const selected = icon.selected
-
-            let iconAlpha = DESELECTED_ALPHA
-            if (selected) { /* add color if selected */
-                tint(icon.color, 100)
-                fill(0, 0, 100, 10)
-                stroke(icon.color, 80)
-            } else { /* gray otherwise */
-                noFill()
-                tint(0, 0, 100, iconAlpha)
-                stroke(0, 0, 100, iconAlpha)
-            }
-
-            const iconX = ICON_XPOS + i * (IMG_WIDTH+ICON_SPACING)
-            const iconY = TOP_MARGIN
-
-            strokeWeight(STROKE_WEIGHT)
-            if (CIRCLE_DISPLAY) {
-                circle(iconX, iconY, IMG_WIDTH * 1.3)
-            } else {
-                rect(iconX, iconY,
-                    IMG_WIDTH + RECT_PADDING,
-                    IMG_WIDTH + RECT_PADDING,
-                    2) /* rounded borders */
-            }
-
-            const svg = icon.img
-            image(svg, ICON_XPOS + i*(IMG_WIDTH+ICON_SPACING), TOP_MARGIN)
-
-            /* add bar visualization for mana count above each mana icon */
-
-            /* display bars above each icon */
-            const iconCenter = new p5.Vector(iconX, iconY)
-
-            // noinspection JSSuspiciousNameCombination
-            const imgHeight = IMG_WIDTH
-
-            /* midpoint of icon border top */
-            const iconTopBorderY = iconCenter.y - imgHeight/2 - RECT_PADDING/2
-
-            /* color.levels returns RGBa */
-            // const c = icon.color.levels
-            const c = icon.color
-            // stroke(icon.color)
-            // strokeWeight(1.2)
-            noStroke()
-            fill(hue(c), saturation(c), brightness(c), 80)
-
-            /* padding for mana symbol count bars above each icon */
-            const barPadding = 2
-            const barHeight = 3
-            const firstBarOffSet = 1
-
-            for (let i=1; i<= icon.getManaCount(); i++) {
-                /* note RECT_PADDING/2 is extra padding from image to rect
-                 border TODO draw center point */
-
-                let yOffset = i * (barPadding + barHeight) -
-                    barHeight/2 + firstBarOffSet
-
-                /* additional spacing for first bar */
-
-                rect(iconCenter.x,
-                    iconTopBorderY - yOffset,
-                    IMG_WIDTH + RECT_PADDING,
-                    barHeight,
-                    0)
-            }
+            icon.render(i)
         }
     }
 
@@ -172,4 +175,30 @@ class ColorSelector {
 
         }
     }
+
+    /* finds the difference between two coordinates */
+    #dist1D(a, b) {
+        return abs(a-b)
+    }
+
+    /* returns true if mouse position is 'over' this Trick */
+    #mouseCollisionDetected() {
+        if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
+            (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
+            return true
+        } else return false
+    }
+
+    /** detect if the mouse is currently hovering over this colorSelector
+     */
+    detectHover() {
+        /* remember we're in CENTER rectMode! */
+        if (this.#mouseCollisionDetected()) {
+            debugCorner.setText(`hovering over: ${this.colorCh}`, 2)
+            this.selected = true
+        } else {
+            this.selected = false
+        }
+    }
+
 }
