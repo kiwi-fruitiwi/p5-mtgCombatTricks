@@ -11,9 +11,10 @@ const ICON_XPOS = LEFT_MARGIN + IMG_WIDTH/2 + RECT_PADDING/2
 const ICON_SPACING = 10 /* 20 space between icons. not padding, but spacing */
 const STROKE_WEIGHT = 1
 
-const SELECTED_ALPHA = 60
+const SELECTED_ALPHA = 100
 const DESELECTED_ALPHA = 20
 const CIRCLE_DISPLAY = false
+
 
 class colorIcon {
     constructor(colorCh, img, color_) {
@@ -37,21 +38,45 @@ class colorIcon {
         this.count = 0
     }
 
+    /* finds the difference between two coordinates */
+    #dist1D(a, b) {
+        return abs(a-b)
+    }
+
+    /* returns true if mouse position is 'over' this colorIcon */
+    #mouseCollisionDetected() {
+        const withinXBound = this.#dist1D(mouseX, this.pos.x) < IMG_WIDTH/2
+        const withinYBound = this.#dist1D(mouseY, this.pos.y) < IMG_HEIGHT/2
+
+        return withinXBound && withinYBound
+    }
+
+    /** detect if the mouse is currently hovering over this colorIcon
+     */
+    detectHover() {
+        /* remember we're in CENTER rectMode! */
+        if (this.#mouseCollisionDetected()) {
+            debugCorner.setText(`hovering over: ${this.colorCh} colorIcon`, 2)
+            this.selected = true
+        } else {
+            this.selected = false
+        }
+    }
+
     /**
      * render this colorIcon depending on its index inside colorSelector
      * draw indicators for mana count: rectangles above
      * @param index
      */
     render(index) {
-        let iconAlpha = DESELECTED_ALPHA
         if (this.selected) { /* add color if selected */
-            tint(this.color, 100)
+            tint(this.color, SELECTED_ALPHA)
             fill(0, 0, 100, 10)
             stroke(this.color, 80)
         } else { /* gray otherwise */
             noFill()
-            tint(0, 0, 100, iconAlpha)
-            stroke(0, 0, 100, iconAlpha)
+            tint(0, 0, 100, DESELECTED_ALPHA)
+            stroke(0, 0, 100, DESELECTED_ALPHA)
         }
 
         this.pos.x = ICON_XPOS + index * (IMG_WIDTH+ICON_SPACING)
@@ -68,7 +93,13 @@ class colorIcon {
         }
 
         const svg = this.img
-        image(svg, ICON_XPOS + index * (IMG_WIDTH+ICON_SPACING), TOP_MARGIN)
+        image(svg, this.pos.x, this.pos.y)
+
+        stroke(0, 0, 100)
+        strokeWeight(2)
+
+        /* debug display: center of icon */
+        point(this.pos.x, this.pos.y)
 
         this.#displayManaBars()
     }
@@ -131,6 +162,10 @@ class ColorSelector {
             const icon = this.icons[i]
             icon.render(i)
         }
+    }
+
+    getColorIcons() {
+        return this.icons
     }
 
     /* return list of colors that are selected */

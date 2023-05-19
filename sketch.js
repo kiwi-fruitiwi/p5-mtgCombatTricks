@@ -375,6 +375,7 @@ function windowResized() {
 
 function mouseMoved() {
     detectTrickHover()
+    detectColorIconHover()
 }
 
 
@@ -386,6 +387,18 @@ function detectTrickHover() {
         debugCorner.setText(`hovering over: none`, 2)
         for (const trick of displayedTricks) {
             trick.detectHover()
+        }
+    }
+}
+
+/** iterate through all displayedTricks to see if our mouse is hovering
+ over any Trick
+ */
+function detectColorIconHover() {
+    if (colorBar && debugCorner) {
+        debugCorner.setText(`hovering over: none`, 2)
+        for (const colorIcon of colorBar.getColorIcons()) {
+            colorIcon.detectHover()
         }
     }
 }
