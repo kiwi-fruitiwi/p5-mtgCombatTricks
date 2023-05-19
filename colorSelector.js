@@ -17,12 +17,12 @@ const CIRCLE_DISPLAY = false
 
 class colorIcon {
     constructor(colorCh, img, color_) {
-        this.img = img
-        this.colorCh = colorCh
-        this.color = color_
-        this.selected = false
-
-        this.count = 0
+        this.img = img /* svg image of this colorIcon */
+        this.colorCh = colorCh /* WUBRGC */
+        this.color = color_ /* p5 color object */
+        this.selected = false /* if this colorIcon is selected, highlight! */
+        this.count = 0 /* how many of pips of this color? */
+        this.pos = new p5.Vector(0, 0) /* the CENTER coords of each icon */
     }
 
     getManaCount() {
@@ -54,14 +54,14 @@ class colorIcon {
             stroke(0, 0, 100, iconAlpha)
         }
 
-        const iconX = ICON_XPOS + index * (IMG_WIDTH+ICON_SPACING)
-        const iconY = TOP_MARGIN
+        this.pos.x = ICON_XPOS + index * (IMG_WIDTH+ICON_SPACING)
+        this.pos.y = TOP_MARGIN
 
         strokeWeight(STROKE_WEIGHT)
         if (CIRCLE_DISPLAY) {
-            circle(iconX, iconY, IMG_WIDTH * 1.3)
+            circle(this.pos.x, this.pos.y, IMG_WIDTH * 1.3)
         } else {
-            rect(iconX, iconY,
+            rect(this.pos.x, this.pos.y,
                 IMG_WIDTH + RECT_PADDING,
                 IMG_WIDTH + RECT_PADDING,
                 2) /* rounded borders */
@@ -70,23 +70,19 @@ class colorIcon {
         const svg = this.img
         image(svg, ICON_XPOS + index * (IMG_WIDTH+ICON_SPACING), TOP_MARGIN)
 
-        this.#displayManaBars(iconX, iconY)
+        this.#displayManaBars()
     }
 
-    #displayManaBars(iconX, iconY) {
+    #displayManaBars() {
         /** add bar visualization for mana count above each mana icon */
-        /* display bars above each icon */
-        const iconCenter = new p5.Vector(iconX, iconY)
-
         /* midpoint of icon border top */
-        const iconTopBorderY = iconCenter.y - IMG_HEIGHT/2 - RECT_PADDING/2
+        const iconTopBorderY = this.pos.y - IMG_HEIGHT/2 - RECT_PADDING/2
 
         /* color.levels returns RGBa */
-        // const c = icon.color.levels
-        const c = this.color
-        // stroke(icon.color)
-        // strokeWeight(1.2)
+        // const c = icon.color.levels; stroke(icon.color); strokeWeight(1.2)
+
         noStroke()
+        const c = this.color
         fill(hue(c), saturation(c), brightness(c), 80)
 
         /* padding for mana symbol count bars above each icon */
@@ -94,6 +90,7 @@ class colorIcon {
         const barHeight = 3
         const firstBarOffSet = 1
 
+        /* display bars above each icon */
         for (let i=1; i<= this.getManaCount(); i++) {
             /* note RECT_PADDING/2 is extra padding from image to rect
              border TODO draw center point */
@@ -102,7 +99,7 @@ class colorIcon {
                 barHeight/2 + firstBarOffSet
 
             /* additional spacing for first bar */
-            rect(iconCenter.x,
+            rect(this.pos.x,
                 iconTopBorderY - yOffset,
                 IMG_WIDTH + RECT_PADDING,
                 barHeight,
