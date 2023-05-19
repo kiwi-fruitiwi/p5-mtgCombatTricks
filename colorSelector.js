@@ -70,8 +70,11 @@ class colorIcon {
         const svg = this.img
         image(svg, ICON_XPOS + index * (IMG_WIDTH+ICON_SPACING), TOP_MARGIN)
 
-        /* add bar visualization for mana count above each mana icon */
+        this.#displayManaBars(iconX, iconY)
+    }
 
+    #displayManaBars(iconX, iconY) {
+        /** add bar visualization for mana count above each mana icon */
         /* display bars above each icon */
         const iconCenter = new p5.Vector(iconX, iconY)
 
@@ -175,30 +178,4 @@ class ColorSelector {
 
         }
     }
-
-    /* finds the difference between two coordinates */
-    #dist1D(a, b) {
-        return abs(a-b)
-    }
-
-    /* returns true if mouse position is 'over' this Trick */
-    #mouseCollisionDetected() {
-        if ((this.#dist1D(mouseX, this.pos.x) < this.scaleWidth/2) &&
-            (this.#dist1D(mouseY, this.pos.y) < this.scaleHeight/2)) {
-            return true
-        } else return false
-    }
-
-    /** detect if the mouse is currently hovering over this colorSelector
-     */
-    detectHover() {
-        /* remember we're in CENTER rectMode! */
-        if (this.#mouseCollisionDetected()) {
-            debugCorner.setText(`hovering over: ${this.colorCh}`, 2)
-            this.selected = true
-        } else {
-            this.selected = false
-        }
-    }
-
 }
