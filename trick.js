@@ -51,7 +51,7 @@ class Trick {
         this.pos = new p5.Vector(0, 0)
 
         this.borderCrop.resize(this.scaleWidth, 0)
-        this.selected = false /* is the mouse hovering over me? */
+        this.hovered = false /* is the mouse hovering over me? */
     }
 
     setPos(x, y) {
@@ -72,10 +72,10 @@ class Trick {
     detectHover() {
         /* remember we're in CENTER rectMode! */
         if (this.#mouseCollisionDetected()) {
-            debugCorner.setText(`hovering over: ${this.name}`, 2)
-            this.selected = true
+            // debugCorner.setText(`hovering over: ${this.name}`, 3)
+            this.hovered = true
         } else {
-            this.selected = false
+            this.hovered = false
         }
     }
 
@@ -114,7 +114,7 @@ class Trick {
         /** add white glow if this Trick is selected */
         const MILK = color(207, 7, 99)
 
-        if (this.selected) {
+        if (this.hovered) {
             drawingContext.shadowBlur = 20
             drawingContext.shadowColor = MILK
         }

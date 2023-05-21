@@ -123,7 +123,7 @@ function setup() {
     rectMode(CENTER)
 
     lastRequestTime = millis()
-    debugCorner = new CanvasDebugCorner(4)
+    debugCorner = new CanvasDebugCorner(5)
     instructions = select('#ins')
     instructions.html(`<pre>
         [cwubrg] → toggle icon highlight; shift+ to untoggle
@@ -384,7 +384,7 @@ function mouseMoved() {
  */
 function detectTrickHover() {
     if (displayedTricks && debugCorner) {
-        debugCorner.setText(`hovering over: none`, 2)
+        debugCorner.setText(`hovering over: none`, 3)
         for (const trick of displayedTricks) {
             trick.detectHover()
         }

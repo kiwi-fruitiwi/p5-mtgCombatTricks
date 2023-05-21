@@ -21,7 +21,7 @@ class colorIcon {
         this.img = img /* svg image of this colorIcon */
         this.colorCh = colorCh /* WUBRGC */
         this.color = color_ /* p5 color object */
-        this.selected = false /* if this colorIcon is selected, highlight! */
+        this.highlighted = false /* if this colorIcon is selected, highlight! */
         this.count = 0 /* how many of pips of this color? */
         this.pos = new p5.Vector(0, 0) /* the CENTER coords of each icon */
     }
@@ -57,9 +57,9 @@ class colorIcon {
         /* remember we're in CENTER rectMode! */
         if (this.#mouseCollisionDetected()) {
             debugCorner.setText(`hovering over: ${this.colorCh} colorIcon`, 2)
-            this.selected = true
+            this.highlighted = true
         } else {
-            this.selected = false
+            this.highlighted = false
         }
     }
 
@@ -69,7 +69,7 @@ class colorIcon {
      * @param index
      */
     render(index) {
-        if (this.selected) { /* add color if selected */
+        if (this.highlighted) { /* add color if selected */
             tint(this.color, SELECTED_ALPHA)
             fill(0, 0, 100, 10)
             stroke(this.color, 80)
