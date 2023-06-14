@@ -42,6 +42,10 @@ let setName = 'mom'
 let combineSecondSet = false
 let secondSetName = 'mat'
 
+/* cached scryfall data */
+let cachedScryfallData = []
+let loadJsonFromCache = false
+
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
     variableWidthFont = loadFont('data/meiryo.ttf')
@@ -61,6 +65,14 @@ function preload() {
 
     /* we're in preload; this loadJSON call finishes before setup() starts */
     initialScryfallQueryJSON = loadJSON(req)
+
+    if (loadJsonFromCache) {
+        scryfallData = []
+        scryfallData = loadJSON('json-cache/mom.json')
+        console.log(scryfallData)
+        cards = getCardDataFromScryfall(scryfallData)
+        loadedJSON = true
+    }
 }
 
 /**
@@ -129,14 +141,16 @@ function setup() {
         [cwubrg] → toggle icon highlight; shift+ to untoggle
         numpad 1 → freeze sketch</pre>`)
 
-    scryfallData = scryfallData.concat(initialScryfallQueryJSON['data'])
-    console.log(`data retrieved! ${initialScryfallQueryJSON['data'].length}`)
-    console.log(scryfallData.length)
+    if (!loadJsonFromCache) {
+        scryfallData = scryfallData.concat(initialScryfallQueryJSON['data'])
+        console.log(`data retrieved! ${initialScryfallQueryJSON['data'].length}`)
+        console.log(scryfallData.length)
 
-    /* check for scryfall JSON having more pages, recursively callback if so */
-    if (initialScryfallQueryJSON['has_more']) {
-        let pageTwoJSONURL = initialScryfallQueryJSON['next_page']
-        loadJSON(pageTwoJSONURL, gotData)
+        /* check for scryfall JSON having more pages, recursively callback if so */
+        if (initialScryfallQueryJSON['has_more']) {
+            let pageTwoJSONURL = initialScryfallQueryJSON['next_page']
+            loadJSON(pageTwoJSONURL, gotData)
+        }
     }
 
     manaColors = { /* colors possibly from Andrew Gioia's Mana project */
@@ -455,12 +469,17 @@ function gotData(data) {
     if (data['has_more']) {
         loadJSON(data['next_page'], gotData)
     } else {
+        console.log(scryfallData)
+
         console.log(`total request time → ${millis()}`)
         console.log(`total data length: ${scryfallData.length}`)
 
-        cards = getCardDataFromScryfall()
+        cards = getCardDataFromScryfall(scryfallData)
         console.log(`cards loaded! → ${cards.length}`)
         loadedJSON = true
+
+        /* TODO saveJSON call */
+        // saveJSON(scryfallData, `${setName}.json`)
     }
 }
 
@@ -468,9 +487,8 @@ function gotData(data) {
 /** populates card data list from scryfall. this is used in the callback
  *  function after scryfall data finishes loading completely
  */
-function getCardDataFromScryfall() {
+function getCardDataFromScryfall(data) {
     let results = []
-    let data = scryfallData
 
     /* regex for detecting creatures and common/uncommon rarity */
     const rarity = new RegExp('(common|uncommon|rare|mythic)')
@@ -478,6 +496,10 @@ function getCardDataFromScryfall() {
 
     let count = 0
     let typeText = ''
+
+
+    console.log(Object.keys(scryfallData))
+
 
     for (let key of data) {
         /* double-sided cards like lessons, vampires, MDFCs have card image
@@ -627,6 +649,8 @@ function keyPressed() {
 
 /** loads card data so we can display cards found that match mana */
 function populateTricks() {
+    console.log('🐳 populating tricks')
+
     /* instant / flash cards that satisfy color requirements */
     let filteredCards = []
     for (let card of cards) {
