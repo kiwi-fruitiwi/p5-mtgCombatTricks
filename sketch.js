@@ -44,7 +44,7 @@ let secondSetName = 'mat'
 
 /* cached scryfall data */
 let cachedScryfallData = []
-let loadJsonFromCache = false
+let loadJsonFromCache = true
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -63,68 +63,13 @@ function preload() {
         req += `+OR+set:${secondSetName}`
     }
 
-    /* we're in preload; this loadJSON call finishes before setup() starts */
-    initialScryfallQueryJSON = loadJSON(req)
-
     if (loadJsonFromCache) {
-        scryfallData = []
-        scryfallData = loadJSON('json-cache/mom.json')
-        console.log(scryfallData)
-        cards = getCardDataFromScryfall(scryfallData)
-        loadedJSON = true
+        scryfallData = loadJSON('json-cache/mom.json', gotCachedData)
+    } else {
+        /* we're in preload; loadJSON finishes before setup() starts */
+        initialScryfallQueryJSON = loadJSON(req)
     }
 }
-
-/**
- *  returns the reduced mana cost of a 🔑 cmc key value from scryfall JSON
- *  note we need "this spell costs" AND "less to cast", otherwise cards like
- *  Mindsplice Apparatus will be included in cost reduction
- *
- *  examples:
- *      {3}{W}{W}   → 2         plated onslaught
- *      {2}{R}      → 1         rebel salvo
- *      {1}{U}      → 1         machine over matter
- *      {4}{B}      → 1         overwhelming remorse
- *  @param {string} manaCost
- */
-function reduceMV(manaCost) {
-    /*  we're guaranteed every mana value is within {}
-
-        ☒ string-builder to add a space after each }
-        ☒ use string.split to create array of {} values?
-        ☒ strip opening and closing brackets
-        ☒ remove all integer elements using isNaN
-        ☒ count the remaining elements → that's our mv!
-     */
-    let spacesAdded = ''
-    for (const character of manaCost) {
-        switch (character) {
-            case '{':
-                /* skip this character */
-                break
-            case '}':
-                /* skip this character but add a space */
-                spacesAdded += ' '
-                break
-            default:
-                spacesAdded += character
-        }
-    }
-
-    /* we need to call trim to remove the trailing space
-        otherwise it actually counts as an empty array element for split
-     */
-    let manaList = spacesAdded.trim().split(' ')
-
-    let result = []
-    for (const element of manaList) {
-        if (isNaN(element)) /* isNaN returns true if it's not a number */
-            result.push(element)
-    }
-
-    return result.length
-}
-
 
 function setup() {
     let cnv = createCanvas(1000, necessaryCanvasHeight)
@@ -143,6 +88,7 @@ function setup() {
 
     if (!loadJsonFromCache) {
         scryfallData = scryfallData.concat(initialScryfallQueryJSON['data'])
+        console.log(Object.keys(scryfallData))
         console.log(`data retrieved! ${initialScryfallQueryJSON['data'].length}`)
         console.log(scryfallData.length)
 
@@ -237,6 +183,60 @@ function setup() {
     body.style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
         ` rgba(0,0,0,0.4)), ${bgURL}`)
 }
+
+
+
+
+/**
+ *  returns the reduced mana cost of a 🔑 cmc key value from scryfall JSON
+ *  note we need "this spell costs" AND "less to cast", otherwise cards like
+ *  Mindsplice Apparatus will be included in cost reduction
+ *
+ *  examples:
+ *      {3}{W}{W}   → 2         plated onslaught
+ *      {2}{R}      → 1         rebel salvo
+ *      {1}{U}      → 1         machine over matter
+ *      {4}{B}      → 1         overwhelming remorse
+ *  @param {string} manaCost
+ */
+function reduceMV(manaCost) {
+    /*  we're guaranteed every mana value is within {}
+
+        ☒ string-builder to add a space after each }
+        ☒ use string.split to create array of {} values?
+        ☒ strip opening and closing brackets
+        ☒ remove all integer elements using isNaN
+        ☒ count the remaining elements → that's our mv!
+     */
+    let spacesAdded = ''
+    for (const character of manaCost) {
+        switch (character) {
+            case '{':
+                /* skip this character */
+                break
+            case '}':
+                /* skip this character but add a space */
+                spacesAdded += ' '
+                break
+            default:
+                spacesAdded += character
+        }
+    }
+
+    /* we need to call trim to remove the trailing space
+        otherwise it actually counts as an empty array element for split
+     */
+    let manaList = spacesAdded.trim().split(' ')
+
+    let result = []
+    for (const element of manaList) {
+        if (isNaN(element)) /* isNaN returns true if it's not a number */
+            result.push(element)
+    }
+
+    return result.length
+}
+
 
 
 function changeCanvasSize(newHeight) {
@@ -469,8 +469,6 @@ function gotData(data) {
     if (data['has_more']) {
         loadJSON(data['next_page'], gotData)
     } else {
-        console.log(scryfallData)
-
         console.log(`total request time → ${millis()}`)
         console.log(`total data length: ${scryfallData.length}`)
 
@@ -484,11 +482,27 @@ function gotData(data) {
 }
 
 
+/**
+ * callback for loading cached data: gets around the "loadJSON never returns
+ * array, only object, if no callback is used" issue, which results in
+ * "object not iterable" error.
+ *
+ * populates global cards list from cached scryfall data.
+ */
+function gotCachedData(data) {
+    cards = getCardDataFromScryfall(data)
+    console.log(`${cards.length} cards loaded from cache: ${setName}`)
+    loadedJSON = true
+}
+
+
 /** populates card data list from scryfall. this is used in the callback
  *  function after scryfall data finishes loading completely
  */
 function getCardDataFromScryfall(data) {
     let results = []
+
+    console.log(`💦 ${data.length}`)
 
     /* regex for detecting creatures and common/uncommon rarity */
     const rarity = new RegExp('(common|uncommon|rare|mythic)')
@@ -497,49 +511,49 @@ function getCardDataFromScryfall(data) {
     let count = 0
     let typeText = ''
 
-
-    console.log(Object.keys(scryfallData))
-
-
-    for (let key of data) {
+    for (let element of data) {
         /* double-sided cards like lessons, vampires, MDFCs have card image
           data inside an array within card_faces. card_faces[0] always gives
           the front card. e.g. Kazandu Mammoth from ZNR */
         let frontFace
         let imgURIs
+        let multipleCardFaces = false
 
-        if (key['card_faces']) {
-            frontFace = key['card_faces'][0]
+        if (element['card_faces']) {
+            frontFace = element['card_faces'][0]
+            multipleCardFaces = true
         } else {
-            frontFace = key
+            frontFace = element
         }
 
         imgURIs = frontFace['image_uris']
 
         /* if mana value is 0, skip displaying the space */
-        let manaCost = key['mana_cost']
+        let manaCost = element['mana_cost']
         if (manaCost !== '')
             manaCost = ' ' + manaCost
 
-        typeText = `${key.name}${manaCost}\n${key['type_line']}\n${key['oracle_text']}\n`
+        typeText = `${element.name}${manaCost}\n${element['type_line']}\n${element['oracle_text']}\n`
         /* sometimes p/t don't exist. check type */
-        if (creature.test(key['type_line']))
-            typeText += `${key['power']}/${key['toughness']}\n`
+        if (creature.test(element['type_line']))
+            typeText += `${element['power']}/${element['toughness']}\n`
         /* we need whitespace at end for passage end detection to work */
 
-        if (key['flavor_text'])
-            typeText += `\n${key['flavor_text']}\n`
+        if (element['flavor_text'])
+            typeText += `\n${element['flavor_text']}\n`
         else typeText += '\n'
 
-        typeText += ' ' /* extra space makes user able to hit 'enter' at end*/
+        typeText += ' ' /* extra space makes user able to hit 'enter' at end */
 
         /* filter for rarity */
-        if (rarity.test(frontFace['rarity'])) {
+        if (rarity.test(element['rarity'])) {
             let cardData = {
                 'name': frontFace['name'],
                 'colors': frontFace['colors'],
-                'keywords': frontFace['keywords'],
                 'cmc': frontFace['cmc'],
+
+                /* keywords apply to both faces? see harried artisan */
+                'keywords': element['keywords'],
                 'type_line': frontFace['type_line'],
                 'oracle_text': frontFace['oracle_text'],
                 'collector_number': int(frontFace['collector_number']),
@@ -575,13 +589,17 @@ function getCardDataFromScryfall(data) {
 
                 note keywords are capitalized as of 2023.Apr
              */
-            if (cardData['keywords'].includes('Convoke'))
+            if (element['keywords'].includes('Convoke'))
                 cardData['cmc'] = 0
 
             results.push(cardData)
             count++
+        } else {
+            console.log(`🫐 ${element['name']}`)
         }
     }
+
+    console.log(`🍆 ${count}`)
     return results
 }
 
