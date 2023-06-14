@@ -39,7 +39,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 let necessaryCanvasHeight = 400
 let setName = 'mom'
 
-let combineSecondSet = true
+let combineSecondSet = false
 let secondSetName = 'mat'
 
 function preload() {
@@ -174,6 +174,9 @@ function setup() {
          401 Brother's War: Retro Artifacts
          406 Phyrexia: All Will Be One
          410 March of the Machine
+         416 Lord of the Rings: Tales of Middle-Earth. regular: 281, all: 476
+                ends at 271, then some special lands
+                does not include Knight of the Keep 291, Goblin Assailant 295
      */
 
     const wallpapers = {
@@ -188,12 +191,24 @@ function setup() {
             'bluesunstwilight.jpg',
             'ossification.jpg',
             'transplanttheorist.jpg',
-            'whitesunstwilight.jpg',
+            'whitesunstwilight.jpg'
         ],
         'mom': [
             'angelicintervention.jpg',
-            'invasionofmuraganda.jpg',
-            'invasionofkaladesh.jpg',
+            'boonbringervalkyrie.jpg',
+            'knighterrantofeos.jpg',
+            'momentoftruth.jpg',
+            'nornsinquisitor.jpg'
+        ],
+        'ltr': [
+            'plains.jpg',
+            'theshire.jpg',
+            'andurilflameofthewest.jpg',
+            'billthepony.jpg',
+            'doorsofdurin.jpg',
+            'stingtheglintingdagger.jpg',
+            'theshire.jpg',
+            'thegreyhavens.jpg'
         ]
     }
 
