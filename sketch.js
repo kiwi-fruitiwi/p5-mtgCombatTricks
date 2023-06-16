@@ -44,27 +44,40 @@ let loadJsonFromCache = true
 let combineSecondSet = false
 let secondSetName = 'mat'
 
+function cachedJsonFound (response) {
+    console.log('🫐 File exists:', response);
+}
+
+function cachedJsonNotFound (error) {
+    console.log('🫐 File does not exist:', error);
+}
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
     variableWidthFont = loadFont('data/meiryo.ttf')
 
-    w = loadImage('svg/w.svg')
-    u = loadImage('svg/u.svg')
-    b = loadImage('svg/b.svg')
-    r = loadImage('svg/r.svg')
-    g = loadImage('svg/g.svg')
-    p = loadImage('svg/p.svg')
-    c = loadImage('svg/c.svg')
+    loadManaColorSVGs()
 
-    let req = `https://api.scryfall.com/cards/search?q=set:${setName}`
-    if (combineSecondSet)
-        req += `+OR+set:${secondSetName}`
+    /* see if our set is already cached */
+    httpGet(`json-cache/${setName}.json`, 'json',
+        cachedJsonFound, cachedJsonNotFound).then(r => {
+            /* no idea what to actually do with this promise */
+            console.log(`cached JSON length →${r.length}`)
+    });
 
-    if (loadJsonFromCache) /* loadJSON requires a callback to return arrays */
+    /* since we're in preload, loadJSON finishes before setup() starts */
+    if (loadJsonFromCache) {
+        /* loadJSON requires a callback to return arrays */
         loadJSON(`json-cache/${setName}.json`, gotCachedData)
-    else /* we're in preload; loadJSON finishes before setup() starts */
+    } else {
+        let req = `https://api.scryfall.com/cards/search?q=set:${setName}`
+
+        /* if we're combining a second alchemy set, modify the scryfall query */
+        if (combineSecondSet)
+            req += `+OR+set:${secondSetName}`
+
         initialScryfallQueryJSON = loadJSON(req)
+    }
 }
 
 function setup() {
@@ -103,6 +116,16 @@ function setup() {
     populateWallpapers()
 }
 
+/* load mana color symbols */
+function loadManaColorSVGs () {
+    w = loadImage('svg/w.svg')
+    u = loadImage('svg/u.svg')
+    b = loadImage('svg/b.svg')
+    r = loadImage('svg/r.svg')
+    g = loadImage('svg/g.svg')
+    p = loadImage('svg/p.svg')
+    c = loadImage('svg/c.svg')
+}
 
 /** instantiates color selector and its colors */
 function setupColorSelector() {
