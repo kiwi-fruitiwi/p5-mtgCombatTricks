@@ -37,14 +37,13 @@ const FIXED_WIDTH_FONT_SIZE = 14
 
 /* the canvas height needs to be large enough to show all the cards */
 let necessaryCanvasHeight = 400
-let setName = 'mom'
+
+let setName = 'ltr'
+let loadJsonFromCache = true
 
 let combineSecondSet = false
 let secondSetName = 'mat'
 
-/* cached scryfall data */
-let cachedScryfallData = []
-let loadJsonFromCache = true
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -59,16 +58,13 @@ function preload() {
     c = loadImage('svg/c.svg')
 
     let req = `https://api.scryfall.com/cards/search?q=set:${setName}`
-    if (combineSecondSet) {
+    if (combineSecondSet)
         req += `+OR+set:${secondSetName}`
-    }
 
-    if (loadJsonFromCache) {
-        scryfallData = loadJSON('json-cache/mom.json', gotCachedData)
-    } else {
-        /* we're in preload; loadJSON finishes before setup() starts */
+    if (loadJsonFromCache) /* loadJSON requires a callback to return arrays */
+        loadJSON(`json-cache/${setName}.json`, gotCachedData)
+    else /* we're in preload; loadJSON finishes before setup() starts */
         initialScryfallQueryJSON = loadJSON(req)
-    }
 }
 
 function setup() {
@@ -86,19 +82,30 @@ function setup() {
         [cwubrg] → toggle icon highlight; shift+ to untoggle
         numpad 1 → freeze sketch</pre>`)
 
+    /** if we didn't load from cache, load from scryfall API. requires
+     *  recursion if set has more than 175 cards in it. 175 is the maximum
+     *  length of one scryfall request page */
     if (!loadJsonFromCache) {
-        scryfallData = scryfallData.concat(initialScryfallQueryJSON['data'])
-        console.log(Object.keys(scryfallData))
+        scryfallData = initialScryfallQueryJSON['data']
         console.log(`data retrieved! ${initialScryfallQueryJSON['data'].length}`)
         console.log(scryfallData.length)
 
-        /* check for scryfall JSON having more pages, recursively callback if so */
+        /* check for scryfall JSON having more pages, recursively execute
+         callbacks if so */
         if (initialScryfallQueryJSON['has_more']) {
             let pageTwoJSONURL = initialScryfallQueryJSON['next_page']
             loadJSON(pageTwoJSONURL, gotData)
         }
     }
 
+    displayedTricks = []
+    setupColorSelector()
+    populateWallpapers()
+}
+
+
+/** instantiates color selector and its colors */
+function setupColorSelector() {
     manaColors = { /* colors possibly from Andrew Gioia's Mana project */
         'c': color(35,6,75),
         'w': color(62,31,95),
@@ -118,27 +125,27 @@ function setup() {
 
     /* this is the UI element that tracks filter colors for combat tricks */
     colorBar = new ColorSelector(icons)
-    displayedTricks = []
+}
 
-    /** → populate wallpaper images lists for each set
-      create a list of wallpaper images for every set as we work on them:
-         BRO, ONE, MOM
-         wallpapers dictionary keyed by setName
-             list values filled with local filenames
-         concat with setName to generate URL for css background-image +gradient
-      manually keep this list updated to mirror local file structure, file names
-      randomly select an element of this list to load as the URL for style.css
+/** populate wallpaper images lists for each set
+     create a list of wallpaper images for every set as we work on them:
+        BRO, ONE, MOM
+     wallpapers dictionary keyed by setName
+     list values filled with local filenames
+     concat with setName to generate URL for css background-image +gradient
+     manually keep this list updated to mirror local file structure, file names
+     randomly select an element of this list to load as the URL for style.css
 
-      wallpapers can be retrieved from 🔗 mtgpics.com/set?set=n where n is:
-         396 Brother's War
-         401 Brother's War: Retro Artifacts
-         406 Phyrexia: All Will Be One
-         410 March of the Machine
-         416 Lord of the Rings: Tales of Middle-Earth. regular: 281, all: 476
-                ends at 271, then some special lands
-                does not include Knight of the Keep 291, Goblin Assailant 295
-     */
-
+     wallpapers can be retrieved from 🔗 mtgpics.com/set?set=n where n is:
+     396 Brothers' War
+     401 Brothers' War: Retro Artifacts
+     406 Phyrexia: All Will Be One
+     410 March of the Machine
+     416 Lord of the Rings: Tales of Middle-Earth. regular: 281, all: 476
+         ends at 271, then some special lands
+         does not include Knight of the Keep 291, Goblin Assailant 295
+ */
+function populateWallpapers() {
     const wallpapers = {
         'bro': [
             'platoondispenser.jpg',
@@ -167,12 +174,10 @@ function setup() {
             'billthepony.jpg',
             'doorsofdurin.jpg',
             'stingtheglintingdagger.jpg',
-            'theshire.jpg',
             'thegreyhavens.jpg'
         ]
     }
 
-    const body = select('body')
     const setImgArr = wallpapers[setName]
 
     /* use the array length as a scaling factor for random's [0,1) generator */
@@ -180,15 +185,13 @@ function setup() {
     const wallpaperFileName = setImgArr[randomIndex];
 
     const bgURL = `url("backgrounds/${setName}/${wallpaperFileName}")`
-    body.style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
+    select('body').style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
         ` rgba(0,0,0,0.4)), ${bgURL}`)
 }
 
 
-
-
 /**
- *  returns the reduced mana cost of a 🔑 cmc key value from scryfall JSON
+ *  returns the reduced mana cost of a 🔑 cmc key value from scryfall JSON.
  *  note we need "this spell costs" AND "less to cast", otherwise cards like
  *  Mindsplice Apparatus will be included in cost reduction
  *
@@ -477,7 +480,7 @@ function gotData(data) {
         loadedJSON = true
 
         /* TODO saveJSON call */
-        // saveJSON(scryfallData, `${setName}.json`)
+        saveJSON(scryfallData, `${setName}.json`)
     }
 }
 
@@ -502,7 +505,7 @@ function gotCachedData(data) {
 function getCardDataFromScryfall(data) {
     let results = []
 
-    console.log(`💦 ${data.length}`)
+    console.log(`💦 [data length] ${data.length}`)
 
     /* regex for detecting creatures and common/uncommon rarity */
     const rarity = new RegExp('(common|uncommon|rare|mythic)')
@@ -599,7 +602,7 @@ function getCardDataFromScryfall(data) {
         }
     }
 
-    console.log(`🍆 ${count}`)
+    console.log(`🍆 [cards added length] ${count}`)
     return results
 }
 
