@@ -69,7 +69,8 @@ class colorIcon {
      * @param index
      */
     render(index) {
-        if (this.highlighted) { /* add color if selected */
+        /* add color if moused over (highlighted) or selected (count > 0) */
+        if (this.highlighted || this.count > 0) {
             tint(this.color, SELECTED_ALPHA)
             fill(0, 0, 100, 10)
             stroke(this.color, 80)
@@ -99,7 +100,7 @@ class colorIcon {
         strokeWeight(2)
 
         /* debug display: center of icon */
-        point(this.pos.x, this.pos.y)
+        // point(this.pos.x, this.pos.y)
 
         this.#displayManaBars()
     }
