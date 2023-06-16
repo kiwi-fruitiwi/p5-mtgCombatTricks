@@ -38,8 +38,9 @@ const FIXED_WIDTH_FONT_SIZE = 14
 /* the canvas height needs to be large enough to show all the cards */
 let necessaryCanvasHeight = 400
 
-let setName = 'eld'
-let loadJsonFromCache = true
+let setName = 'ltr'
+let loadJsonFromCache = false
+let saveScryfallJson = false /* saves loaded JSON after scryfall query */
 
 let combineSecondSet = false
 let secondSetName = 'mat'
@@ -51,19 +52,9 @@ function preload() {
 
     loadManaColorSVGs()
 
-    /* callback for if the set's JSON is already cached */
-    let cachedJsonFound = function(response) {
-        console.log('🫐 File exists:', response);
+    if (loadJsonFromCache) {
         loadJSON(`json-cache/${setName}.json`, gotCachedData)
-    }
-
-    /* callback for failure to find cached copy of set's JSON
-        TODO currently fails with 404 error, but we can't ignore it?
-     */
-    let loadFromScryfallAPI = function(error) {
-        if (error.status === 404) {
-            console.log(`🥭 ignoring error: ${error}`)
-        }
+    } else {
         let req = `https://api.scryfall.com/cards/search?q=set:${setName}`
 
         /* if we're combining a second alchemy set, modify the scryfall query */
@@ -72,10 +63,6 @@ function preload() {
 
         initialScryfallQueryJSON = loadJSON(req)
     }
-
-    /* see if our set is already cached */
-    let promise = httpGet(`json-cache/${setName}.json`, 'json',
-        cachedJsonFound, loadFromScryfallAPI)
 }
 
 function setup() {
@@ -111,7 +98,11 @@ function setup() {
 
     displayedTricks = []
     setupColorSelector()
-    populateWallpapers()
+
+    /* we need to manually keep the available backgrounds array updated */
+    const setsWithBgs = ['bro', 'one', 'mom', 'ltr']
+    if (setsWithBgs.includes(setName))
+        populateWallpapers()
 }
 
 /* load mana color symbols */
@@ -501,7 +492,8 @@ function gotData(data) {
         loadedJSON = true
 
         /* TODO saveJSON call */
-        saveJSON(scryfallData, `${setName}.json`)
+        if (saveScryfallJson)
+            saveJSON(scryfallData, `${setName}.json`)
     }
 }
 
