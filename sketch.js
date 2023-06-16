@@ -38,19 +38,12 @@ const FIXED_WIDTH_FONT_SIZE = 14
 /* the canvas height needs to be large enough to show all the cards */
 let necessaryCanvasHeight = 400
 
-let setName = 'ltr'
+let setName = 'eld'
 let loadJsonFromCache = true
 
 let combineSecondSet = false
 let secondSetName = 'mat'
 
-function cachedJsonFound (response) {
-    console.log('🫐 File exists:', response);
-}
-
-function cachedJsonNotFound (error) {
-    console.log('🫐 File does not exist:', error);
-}
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -58,18 +51,19 @@ function preload() {
 
     loadManaColorSVGs()
 
-    /* see if our set is already cached */
-    httpGet(`json-cache/${setName}.json`, 'json',
-        cachedJsonFound, cachedJsonNotFound).then(r => {
-            /* no idea what to actually do with this promise */
-            console.log(`cached JSON length →${r.length}`)
-    });
-
-    /* since we're in preload, loadJSON finishes before setup() starts */
-    if (loadJsonFromCache) {
-        /* loadJSON requires a callback to return arrays */
+    /* callback for if the set's JSON is already cached */
+    let cachedJsonFound = function(response) {
+        console.log('🫐 File exists:', response);
         loadJSON(`json-cache/${setName}.json`, gotCachedData)
-    } else {
+    }
+
+    /* callback for failure to find cached copy of set's JSON
+        TODO currently fails with 404 error, but we can't ignore it?
+     */
+    let loadFromScryfallAPI = function(error) {
+        if (error.status === 404) {
+            console.log(`🥭 ignoring error: ${error}`)
+        }
         let req = `https://api.scryfall.com/cards/search?q=set:${setName}`
 
         /* if we're combining a second alchemy set, modify the scryfall query */
@@ -78,6 +72,10 @@ function preload() {
 
         initialScryfallQueryJSON = loadJSON(req)
     }
+
+    /* see if our set is already cached */
+    let promise = httpGet(`json-cache/${setName}.json`, 'json',
+        cachedJsonFound, loadFromScryfallAPI)
 }
 
 function setup() {
