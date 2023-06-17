@@ -295,12 +295,28 @@ function displayCombatTricks() {
 
     /* show full size card image when mouse is clicked on a trick */
     if (clickedImg) {
+        setDcShadow()
         image(
             clickedImg,
-            windowWidth/2 - 30, /* subtracts scrollbar width */
+            width/2 - 10, /* 10 accounts for half the scrollbar width */
             windowHeight/2 + window.scrollY - 30, /* make sure not too low */
         )
+        resetDcShadow()
     }
+}
+
+
+function setDcShadow() {
+    /** add white glow */
+    const MILK = color(207, 7, 99)
+    drawingContext.shadowBlur = 20
+    drawingContext.shadowColor = MILK
+}
+
+function resetDcShadow() {
+    drawingContext.shadowBlur = 0
+    drawingContext.shadowOffsetY = 0
+    drawingContext.shadowOffsetX = 0
 }
 
 
