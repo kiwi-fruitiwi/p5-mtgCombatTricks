@@ -503,7 +503,7 @@ function gotData(data) {
         console.log(`total request time → ${millis()}`)
         console.log(`total data length: ${scryfallData.length}`)
 
-        cards = getCardDataFromScryfall(scryfallData)
+        cards = getCardDataFromScryfallJSON(scryfallData)
         console.log(`cards loaded! → ${cards.length}`)
         loadedJSON = true
 
@@ -522,16 +522,17 @@ function gotData(data) {
  * populates global cards list from cached scryfall data.
  */
 function gotCachedData(data) {
-    cards = getCardDataFromScryfall(data)
+    cards = getCardDataFromScryfallJSON(data)
     console.log(`${cards.length} cards loaded from cache: ${setName}`)
     loadedJSON = true
 }
 
 
 /** populates card data list from scryfall. this is used in the callback
- *  function after scryfall data finishes loading completely
+ *  function after scryfall data finishes loading completely as well as when
+ *  loading directly from cache
  */
-function getCardDataFromScryfall(data) {
+function getCardDataFromScryfallJSON(data) {
     let results = []
 
     console.log(`💦 [data length] ${data.length}`)
@@ -597,6 +598,16 @@ function getCardDataFromScryfall(data) {
                 'border_crop_uri': imgURIs['border_crop'], /* 480x680 104KB */
                 'png_uri': imgURIs['png'] /* png 745x1040 1MB */
             }
+
+            /** TODO specialized 'reduce mv by n' cards
+             🏭 cost reduction in set:ltr is different: you only reduce n.
+
+             Arwen's Gift: This spell costs {1} less to cast if
+             Banish from Edoras: This spell costs {2} less to cast if
+             Bitter Downfall: This spell costs {3} less to cast if
+             Gwaihir the Windlord: This spell costs {2} less to cast as long as
+             Balrog, Durin's Bane: This spell costs {1} less to cast for each
+             */
 
             /** convert {3}{W}{W} to 2 to handle affinity type effects
                 that reduce mv by generic mana:
