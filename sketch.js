@@ -39,7 +39,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 let necessaryCanvasHeight = 400
 
 let setName = 'ltr'
-let loadJsonFromCache = false
+let loadJsonFromCache = true
 let saveScryfallJson = false /* saves loaded JSON after scryfall query */
 
 let combineSecondSet = false
@@ -62,6 +62,15 @@ function preload() {
             req += `+OR+set:${secondSetName}`
 
         initialScryfallQueryJSON = loadJSON(req)
+    }
+
+    /* regex testing */
+    let oracleText = 'this spell costs {105} less to cast if {5}'
+    let mvReduceRegex = /this spell costs {(\d+)} less to cast if {(\d+)}/
+
+    let matches = match(oracleText, mvReduceRegex)
+    if (matches) {
+        console.log(`🍐${matches[0]}, \n 🥭${matches[1]} 🍉${matches[2]}`)
     }
 }
 
@@ -614,14 +623,15 @@ function getCardDataFromScryfallJSON(data) {
                     Machine Over Matter (BRO)
                     Plated Onslaught (ONE)
              */
-            let oracleText = frontFace['oracle_text'].toLowerCase()
-            let costMatch = oracleText.includes('this spell costs')
-            let lessMatch = oracleText.includes('less to cast')
 
-            if (costMatch && lessMatch) {
-                cardData['cmc'] = reduceMV(frontFace['mana_cost'])
-                console.log(`${cardData['name']} → ${cardData['cmc']}`)
-            }
+
+            // let costMatch = oracleText.includes('this spell costs')
+            // let lessMatch = oracleText.includes('less to cast')
+            //
+            // if (costMatch && lessMatch) {
+            //     cardData['cmc'] = reduceMV(frontFace['mana_cost'])
+            //     console.log(`${cardData['name']} → ${cardData['cmc']}`)
+            // }
 
             /** handles convoke cards which will always register an mv of 0
                     Cut Short (MOM) 2W → 0 if 'W' is selected
