@@ -63,36 +63,6 @@ function preload() {
 
         initialScryfallQueryJSON = loadJSON(req)
     }
-
-    /** ®️ regex testing
-     * this spell costs {n} less to cast (if | as long as)
-     *      {1}{U}      → 1         machine over matter
-     *      {3}{B}      → 1         bitter downfall
-     *      {4}{W}{U}   → 4         gwaihir the windlord
-     *      {3}{U}      → 3         arwen's gift
-     *
-     * this spell costs {n} less to cast for each: reduceMV
-     *      {3}{W}{W}   → 2         plated onslaught
-     *      {2}{R}      → 1         rebel salvo
-     *      {1}{U}      → 1         machine over matter
-     *      {4}{B}      → 1         overwhelming remorse
-     *
-     * in scryfall JSON, there's a 🔑cmc:
-     *      "mana_cost": "{2}{B}",
-     *      "cmc": 3.0,
-     * in order to find the discounted mv, subtract {n} from cmc
-     *
-     */
-    let oracleText = 'this spell costs {1} less to cast if'
-    let mvReduceRegex = /this spell costs {(\d+)} less to cast if/
-
-    let matches = match(oracleText, mvReduceRegex)
-    let n = matches[1] /* e.g. bitter downfall is 3 */
-    let cmc = 4
-
-    if (matches) {
-        console.log(`🍐${matches[0]}, \n 🥭${n}`)
-    }
 }
 
 function setup() {
@@ -629,8 +599,7 @@ function getCardDataFromScryfallJSON(data) {
                 'png_uri': imgURIs['png'] /* png 745x1040 1MB */
             }
 
-            /** TODO specialized 'reduce mv by n' cards
-             🏭 cost reduction in set:ltr is different: you only reduce n.
+            /** ®️ regex for cost reduction logic
 
              Arwen's Gift: This spell costs {1} less to cast if
              Banish from Edoras: This spell costs {2} less to cast if
@@ -638,22 +607,62 @@ function getCardDataFromScryfallJSON(data) {
              Gwaihir the Windlord: This spell costs {2} less to cast as long as
              Balrog, Durin's Bane: This spell costs {1} less to cast for each
              */
+            /* regex testing */
+            let oracleText = frontFace['oracle_text'].toLowerCase()
 
-            /** convert {3}{W}{W} to 2 to handle affinity type effects
-                that reduce mv by generic mana:
-                    Machine Over Matter (BRO)
-                    Plated Onslaught (ONE)
+            /* regex matching general case of cost reduction */
+            let generalMvReduction = /this spell costs {(\d+)} less to cast/
+
+            /**
+             * regex expressions matching specific case: reduction by {n}
+             * this spell costs {n} less to cast (if | as long as)
+             *      {1}{U}      → 1         machine over matter
+             *      {3}{B}      → 1         bitter downfall
+             *      {4}{W}{U}   → 4         gwaihir the windlord
+             *      {3}{U}      → 3         arwen's gift
              */
+            let costsLessIf = /spell costs {(\d+)} less to cast if/
+            let costsLessALA = /spell costs {(\d+)} less to cast as long as/
 
+            /**
+             * regex expression matching specific case: all but colored
+             * this spell costs {n} less to cast for each: reduceMV
+             *      {3}{W}{W}   → 2         plated onslaught
+             *      {2}{R}      → 1         rebel salvo
+             *      {1}{U}      → 1         machine over matter
+             *      {4}{B}      → 1         overwhelming remorse
+             */
+            let costsOnlyColored = /spell costs {(\d+)} less to cast for each/
 
+            /* does the cost reduction phrase  exist in oracle text? */
+            let matches = match(oracleText, generalMvReduction)
+            if (matches) {
+                let name = cardData['name']
+                let cmc = cardData['cmc']
+                let n = matches[1] /* e.g. bitter downfall discount is 3 */
 
-            // let costMatch = oracleText.includes('this spell costs')
-            // let lessMatch = oracleText.includes('less to cast')
-            //
-            // if (costMatch && lessMatch) {
-            //     cardData['cmc'] = reduceMV(frontFace['mana_cost'])
-            //     console.log(`${cardData['name']} → ${cardData['cmc']}`)
-            // }
+                let matchesIf = match(oracleText, costsLessIf)
+                let matchesAsLongAs = match(oracleText, costsLessALA)
+
+                /** in scryfall JSON, there's a 🔑cmc:
+                 *   "mana_cost": "{2}{B}",
+                 *   "cmc": 3.0,
+                 *
+                 * in order to find the discounted mv, subtract {n} from cmc
+                 */
+
+                if (matchesIf || matchesAsLongAs) {
+                    cardData['cmc'] = cmc - n
+                    console.log(`🍒 ${name} → reduce by ${n}: ${cmc-n}`)
+                }
+
+                if (match(oracleText, costsOnlyColored)) {
+                    /* in 3WW, the generic component is 3. colored is 2 */
+                    let coloredPips = reduceMV(frontFace['mana_cost'])
+                    cardData['cmc'] = coloredPips
+                    console.log(`🌊 ${name} → reduce generic: ${coloredPips}`)
+                }
+            }
 
             /** handles convoke cards which will always register an mv of 0
                     Cut Short (MOM) 2W → 0 if 'W' is selected
@@ -664,8 +673,10 @@ function getCardDataFromScryfallJSON(data) {
 
                 note keywords are capitalized as of 2023.Apr
              */
-            if (element['keywords'].includes('Convoke'))
+            if (element['keywords'].includes('Convoke')) {
                 cardData['cmc'] = 0
+                // console.log(`convoke: ${cardData['name']}`)
+            }
 
             results.push(cardData)
             count++
