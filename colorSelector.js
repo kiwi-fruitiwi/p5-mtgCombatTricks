@@ -22,6 +22,7 @@ class colorIcon {
         this.colorCh = colorCh /* WUBRGC */
         this.color = color_ /* p5 color object */
         this.highlighted = false /* if this colorIcon is selected, highlight! */
+        this.selected = false
         this.count = 0 /* how many of pips of this color? */
         this.pos = new p5.Vector(0, 0) /* the CENTER coords of each icon */
 
@@ -53,8 +54,7 @@ class colorIcon {
         return withinXBound && withinYBound
     }
 
-    /** detect if the mouse is currently hovering over this colorIcon
-     */
+    /** detect if the mouse is currently hovering over this colorIcon */
     detectHover() {
         /* remember we're in CENTER rectMode! */
         if (this.#mouseCollisionDetected()) {
@@ -63,6 +63,15 @@ class colorIcon {
         } else {
             this.highlighted = false
         }
+    }
+
+    toggleSelection() {
+        /* efficiently toggles the count between 0 and 1:
+            if previously it was 0, 1-0=1
+            if previously it was 1, 1-1=0
+         */
+        this.count = 1 - this.count
+        this.selected = (this.count === 1)
     }
 
     /**
@@ -194,15 +203,10 @@ class ColorSelector {
     }
 
     /** selection toggle for colors. toggles between count=1 and count=0 */
-    toggleSelection(ch) {
+    toggleIconSelection(ch) {
         for (const icon of this.icons) {
             if (icon.colorCh === ch) {
-                /* efficiently toggles the count between 0 and 1:
-                    if previously it was 0, 1-0=1
-                    if previously it was 1, 1-1=0
-                 */
-                icon.count = 1 - icon.count
-                icon.selected = (icon.count === 1)
+                icon.toggleSelection()
             }
         }
     }

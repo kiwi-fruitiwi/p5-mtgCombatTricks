@@ -451,8 +451,8 @@ function detectTrickHover() {
     }
 }
 
-/** iterate through all displayedTricks to see if our mouse is hovering
- over any Trick
+/** iterate through all of colorBar's color icons to see if our mouse is
+ *  hovering over any of them
  */
 function detectColorIconHover() {
     if (colorBar && debugCorner) {
@@ -709,6 +709,8 @@ function mousePressed() {
             trick.detectClick()
         }
     }
+
+    /*  */
 }
 
 /**
@@ -731,7 +733,7 @@ function handleColorSelectorKeys(key) {
 function toggleSelectedColor(key) {
     const lowerCaseKey = key.toLowerCase()
     if (colorBar.getAvailableColorChs().includes(lowerCaseKey)) {
-        colorBar.toggleSelection(key)
+        colorBar.toggleIconSelection(key)
         populateTricks()
     }
 }
@@ -751,10 +753,6 @@ function keyPressed() {
 
     /* handleColorSelectorKeys(key) */
     toggleSelectedColor(key)
-
-    if (key === 'z') {
-        populateTricks()
-    }
 
     if (key === 'x') {
         // console.log(`sorting`)
