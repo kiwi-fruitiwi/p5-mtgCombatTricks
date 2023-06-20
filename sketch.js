@@ -680,6 +680,30 @@ function mousePressed() {
     }
 }
 
+/**
+ * if our key is in the color dictionary, select the corresponding icon
+ * this used to increment the count, while shift+WUBRG deselects
+ */
+function handleColorSelectorKeys(key) {
+    const lowerCaseKey = key.toLowerCase()
+    if (colorBar.getAvailableColorChs().includes(lowerCaseKey)) {
+        if (lowerCaseKey === key) {
+            colorBar.select(key)
+            /* if it's the uppercase version of the key, deselect it */
+        } else {
+            colorBar.deSelect(lowerCaseKey)
+        }
+    }
+}
+
+/* toggle WUBRG+C using corresponding lowercase keys */
+function toggleSelectedColor(key) {
+    const lowerCaseKey = key.toLowerCase()
+    if (colorBar.getAvailableColorChs().includes(lowerCaseKey)) {
+        colorBar.toggleSelection(key)
+    }
+}
+
 function keyPressed() {
     /* stop sketch */
     if (keyCode === 97) { /* numpad 1 */
@@ -693,16 +717,8 @@ function keyPressed() {
         console.log(`debugCorner visibility set to ${debugCorner.visible}`)
     }
 
-    /** if our key is in the color dictionary, select the corresponding icon */
-    const lowerCaseKey = key.toLowerCase()
-    if (colorBar.getAvailableColorChs().includes(lowerCaseKey)) {
-        if (lowerCaseKey === key) {
-            colorBar.select(key)
-            /* if it's the uppercase version of the key, deselect it */
-        } else {
-            colorBar.deSelect(lowerCaseKey)
-        }
-    }
+    /* handleColorSelectorKeys(key) */
+    toggleSelectedColor(key)
 
     if (key === 'z') {
         populateTricks()

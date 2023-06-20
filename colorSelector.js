@@ -24,6 +24,8 @@ class colorIcon {
         this.highlighted = false /* if this colorIcon is selected, highlight! */
         this.count = 0 /* how many of pips of this color? */
         this.pos = new p5.Vector(0, 0) /* the CENTER coords of each icon */
+
+        this.displayBars = false
     }
 
     getManaCount() {
@@ -102,7 +104,9 @@ class colorIcon {
         /* debug display: center of icon */
         // point(this.pos.x, this.pos.y)
 
-        this.#displayManaBars()
+        if (this.displayBars) {
+            this.#displayManaBars()
+        }
     }
 
     #displayManaBars() {
@@ -187,6 +191,20 @@ class ColorSelector {
             result.push(icon.colorCh)
         }
         return result
+    }
+
+    /** selection toggle for colors. toggles between count=1 and count=0 */
+    toggleSelection(ch) {
+        for (const icon of this.icons) {
+            if (icon.colorCh === ch) {
+                /* efficiently toggles the count between 0 and 1:
+                    if previously it was 0, 1-0=1
+                    if previously it was 1, 1-1=0
+                 */
+                icon.count = 1 - icon.count
+                icon.selected = (icon.count === 1)
+            }
+        }
     }
 
     /* TODO make this work for list inputs */
