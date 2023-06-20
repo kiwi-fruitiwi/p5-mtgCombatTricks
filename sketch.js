@@ -732,6 +732,7 @@ function toggleSelectedColor(key) {
     const lowerCaseKey = key.toLowerCase()
     if (colorBar.getAvailableColorChs().includes(lowerCaseKey)) {
         colorBar.toggleSelection(key)
+        populateTricks()
     }
 }
 
