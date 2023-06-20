@@ -624,6 +624,16 @@ function getCardDataFromScryfallJSON(data) {
                     Plated Onslaught (ONE)
              */
 
+            /* regex testing */
+            let oracleText = frontFace['oracle_text'].toLowerCase()
+            // console.log(`${frontFace['oracle_text']}`)
+            let mvReduceRegex = /this spell costs {(\d+)} less to cast/
+
+            let matches = match(oracleText, mvReduceRegex)
+            if (matches) {
+                console.log(`${cardData['name']} 🍐${matches[0]}, \n 🥭${matches[1]}`)
+            }
+
 
             // let costMatch = oracleText.includes('this spell costs')
             // let lessMatch = oracleText.includes('less to cast')
@@ -730,7 +740,7 @@ function populateTricks() {
              handle this, we'd to iterate through every face! */
 
         if (card['keywords'].includes('Flash') ||
-            card['type_line'] === 'Instant') {
+            card['type_line'].includes('Instant')) {
 
             /* sets these days have promos not part of the draft set
              * e.g. Rescue Retriever, ID 291 of 287 in BRO */
