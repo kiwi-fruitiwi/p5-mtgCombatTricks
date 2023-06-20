@@ -464,6 +464,28 @@ function detectColorIconHover() {
 }
 
 
+function mouseReleased() {
+    /* reset  */
+    clickedImg = null
+}
+
+function mousePressed() {
+    if (displayedTricks) {
+        for (const trick of displayedTricks) {
+            trick.detectClick()
+        }
+    }
+
+    detectColorIconClick()
+}
+
+function detectColorIconClick() {
+    for (const colorIcon of colorBar.getColorIcons()) {
+        colorIcon.detectClick()
+    }
+}
+
+
 function draw() {
     clear()
     background(234, 34, 24, 50)
@@ -695,22 +717,6 @@ function handleMvReductions(card, frontFace) {
     }
 
     return card['cmc']
-}
-
-
-function mouseReleased() {
-    /* reset  */
-    clickedImg = null
-}
-
-function mousePressed() {
-    if (displayedTricks) {
-        for (const trick of displayedTricks) {
-            trick.detectClick()
-        }
-    }
-
-    /*  */
 }
 
 /**

@@ -65,6 +65,17 @@ class colorIcon {
         }
     }
 
+    /** detect if we've clicked on this icon! called from sketch.mouseMoved
+     *      if a click is detected on this icon, call sketch.populateTricks()
+     */
+    detectClick() {
+        if (this.#mouseCollisionDetected()) {
+            console.log(`🍼 clicking on ${this.colorCh}`)
+            this.toggleSelection()
+            populateTricks()
+        }
+    }
+
     toggleSelection() {
         /* efficiently toggles the count between 0 and 1:
             if previously it was 0, 1-0=1
