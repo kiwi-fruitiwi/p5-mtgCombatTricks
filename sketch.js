@@ -64,13 +64,34 @@ function preload() {
         initialScryfallQueryJSON = loadJSON(req)
     }
 
-    /* regex testing */
-    let oracleText = 'this spell costs {105} less to cast if {5}'
-    let mvReduceRegex = /this spell costs {(\d+)} less to cast if {(\d+)}/
+    /** ®️ regex testing
+     * this spell costs {n} less to cast (if | as long as)
+     *      {1}{U}      → 1         machine over matter
+     *      {3}{B}      → 1         bitter downfall
+     *      {4}{W}{U}   → 4         gwaihir the windlord
+     *      {3}{U}      → 3         arwen's gift
+     *
+     * this spell costs {n} less to cast for each: reduceMV
+     *      {3}{W}{W}   → 2         plated onslaught
+     *      {2}{R}      → 1         rebel salvo
+     *      {1}{U}      → 1         machine over matter
+     *      {4}{B}      → 1         overwhelming remorse
+     *
+     * in scryfall JSON, there's a 🔑cmc:
+     *      "mana_cost": "{2}{B}",
+     *      "cmc": 3.0,
+     * in order to find the discounted mv, subtract {n} from cmc
+     *
+     */
+    let oracleText = 'this spell costs {1} less to cast if'
+    let mvReduceRegex = /this spell costs {(\d+)} less to cast if/
 
     let matches = match(oracleText, mvReduceRegex)
+    let n = matches[1] /* e.g. bitter downfall is 3 */
+    let cmc = 4
+
     if (matches) {
-        console.log(`🍐${matches[0]}, \n 🥭${matches[1]} 🍉${matches[2]}`)
+        console.log(`🍐${matches[0]}, \n 🥭${n}`)
     }
 }
 
@@ -624,15 +645,6 @@ function getCardDataFromScryfallJSON(data) {
                     Plated Onslaught (ONE)
              */
 
-            /* regex testing */
-            let oracleText = frontFace['oracle_text'].toLowerCase()
-            // console.log(`${frontFace['oracle_text']}`)
-            let mvReduceRegex = /this spell costs {(\d+)} less to cast/
-
-            let matches = match(oracleText, mvReduceRegex)
-            if (matches) {
-                console.log(`${cardData['name']} 🍐${matches[0]}, \n 🥭${matches[1]}`)
-            }
 
 
             // let costMatch = oracleText.includes('this spell costs')
