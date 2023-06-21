@@ -37,9 +37,10 @@ const FIXED_WIDTH_FONT_SIZE = 14
 
 /* the canvas height needs to be large enough to show all the cards */
 let necessaryCanvasHeight = 400
+let lastSortTime = 0
 
 let setName = 'ltr'
-let loadJsonFromCache = true
+let loadJsonFromCache = false
 let saveScryfallJson = false /* saves loaded JSON after scryfall query */
 
 let combineSecondSet = false
@@ -77,7 +78,7 @@ function setup() {
     debugCorner = new CanvasDebugCorner(5)
     instructions = select('#ins')
     instructions.html(`<pre>
-        [cwubrg] → toggle icon highlight; shift+ to untoggle
+        [cwubrg] → toggle colors
         numpad 1 → freeze sketch</pre>`)
 
     /** if we didn't load from cache, load from scryfall API. requires
@@ -253,7 +254,6 @@ function reduceMV(manaCost) {
 }
 
 
-
 function changeCanvasSize(newHeight) {
     resizeCanvas(width, newHeight, false);
     console.log(`resized canvas to ${width}, ${newHeight}`)
@@ -270,23 +270,13 @@ function displayCombatTricks() {
            compare a simple 'hash' of tricks in displayedTricks last frame.
            if there's been any changes to the tricks array, sort. this
            results in a few extra sorts per populateTricks call
+
+           alternatively, we could wait 50ms between each sort too.
+
+           but all of this above is taken care of by wrapTricksByMv now that
+            wrapTricksByCard is obsolete.
          */
-        let tricksDataThisFrame = ''
-        for (const trick of displayedTricks) {
-            tricksDataThisFrame += trick.name
-        }
-
-        if (tricksDataThisFrame !== tricksDataLastFrame) {
-            displayedTricks.sort(sortCardsByMV)
-            console.log(`sorting! ${displayedTricks.length} 
-                         tricks: ${displayedTricks}`)
-        }
-
-        tricksDataLastFrame = tricksDataThisFrame
-
         let newCanvasHeight = wrapTricksByMv() /* wrapTricksByCard() */
-
-        /* TODO call updateCanvasHeight only when tricks data changes */
         if (newCanvasHeight !== necessaryCanvasHeight) {
             changeCanvasSize(newCanvasHeight)
             necessaryCanvasHeight = newCanvasHeight
@@ -326,7 +316,9 @@ function resetDcShadow() {
  *   for each ascending value, populate on that row by itself →wrap
  */
 function wrapTricksByMv() {
-    const Y = 260 /* starting y-position of first card */
+    /* starting y-position of first card, Rectmode: CENTER. default 240 */
+    const TOP_MARGIN = 80
+    const Y = TOP_MARGIN + displayedTricks[0].scaleHeight / 2
     const SPACING = 20 /* spacing between each displayed Trick + divider */
     const DIVIDER_HEIGHT = 12
     const CARD_HEIGHT = displayedTricks[0].scaleHeight
@@ -372,6 +364,9 @@ function wrapTricksByMv() {
         xPos += MV_RIGHT_MARGIN
 
         const TRICKS_DISPLAY_RIGHT_MARGIN = width - 20
+
+        /* iterate through all tricks, displaying only those that are the
+         current mv in this row */
         for (const trick of displayedTricks) {
             if (trick.mv === mv) {
                 if (xPos + trick.scaleWidth / 2 >= TRICKS_DISPLAY_RIGHT_MARGIN) {
@@ -690,14 +685,14 @@ function handleMvReductions(card, frontFace) {
          */
 
         if (matchesIf || matchesAsLongAs) {
-            console.log(`🍒 ${name} → reduce by ${n}: ${cmc-n}`)
+            // console.log(`${name} → reduce by ${n}: ${cmc-n}`)
             return cmc - n
         }
 
         if (match(oracleText, costsOnlyColored)) {
             /* in 3WW, the generic component is 3. colored is 2 */
             let coloredPips = reduceMV(frontFace['mana_cost'])
-            console.log(`🌊 ${name} → reduce generic: ${coloredPips}`)
+            // console.log(`${name} → reduce generic: ${coloredPips}`)
             return coloredPips
         }
     }
@@ -846,7 +841,8 @@ function populateTricks() {
     }
 }
 
-
+/* no longer used now that we don't use wrapTricksByCard; wrapTricksByMv
+ takes care of 'sorting' by MV */
 function sortCardsByMV(a, b) {
     if (a['cmc'] === b['cmc']) {
         // console.log(`${a['name']}→${a['cmc']}, ${b['name']}→${b['cmc']}`)
@@ -864,7 +860,7 @@ class CanvasDebugCorner {
      * @param lines
      */
     constructor(lines) { /*  */
-        this.visible = true
+        this.visible = false
         this.size = lines
         this.debugMsgList = [] /* initialize all elements to empty string */
         for (let i in lines)

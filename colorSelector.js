@@ -1,5 +1,5 @@
 
-const TOP_MARGIN = 110 /* canvasHeight ÷ 2 ideally */
+const TOP_MARGIN = 30 /* canvasHeight ÷ 2 ideally */
 const IMG_WIDTH = 20 /* 50 */
 const IMG_HEIGHT = 20 /* 50 */
 const RECT_PADDING = 6 /* 12 */

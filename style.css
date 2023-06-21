@@ -6,7 +6,7 @@ html, body {
 body {
     padding-top: 20px;
     display: flex;
-    align-items: center;
+    align-items: start;
     justify-content: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
