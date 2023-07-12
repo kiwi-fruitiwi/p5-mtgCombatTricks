@@ -181,11 +181,13 @@ function populateWallpapers() {
             'nornsinquisitor.jpg'
         ],
         'ltr': [
-            'plains.jpg',
+            'birthdayescape.jpg',
             'theshire.jpg',
             'andurilflameofthewest.jpg',
-            'billthepony.jpg',
+            'gandalfthegrey.jpg',
+            'samwisegamgee.jpg',
             'doorsofdurin.jpg',
+            'lastmarchoftheents.jpg',
             'stingtheglintingdagger.jpg',
             'thegreyhavens.jpg'
         ]
@@ -798,6 +800,11 @@ function populateTricks() {
                     break;
                 case 'one':
                     if (card['collector_number'] <= 271)
+                        filteredCards.push(card)
+                    break;
+                case 'ltr':
+                    /* basic lands start at 262, end at 281 */
+                    if (card['collector_number'] <= 281)
                         filteredCards.push(card)
                     break;
                 default:
