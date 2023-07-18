@@ -40,7 +40,7 @@ let necessaryCanvasHeight = 400
 let lastSortTime = 0
 
 let setName = 'ltr'
-let loadJsonFromCache = false
+let loadJsonFromCache = true
 let saveScryfallJson = false /* saves loaded JSON after scryfall query */
 
 let combineSecondSet = false
@@ -499,7 +499,7 @@ function draw() {
     debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 0)
     debugCorner.showTop()
 
-    if (frameCount > 30000) /* stop refreshing the screen after 30s */
+    if (frameCount > 30000) /* stop refreshing the screen after 30⌚ */
         noLoop()
 }
 
@@ -738,6 +738,7 @@ function toggleSelectedColor(key) {
     if (colorBar.getAvailableColorChs().includes(lowerCaseKey)) {
         colorBar.toggleIconSelection(key)
         populateTricks()
+
     }
 }
 
@@ -834,17 +835,15 @@ function populateTricks() {
         /* load image asynchronously if the trick satisfies mv requirements!
          * add to displayedTricks array when done loading */
         if (allColorsSelected) {
-            // console.log(`${trick['name']}`)
-            loadImage(card['border_crop_uri'], data => {
-                    displayedTricks.push(
-                        new Trick(
-                            card['name'],
-                            card['cmc'],
-                            card['typeText'],
-                            data,
-                            card['png_uri']))
-                })
+            displayedTricks.push(
+                new Trick(
+                    card['name'],
+                    card['cmc'],
+                    card['typeText'],
+                    card['border_crop_uri'],
+                    card['png_uri']))
         }
+
     }
 }
 

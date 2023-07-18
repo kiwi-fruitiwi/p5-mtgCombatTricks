@@ -27,7 +27,16 @@ class Trick {
         this.name = name
         this.mv = mv
         this.typeText = typeText /* magicalTyperC oracle text, title, mv, etc */
-        this.borderCrop = borderCrop /* the actual cropped art image, not URL */
+
+        /* we used to asynchronously load this in populateTricks, but had
+           duplicate Trick issues due to displayedTricks being modified during
+           the callback, which can occur when another populateTricks call is
+           executing */
+        loadImage(borderCrop, data => {
+            this.borderCrop = data
+            this.borderCrop.resize(this.scaleWidth, 0)
+        })
+
         loadImage(pngURI, data => {
             this.cardImg = data
             this.cardImg.resize(
@@ -50,7 +59,6 @@ class Trick {
 
         this.pos = new p5.Vector(0, 0)
 
-        this.borderCrop.resize(this.scaleWidth, 0)
         this.hovered = false /* is the mouse hovering over me? */
     }
 
@@ -120,16 +128,20 @@ class Trick {
         }
 
         /* art crops are 626x457, ½ MB */
-        image(this.borderCrop, x, y)
-        this.#resetDcShadow()
+        /* make sure borderCrop img has finished loading. it's okay if it
+         hasn't! we just display nothing until it has. */
+        if (this.borderCrop) {
+            image(this.borderCrop, x, y)
+            this.#resetDcShadow()
 
-        /* art border */
-        noFill()
+            /* art border */
+            noFill()
 
-        this.#setSelectionStroke() /* sets opacity of border */
-        strokeWeight(6) /* card black border thickness */
-        rectMode(CENTER)
-        rect(x, y, this.scaleWidth, this.scaleHeight, BORDER_RADIUS)
+            this.#setSelectionStroke() /* sets opacity of border */
+            strokeWeight(6) /* card black border thickness */
+            rectMode(CENTER)
+            rect(x, y, this.scaleWidth, this.scaleHeight, BORDER_RADIUS)
+        }
 
         /* this.#displayTextBox() */
     }
