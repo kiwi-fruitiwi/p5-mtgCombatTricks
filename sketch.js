@@ -101,7 +101,7 @@ function setup() {
     setupColorSelector()
 
     /* we need to manually keep the available backgrounds array updated */
-    const setsWithBgs = ['bro', 'one', 'mom', 'ltr']
+    const setsWithBgs = ['bro', 'one', 'mom', 'ltr', 'woe']
     if (setsWithBgs.includes(setName))
         populateWallpapers()
 }
@@ -571,10 +571,14 @@ function getCardDataFromScryfallJSON(data) {
     const rarity = new RegExp('(common|uncommon|rare|mythic)')
     const creature = new RegExp('[Cc]reature|Vehicle') /* artifact creatures! */
 
-    let count = 0 /* counts cards that pass the filters, like rarity */
+    let cardCount = 0 /* counts cards that pass the filters, like rarity */
+    let cardFaceCount = 0 /* counts adventures twice */
     let typeText = '' /* formatted text for magicalTyperC */
 
     for (let element of data) {
+
+
+
         let frontFace
         let imgURIs
 
@@ -598,14 +602,14 @@ function getCardDataFromScryfallJSON(data) {
             if (element['image_uris']) {
                 facesShareArt = true
                 imgURIs = element['image_uris']
-                console.log(`🫐 ${element['name']} is an Adventure`)
+                // console.log(`🫐 ${element['name']} is an Adventure`)
             } else {
                 /* card faces have their own images */
                 doubleFaceCard = true
                 imgURIs = frontFace['image_uris']
 
                 /* what if the card on the back is a trick? TODO */
-                console.log(`🍓 ${element['name']} has multiple faces`)
+                // console.log(`🍓 ${element['name']} has multiple faces`)
 
             }
         } else {
@@ -639,6 +643,10 @@ function getCardDataFromScryfallJSON(data) {
                 'name': frontFace['name'],
                 'colors': frontFace['colors'],
 
+                'isTrick': isTrick(element),
+                'facesShareArt': facesShareArt, /* adventures */
+                'doubleFacedCard': doubleFaceCard, /* MDFCs, battle, vampire */
+
                 /* keywords apply to both faces? see harried artisan */
                 'keywords': element['keywords'],
                 'type_line': frontFace['type_line'],
@@ -657,14 +665,19 @@ function getCardDataFromScryfallJSON(data) {
             cardData['cmc'] = handleMvReductions(element, frontFace)
 
             results.push(cardData)
-            count++
+            cardCount++
         } else {
             console.log(`🫐 ${element['name']}`)
         }
     }
 
-    console.log(`🍆 [cards added length] ${count}`)
+    console.log(`🍆 [cards added length] ${cardCount}`)
     return results
+}
+
+/* returns true if a card satisfies the requirements of a trick */
+function isTrick(jsonElement) {
+    return true
 }
 
 /* some cards have multiple faces, so we use the front for now */
