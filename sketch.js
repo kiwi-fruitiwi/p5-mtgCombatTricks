@@ -39,7 +39,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 let necessaryCanvasHeight = 400
 let lastSortTime = 0
 
-let setName = 'ltr'
+let setName = 'woe'
 let loadJsonFromCache = true
 let saveScryfallJson = false /* saves loaded JSON after scryfall query */
 
@@ -155,8 +155,12 @@ function setupColorSelector() {
      406 Phyrexia: All Will Be One
      410 March of the Machine
      416 Lord of the Rings: Tales of Middle-Earth. regular: 281, all: 476
-         ends at 271, then some special lands
-         does not include Knight of the Keep 291, Goblin Assailant 295
+            ends at 271, then some special lands
+            does not include Knight of the Keep 291, Goblin Assailant 295
+     421 Wilds of Eldraine
+            regular ends at 276
+            262-266 are special full art lands
+
  */
 function populateWallpapers() {
     const wallpapers = {
@@ -190,6 +194,13 @@ function populateWallpapers() {
             'lastmarchoftheents.jpg',
             'stingtheglintingdagger.jpg',
             'thegreyhavens.jpg'
+        ],
+        'woe': [
+            'eriette.jpg',
+            'evolvingwilds.jpg',
+            'kellan.jpg',
+            'solitarysanctuary.jpg',
+            'virtueofknowledge.jpg'
         ]
     }
 
@@ -568,18 +579,40 @@ function getCardDataFromScryfallJSON(data) {
         let imgURIs
 
         /* double-sided cards like lessons, vampires, MDFCs have card image
-          data inside an array within card_faces. card_faces[0] always gives
-          the front card. e.g. Kazandu Mammoth from ZNR */
-        let multipleCardFaces = false
+            data inside an array within card_faces. card_faces[0] always gives
+            the front card. e.g. Kazandu Mammoth from ZNR
+            also applies to: battles
+        */
+        let doubleFaceCard = false
 
+        /* adventures use 🔑card_faces, but both 'faces' share the same art */
+        let facesShareArt = false
+
+
+        /* cards_faces existing means we need to handle images differently */
         if (element['card_faces']) {
+            console.log(`🥭 ${element['name']} has multiple faces`)
             frontFace = element['card_faces'][0]
-            multipleCardFaces = true
+
+            /* card faces share the same image: adventure */
+            if (element['image_uris']) {
+                facesShareArt = true
+                imgURIs = element['image_uris']
+                console.log(`🫐 ${element['name']} is an Adventure`)
+            } else {
+                /* card faces have their own images */
+                doubleFaceCard = true
+                imgURIs = frontFace['image_uris']
+
+                /* what if the card on the back is a trick? TODO */
+                console.log(`🍓 ${element['name']} has multiple faces`)
+
+            }
         } else {
             frontFace = element
+            imgURIs = frontFace['image_uris']
         }
 
-        imgURIs = frontFace['image_uris']
 
         /* if mana value is 0, skip displaying the space for our typerC text */
         let manaCost = element['mana_cost']
@@ -600,6 +633,7 @@ function getCardDataFromScryfallJSON(data) {
         typeText += ' '
 
         /* filter for rarity */
+        console.log(`🥝${frontFace['name']}`)
         if (rarity.test(element['rarity'])) {
             let cardData = {
                 'name': frontFace['name'],
