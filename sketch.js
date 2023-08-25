@@ -557,6 +557,11 @@ function gotCachedData(data) {
     loadedJSON = true
 }
 
+/* extracts a name from a card face. if a card has only one face, defaults
+ to name of json card object */
+function getCardName(cardFace) {
+    return cardFace['name']
+}
 
 /** populates card data list from scryfall. this is used in the callback
  *  function after scryfall data finishes loading completely as well as when
@@ -576,7 +581,15 @@ function getCardDataFromScryfallJSON(data) {
     let typeText = '' /* formatted text for magicalTyperC */
 
     for (let element of data) {
-
+        /* iterate through card faces, defaulting to [0] if !🔑card_faces */
+        if (element['card_faces']) {
+            /* there are multiple faces! iterate through them */
+            for (let i in element['card_faces']) {
+                console.log(`🍓 ${getCardName(element['card_faces'][i])}`)
+            }
+        } else {
+            console.log(`🫐 ${getCardName(element)}`)
+        }
 
 
         let frontFace
@@ -595,7 +608,7 @@ function getCardDataFromScryfallJSON(data) {
 
         /* cards_faces existing means we need to handle images differently */
         if (element['card_faces']) {
-            console.log(`🥭 ${element['name']} has multiple faces`)
+            // console.log(`🥭 ${element['name']} has multiple faces`)
             frontFace = element['card_faces'][0]
 
             /* card faces share the same image: adventure */
@@ -637,7 +650,6 @@ function getCardDataFromScryfallJSON(data) {
         typeText += ' '
 
         /* filter for rarity */
-        console.log(`🥝${frontFace['name']}`)
         if (rarity.test(element['rarity'])) {
             let cardData = {
                 'name': frontFace['name'],
