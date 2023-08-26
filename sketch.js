@@ -39,7 +39,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 let necessaryCanvasHeight = 400
 let lastSortTime = 0
 
-let setName = 'woe'
+let setName = 'ltr'
 let loadJsonFromCache = true
 let saveScryfallJson = false /* saves loaded JSON after scryfall query */
 
@@ -563,6 +563,68 @@ function getCardName(cardFace) {
     return cardFace['name']
 }
 
+/**
+ * takes card data: an element from the scryfall json, and returns relevant
+ * fields for combatTricks
+ * @param element either the entire card from scryfall json, or one face
+ * from 🔑card_faces
+ * @param imgURIs for Adventures, the image is part of the json card object
+ * rather than the child card_face object because the art is shared! for MDFCs,
+ * battles, werewolves, etc., each card_face has its own art because it's
+ * the back of the card
+ * @return object json containing all necessary information about a card face
+ */
+function processCardFace(element, imgURIs) {
+    /** formatted text for magicalTyperC */
+    let typeText = ''
+
+    /** regex for testing if a card is a creature, i.e. has power, toughness */
+    const creature = new RegExp('[Cc]reature|Vehicle')
+
+    /* if mana value is 0, skip displaying the space for our typerC text */
+    let manaCost = element['mana_cost']
+    if (manaCost !== '')
+        manaCost = ' ' + manaCost
+
+    typeText = `${element.name}${manaCost}\n${element['type_line']}\n${element['oracle_text']}\n`
+    /* sometimes p/t don't exist. check type */
+    if (creature.test(element['type_line']))
+        typeText += `${element['power']}/${element['toughness']}\n`
+    /* we need whitespace at end for passage end detection to work */
+
+    if (element['flavor_text'])
+        typeText += `\n${element['flavor_text']}\n`
+    else typeText += '\n'
+
+    /* extra space makes user able to hit 'enter' at end */
+    typeText += ' '
+
+    let cardData = {
+        'name': element['name'],
+        'colors': element['colors'],
+
+        /* keywords apply to both faces? see harried artisan */
+        'keywords': element['keywords'],
+        'rarity': element['rarity'],
+        'type_line': element['type_line'],
+        'oracle_text': element['oracle_text'],
+        'collector_number': int(element['collector_number']),
+        'typeText': typeText,
+        'art_crop_uri': imgURIs['art_crop'], /* 626x457 ½ MB*/
+        'small_uri': imgURIs['small'], /* 146x204 */
+        'normal_uri': imgURIs['normal'], /* normal 488x680 64KB */
+        'large_uri': imgURIs['large'], /* large 672x936 100KB */
+        'border_crop_uri': imgURIs['border_crop'], /* 480x680 104KB */
+        'png_uri': imgURIs['png'] /* png 745x1040 1MB */
+    }
+
+    /* handle any cost reductions for mana value */
+    cardData['cmc'] = handleMvReductions(element, element)
+
+    return cardData
+}
+
+
 /** populates card data list from scryfall. this is used in the callback
  *  function after scryfall data finishes loading completely as well as when
  *  loading directly from cache
@@ -572,114 +634,61 @@ function getCardDataFromScryfallJSON(data) {
 
     console.log(`💦 [scryfall JSON size] ${data.length}`)
 
-    /* regex for detecting creatures and common/uncommon rarity */
-    const rarity = new RegExp('(common|uncommon|rare|mythic)')
-    const creature = new RegExp('[Cc]reature|Vehicle') /* artifact creatures! */
-
     let cardCount = 0 /* counts cards that pass the filters, like rarity */
     let cardFaceCount = 0 /* counts adventures twice */
-    let typeText = '' /* formatted text for magicalTyperC */
 
     for (let element of data) {
-        /* iterate through card faces, defaulting to [0] if !🔑card_faces */
-        if (element['card_faces']) {
-            /* there are multiple faces! iterate through them */
-            for (let i in element['card_faces']) {
-                console.log(`🍓 ${getCardName(element['card_faces'][i])}`)
-            }
-        } else {
-            console.log(`🫐 ${getCardName(element)}`)
-        }
-
-
-        let frontFace
+        /** object containing URLs for various image sizes and styles */
         let imgURIs
 
-        /* double-sided cards like lessons, vampires, MDFCs have card image
+        /** double-sided cards like lessons, vampires, MDFCs have card image
             data inside an array within card_faces. card_faces[0] always gives
             the front card. e.g. Kazandu Mammoth from ZNR
             also applies to: battles
         */
         let doubleFaceCard = false
 
-        /* adventures use 🔑card_faces, but both 'faces' share the same art */
+        /** adventures use 🔑card_faces, but both 'faces' share the same art */
         let facesShareArt = false
 
-
-        /* cards_faces existing means we need to handle images differently */
+        /* iterate through card faces if they exist */
         if (element['card_faces']) {
-            // console.log(`🥭 ${element['name']} has multiple faces`)
-            frontFace = element['card_faces'][0]
-
-            /* card faces share the same image: adventure */
+            /** cards either share one image across all faces (adventures) or
+                have a unique image per face. find out which and flag.
+                note if element['image_uris'] exists here after the preceding
+                🔑card_faces check, then that image is shared across all
+                card faces: it must be an adventure! */
             if (element['image_uris']) {
                 facesShareArt = true
-                imgURIs = element['image_uris']
-                // console.log(`🫐 ${element['name']} is an Adventure`)
             } else {
-                /* card faces have their own images */
+                /* card faces have unique images: battles, MDFCs, day / night */
                 doubleFaceCard = true
-                imgURIs = frontFace['image_uris']
-
-                /* what if the card on the back is a trick? TODO */
-                // console.log(`🍓 ${element['name']} has multiple faces`)
-
-            }
-        } else {
-            frontFace = element
-            imgURIs = frontFace['image_uris']
-        }
-
-
-        /* if mana value is 0, skip displaying the space for our typerC text */
-        let manaCost = element['mana_cost']
-        if (manaCost !== '')
-            manaCost = ' ' + manaCost
-
-        typeText = `${element.name}${manaCost}\n${element['type_line']}\n${element['oracle_text']}\n`
-        /* sometimes p/t don't exist. check type */
-        if (creature.test(element['type_line']))
-            typeText += `${element['power']}/${element['toughness']}\n`
-        /* we need whitespace at end for passage end detection to work */
-
-        if (element['flavor_text'])
-            typeText += `\n${element['flavor_text']}\n`
-        else typeText += '\n'
-
-        /* extra space makes user able to hit 'enter' at end */
-        typeText += ' '
-
-        /* filter for rarity */
-        if (rarity.test(element['rarity'])) {
-            let cardData = {
-                'name': frontFace['name'],
-                'colors': frontFace['colors'],
-
-                'isTrick': isTrick(element),
-                'facesShareArt': facesShareArt, /* adventures */
-                'doubleFacedCard': doubleFaceCard, /* MDFCs, battle, vampire */
-
-                /* keywords apply to both faces? see harried artisan */
-                'keywords': element['keywords'],
-                'type_line': frontFace['type_line'],
-                'oracle_text': frontFace['oracle_text'],
-                'collector_number': int(frontFace['collector_number']),
-                'typeText': typeText,
-                'art_crop_uri': imgURIs['art_crop'], /* 626x457 ½ MB*/
-                'small_uri': imgURIs['small'], /* 146x204 */
-                'normal_uri': imgURIs['normal'], /* normal 488x680 64KB */
-                'large_uri': imgURIs['large'], /* large 672x936 100KB */
-                'border_crop_uri': imgURIs['border_crop'], /* 480x680 104KB */
-                'png_uri': imgURIs['png'] /* png 745x1040 1MB */
             }
 
-            /* handle any cost reductions for mana value */
-            cardData['cmc'] = handleMvReductions(element, frontFace)
+            /** iterate through multiple faces and process */
+            for (let i in element['card_faces']) {
+                let face = element['card_faces'][i]
 
-            results.push(cardData)
-            cardCount++
+                if (facesShareArt)
+                    imgURIs = element['image_uris']
+                else
+                    imgURIs = element['card_faces'][i]['imgURIs']
+
+                /* amend face with needed information */
+                face['colors'] = element['colors']
+                face['collector_number'] = element['collector_number']
+                face['keywords'] = element['keywords']
+                face['rarity'] = element['rarity']
+                face['cmc'] = element['cmc']
+
+                results.push(processCardFace(face, imgURIs))
+                cardFaceCount += 1
+            }
         } else {
-            console.log(`🫐 ${element['name']}`)
+            /* process single face */
+            imgURIs = element['image_uris']
+            results.push(processCardFace(element, imgURIs))
+            cardCount += 1
         }
     }
 
@@ -693,8 +702,8 @@ function isTrick(jsonElement) {
 }
 
 /* some cards have multiple faces, so we use the front for now */
-function handleMvReductions(card, frontFace) {
-    let oracleText = frontFace['oracle_text'].toLowerCase()
+function handleMvReductions(card) {
+    let oracleText = card['oracle_text'].toLowerCase()
     /** ®️ regex for cost reduction logic, e.g. in set:LTR
 
      Arwen's Gift: This spell costs {1} less to cast if
@@ -731,7 +740,7 @@ function handleMvReductions(card, frontFace) {
     /* does the cost reduction phrase  exist in oracle text? */
     let matches = match(oracleText, generalMvReduction)
     if (matches) {
-        let name = frontFace['name']
+        let name = card['name']
         let cmc = card['cmc'] /* not frontFace; cmc is based on entire card */
         let n = matches[1] /* e.g. bitter downfall discount is 3 */
 
@@ -752,7 +761,7 @@ function handleMvReductions(card, frontFace) {
 
         if (match(oracleText, costsOnlyColored)) {
             /* in 3WW, the generic component is 3. colored is 2 */
-            let coloredPips = reduceMV(frontFace['mana_cost'])
+            let coloredPips = reduceMV(card['mana_cost'])
             // console.log(`${name} → reduce generic: ${coloredPips}`)
             return coloredPips
         }
