@@ -39,7 +39,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 let necessaryCanvasHeight = 400
 let lastSortTime = 0
 
-let setName = 'ltr'
+let setName = 'woe'
 let loadJsonFromCache = true
 let saveScryfallJson = false /* saves loaded JSON after scryfall query */
 
@@ -227,8 +227,10 @@ function populateWallpapers() {
  *      {1}{U}      → 1         machine over matter
  *      {4}{B}      → 1         overwhelming remorse
  *  @param {string} manaCost
+ *  @param {boolean} includeGeneric includes generic casting cost
+ *      {3}{W}{W}   → 5
  */
-function reduceMV(manaCost) {
+function reduceMV(manaCost, includeGeneric=false) {
     /*  we're guaranteed every mana value is within {}
 
         ☒ string-builder to add a space after each }
@@ -258,12 +260,16 @@ function reduceMV(manaCost) {
     let manaList = spacesAdded.trim().split(' ')
 
     let result = []
+    let generic = 0
     for (const element of manaList) {
-        if (isNaN(element)) /* isNaN returns true if it's not a number */
+        if (['W', 'U', 'B', 'R', 'G'].includes(element))
+        // if (isNaN(element)) /* isNaN returns true if it's not a number */
             result.push(element)
+        else if (includeGeneric)
+            generic = element
     }
 
-    return result.length
+    return result.length + int(generic)
 }
 
 
@@ -553,14 +559,8 @@ function gotData(data) {
  */
 function gotCachedData(data) {
     cards = getCardDataFromScryfallJSON(data)
-    console.log(`${cards.length} cards loaded from cache: ${setName}`)
+    console.log(`${cards.length} cached card faces loaded: ${setName}`)
     loadedJSON = true
-}
-
-/* extracts a name from a card face. if a card has only one face, defaults
- to name of json card object */
-function getCardName(cardFace) {
-    return cardFace['name']
 }
 
 /**
@@ -619,7 +619,7 @@ function processCardFace(element, imgURIs) {
     }
 
     /* handle any cost reductions for mana value */
-    cardData['cmc'] = handleMvReductions(element, element)
+    cardData['cmc'] = handleMvReductions(element)
 
     return cardData
 }
@@ -637,15 +637,16 @@ function getCardDataFromScryfallJSON(data) {
     let cardCount = 0 /* counts cards that pass the filters, like rarity */
     let cardFaceCount = 0 /* counts adventures twice */
 
+    let includeGeneric;
     for (let element of data) {
         /** object containing URLs for various image sizes and styles */
         let imgURIs
 
         /** double-sided cards like lessons, vampires, MDFCs have card image
-            data inside an array within card_faces. card_faces[0] always gives
-            the front card. e.g. Kazandu Mammoth from ZNR
-            also applies to: battles
-        */
+         data inside an array within card_faces. card_faces[0] always gives
+         the front card. e.g. Kazandu Mammoth from ZNR
+         also applies to: battles
+         */
         let doubleFaceCard = false
 
         /** adventures use 🔑card_faces, but both 'faces' share the same art */
@@ -654,10 +655,10 @@ function getCardDataFromScryfallJSON(data) {
         /* iterate through card faces if they exist */
         if (element['card_faces']) {
             /** cards either share one image across all faces (adventures) or
-                have a unique image per face. find out which and flag.
-                note if element['image_uris'] exists here after the preceding
-                🔑card_faces check, then that image is shared across all
-                card faces: it must be an adventure! */
+             have a unique image per face. find out which and flag.
+             note if element['image_uris'] exists here after the preceding
+             🔑card_faces check, then that image is shared across all
+             card faces: it must be an adventure! */
             if (element['image_uris']) {
                 facesShareArt = true
             } else {
@@ -674,12 +675,15 @@ function getCardDataFromScryfallJSON(data) {
                 else
                     imgURIs = element['card_faces'][i]['imgURIs']
 
-                /* amend face with needed information */
+                /* amend face with needed information from main card */
                 face['colors'] = element['colors']
                 face['collector_number'] = element['collector_number']
                 face['keywords'] = element['keywords']
                 face['rarity'] = element['rarity']
-                face['cmc'] = element['cmc']
+
+                /* TODO tinker with generating cmc from mana_cost */
+                face['cmc'] = reduceMV(face['mana_cost'], includeGeneric = true)
+                console.log(`🥝 ${face['name']} → cmc:${face['cmc']}`)
 
                 results.push(processCardFace(face, imgURIs))
                 cardFaceCount += 1
@@ -692,7 +696,8 @@ function getCardDataFromScryfallJSON(data) {
         }
     }
 
-    console.log(`🍆 [cards added length] ${cardCount}`)
+    console.log(`🍆 [+single cards] ${cardCount}`)
+    console.log(`🍆 [+card faces] ${cardFaceCount}`)
     return results
 }
 
