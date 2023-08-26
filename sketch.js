@@ -215,6 +215,40 @@ function populateWallpapers() {
         ` rgba(0,0,0,0.4)), ${bgURL}`)
 }
 
+/**
+ * from {2}{W}{U}, returns ['W', 'U']
+ * @param manaCost the scryfall 🔑mana_cost value
+ * @returns {array}
+ */
+function getColorsFromManaCost(manaCost) {
+    /** strip out curly braces from 🔑mana_cost */
+    let strippedManaCost = ''
+    for (const character of manaCost) {
+        switch (character) {
+            case '{':
+                /* skip this character */
+                break
+            case '}':
+                /* skip this character but add a space */
+                strippedManaCost += ' '
+                break
+            default:
+                strippedManaCost += character
+        }
+    }
+
+    /* trim to remove trailing space */
+    let manaList = strippedManaCost.trim().split(' ')
+    let wubrgArray = []
+    for (const element of manaList) {
+        if (['W', 'U', 'B', 'R', 'G'].includes(element))
+            // if (isNaN(element)) /* isNaN returns true if it's not a number */
+            wubrgArray.push(element)
+    }
+
+    return wubrgArray
+}
+
 
 /**
  *  returns the reduced mana cost of a 🔑 cmc key value from scryfall JSON.
@@ -676,10 +710,10 @@ function getCardDataFromScryfallJSON(data) {
                     imgURIs = element['card_faces'][i]['imgURIs']
 
                 /* amend face with needed information from main card */
-                face['colors'] = element['colors']
                 face['collector_number'] = element['collector_number']
                 face['keywords'] = element['keywords']
                 face['rarity'] = element['rarity']
+                face['colors'] = getColorsFromManaCost(face['mana_cost'])
 
                 /* TODO tinker with generating cmc from mana_cost */
                 face['cmc'] = reduceMV(face['mana_cost'], includeGeneric = true)
