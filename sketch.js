@@ -40,11 +40,11 @@ let necessaryCanvasHeight = 400
 let lastSortTime = 0
 
 let setName = 'woe'
+let secondSetName = 'wot'
+let combineSecondSet = true
+
 let loadJsonFromCache = true
 let saveScryfallJson = false /* saves loaded JSON after scryfall query */
-
-let combineSecondSet = false
-let secondSetName = 'mat'
 
 
 function preload() {
@@ -593,7 +593,22 @@ function gotData(data) {
  */
 function gotCachedData(data) {
     cards = getCardDataFromScryfallJSON(data)
-    console.log(`${cards.length} cached card faces loaded: ${setName}`)
+
+    if (combineSecondSet) {
+        loadJSON(`json-cache/${secondSetName}.json`, gotSecondaryCachedData)
+    } else {
+        console.log(`${cards.length} cached card faces loaded: ${setName}`)
+        loadedJSON = true
+    }
+}
+
+function gotSecondaryCachedData(data) {
+    for (const element of data) {
+        console.log(`🚂 ${element['set']}.${element['collector_number']}: ${element['name']}`)
+    }
+
+    cards.concat(getCardDataFromScryfallJSON(data))
+    console.log(`total ${cards.length} cached card faces loaded: ${secondSetName}`)
     loadedJSON = true
 }
 
@@ -714,10 +729,7 @@ function getCardDataFromScryfallJSON(data) {
                 face['keywords'] = element['keywords']
                 face['rarity'] = element['rarity']
                 face['colors'] = getColorsFromManaCost(face['mana_cost'])
-
-                /* TODO tinker with generating cmc from mana_cost */
                 face['cmc'] = reduceMV(face['mana_cost'], includeGeneric = true)
-                console.log(`🥝 ${face['name']} → cmc:${face['cmc']}`)
 
                 results.push(processCardFace(face, imgURIs))
                 cardFaceCount += 1
@@ -913,6 +925,11 @@ function populateTricks() {
                 case 'ltr':
                     /* basic lands start at 262, end at 281 */
                     if (card['collector_number'] <= 281)
+                        filteredCards.push(card)
+                    break;
+                case 'woe':
+                    /* basic lands start at 262, end at 281 */
+                    if (card['collector_number'] <= 276)
                         filteredCards.push(card)
                     break;
                 default:
