@@ -40,7 +40,7 @@ let necessaryCanvasHeight = 400
 let lastSortTime = 0
 
 let setName = 'woe'
-let secondSetName = 'wot'
+let secondSetName = 'mom'
 let combineSecondSet = true
 
 let loadJsonFromCache = true
@@ -604,7 +604,8 @@ function gotCachedData(data) {
 
 function gotSecondaryCachedData(data) {
     for (const element of data) {
-        console.log(`🚂 ${element['set']}.${element['collector_number']}: ${element['name']}`)
+        // console.log(`🚂 ${element['set']}.${element['collector_number']}:
+        // ${element['name']}`)
     }
 
     cards.concat(getCardDataFromScryfallJSON(data))
@@ -647,7 +648,6 @@ function processCardFace(element, imgURIs) {
 
     /* extra space makes user able to hit 'enter' at end */
     typeText += ' '
-
     let cardData = {
         'name': element['name'],
         'colors': element['colors'],
@@ -681,7 +681,7 @@ function processCardFace(element, imgURIs) {
 function getCardDataFromScryfallJSON(data) {
     let results = []
 
-    console.log(`💦 [scryfall JSON size] ${data.length}`)
+    console.log(`💦 [${data[0]['set_name']}] ${data.length}`)
 
     let cardCount = 0 /* counts cards that pass the filters, like rarity */
     let cardFaceCount = 0 /* counts adventures twice */
@@ -722,7 +722,7 @@ function getCardDataFromScryfallJSON(data) {
                 if (facesShareArt)
                     imgURIs = element['image_uris']
                 else
-                    imgURIs = element['card_faces'][i]['imgURIs']
+                    imgURIs = element['card_faces'][i]['image_uris']
 
                 /* amend face with needed information from main card */
                 face['collector_number'] = element['collector_number']
