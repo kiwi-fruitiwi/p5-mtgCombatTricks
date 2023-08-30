@@ -36,12 +36,12 @@ let clickedImg /* image of currently clicked card */
 const FIXED_WIDTH_FONT_SIZE = 14
 
 /* the canvas height needs to be large enough to show all the cards */
-let necessaryCanvasHeight = 400
-let lastSortTime = 0
+const CANVAS_MINIMUM_HEIGHT = 650
+const CANVAS_STARTING_HEIGHT = 400  /* arbitrary value for looks */
 
 let setName = 'woe'
 let secondSetName = 'mom'
-let combineSecondSet = true
+let combineSecondSet = false
 
 let loadJsonFromCache = true
 let saveScryfallJson = false /* saves loaded JSON after scryfall query */
@@ -67,7 +67,7 @@ function preload() {
 }
 
 function setup() {
-    let cnv = createCanvas(1000, necessaryCanvasHeight)
+    let cnv = createCanvas(1000, CANVAS_STARTING_HEIGHT)
     cnv.parent('#canvas')
     colorMode(HSB, 360, 100, 100, 100)
     textFont(fixedWidthFont, FIXED_WIDTH_FONT_SIZE)
@@ -104,6 +104,24 @@ function setup() {
     const setsWithBgs = ['bro', 'one', 'mom', 'ltr', 'woe']
     if (setsWithBgs.includes(setName))
         populateWallpapers()
+}
+
+function draw() {
+    clear()
+    background(234, 34, 24, 50)
+
+    if (loadedJSON) {
+        colorBar.render()
+        displayCombatTricks()
+    }
+
+    /* debugCorner needs to be last so its z-index is highest */
+    debugCorner.setText(`frameCount: ${frameCount}`, 1)
+    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 0)
+    debugCorner.showTop()
+
+    if (frameCount > 30000) /* stop refreshing the screen after 30⌚ */
+        noLoop()
 }
 
 /* load mana color symbols */
@@ -307,33 +325,37 @@ function reduceMV(manaCost, includeGeneric=false) {
 }
 
 
-function changeCanvasSize(newHeight) {
-    resizeCanvas(width, newHeight, false);
-    console.log(`resized canvas to ${width}, ${newHeight}`)
+function changeCanvasHeight(targetHeight) {
+    /*  if equal to starting canvas height, set it
+            this is for canvas reset when nothing is selected
+        otherwise if less than minimum height
+            set it to minimum
+        if greater than minimum:
+            set to parameter height
+     */
+
+    if (targetHeight !== height) {
+        if (targetHeight === CANVAS_STARTING_HEIGHT)
+            resizeCanvas(width, CANVAS_STARTING_HEIGHT, false)
+
+        else if (targetHeight <= CANVAS_MINIMUM_HEIGHT && targetHeight >= CANVAS_STARTING_HEIGHT)
+            resizeCanvas(width, CANVAS_MINIMUM_HEIGHT, false)
+
+        else if (targetHeight > CANVAS_MINIMUM_HEIGHT)
+            resizeCanvas(width, targetHeight, false)
+    }
 }
 
 
+/* called every draw loop */
 function displayCombatTricks() {
-    /* display list of combat tricks; populate list with 'z' key */
+    /* condition needed to make sure tricks are loaded */
     if (displayedTricks && displayedTricks.length > 0) {
-        /* do we need to sort the tricks list? since tricks are pushed
-           asynchronously to the tricks array due to image loading, we need
-           to wait before we can sort:
-
-           compare a simple 'hash' of tricks in displayedTricks last frame.
-           if there's been any changes to the tricks array, sort. this
-           results in a few extra sorts per populateTricks call
-
-           alternatively, we could wait 50ms between each sort too.
-
-           but all of this above is taken care of by wrapTricksByMv now that
-            wrapTricksByCard is obsolete.
-         */
-        let newCanvasHeight = wrapTricksByMv() /* wrapTricksByCard() */
-        if (newCanvasHeight !== necessaryCanvasHeight) {
-            changeCanvasSize(newCanvasHeight)
-            necessaryCanvasHeight = newCanvasHeight
-        }
+        renderTricksByMv()
+    } else if (displayedTricks.length === 0) {
+        /* since we check for displayedTricks, we need a fail case
+         * if it's not loaded or we deselected all colors */
+        changeCanvasHeight(CANVAS_STARTING_HEIGHT)
     }
 
     /* show full size card image when mouse is clicked on a trick */
@@ -368,7 +390,7 @@ function resetDcShadow() {
  *   find all unique values → print or set debugMsg
  *   for each ascending value, populate on that row by itself →wrap
  */
-function wrapTricksByMv() {
+function renderTricksByMv() {
     /* starting y-position of first card, Rectmode: CENTER. default 240 */
     const TOP_MARGIN = 80
     const Y = TOP_MARGIN + displayedTricks[0].scaleHeight / 2
@@ -444,7 +466,9 @@ function wrapTricksByMv() {
     /* y-center of lowest card. note we added more yOffset after last loop
      * so we have to subtract some. see canvasHeight ✒️ drawingPad entry for
      * details */
-    return Y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT
+    let canvasHeight = Y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT
+    console.log(`🥭renderTricksByMv: ${canvasHeight}, ${height}`)
+    changeCanvasHeight(canvasHeight)
 }
 
 
@@ -531,27 +555,6 @@ function detectColorIconClick() {
     for (const colorIcon of colorBar.getColorIcons()) {
         colorIcon.detectClick()
     }
-}
-
-
-function draw() {
-    clear()
-    background(234, 34, 24, 50)
-
-
-    if (loadedJSON) {
-        colorBar.render()
-    }
-
-    displayCombatTricks()
-
-    /* debugCorner needs to be last so its z-index is highest */
-    debugCorner.setText(`frameCount: ${frameCount}`, 1)
-    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 0)
-    debugCorner.showTop()
-
-    if (frameCount > 30000) /* stop refreshing the screen after 30⌚ */
-        noLoop()
 }
 
 
@@ -857,7 +860,6 @@ function toggleSelectedColor(key) {
     if (colorBar.getAvailableColorChs().includes(lowerCaseKey)) {
         colorBar.toggleIconSelection(key)
         populateTricks()
-
     }
 }
 
@@ -897,10 +899,11 @@ function keyPressed() {
 }
 
 
-/** loads card data so we can display cards found that match mana */
+/** loads card data, so we can display cards found that match mana
+  * called each time we select or deselect a WUBRGC color. renderTricksByMv uses
+  * this data to render the Tricks
+  */
 function populateTricks() {
-    console.log('🐳 populating tricks')
-
     /* instant / flash cards that satisfy color requirements */
     let filteredCards = []
     for (let card of cards) {
@@ -967,8 +970,10 @@ function populateTricks() {
                     card['border_crop_uri'],
                     card['png_uri']))
         }
-
     }
+
+
+    console.log(`🐳 populated tricks: ${displayedTricks.length}`)
 }
 
 /* no longer used now that we don't use wrapTricksByCard; wrapTricksByMv

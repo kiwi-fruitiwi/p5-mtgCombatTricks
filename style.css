@@ -12,6 +12,8 @@ body {
     background-attachment: fixed;
     background-position: center;
     background-size: cover;
+
+    overflow-y: scroll;
 }
 
 #ins {
