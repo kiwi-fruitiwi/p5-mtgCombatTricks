@@ -334,15 +334,21 @@ function changeCanvasHeight(targetHeight) {
             set to parameter height
      */
 
+    /* if we're already at the same height, don't force a redraw */
     if (targetHeight !== height) {
-        if (targetHeight === CANVAS_STARTING_HEIGHT)
-            resizeCanvas(width, CANVAS_STARTING_HEIGHT, false)
+        resizeCanvas(width, targetHeight, false)
+        // console.log(`${targetHeight} ==? ${height}`)
+        /* no idea why this doesn't work: modifying heights erases canvas
 
-        else if (targetHeight <= CANVAS_MINIMUM_HEIGHT && targetHeight >= CANVAS_STARTING_HEIGHT)
-            resizeCanvas(width, CANVAS_MINIMUM_HEIGHT, false)
+            if (targetHeight === CANVAS_STARTING_HEIGHT) {
+                resizeCanvas(width, CANVAS_STARTING_HEIGHT, false)
+            } else if (targetHeight <= CANVAS_MINIMUM_HEIGHT) {
+                resizeCanvas(width, CANVAS_MINIMUM_HEIGHT, false)
+            } else if (targetHeight > CANVAS_MINIMUM_HEIGHT) {
+                resizeCanvas(width, targetHeight, false)
+            }
 
-        else if (targetHeight > CANVAS_MINIMUM_HEIGHT)
-            resizeCanvas(width, targetHeight, false)
+        */
     }
 }
 
@@ -364,7 +370,7 @@ function displayCombatTricks() {
         image(
             clickedImg,
             width/2 - 10, /* 10 accounts for half the scrollbar width */
-            windowHeight/2 + window.scrollY - 30, /* make sure not too low */
+            windowHeight/2 + window.scrollY - 40, /* make sure not too low */
         )
         resetDcShadow()
     }
@@ -467,7 +473,8 @@ function renderTricksByMv() {
      * so we have to subtract some. see canvasHeight ✒️ drawingPad entry for
      * details */
     let canvasHeight = Y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT
-    console.log(`🥭renderTricksByMv: ${canvasHeight}, ${height}`)
+
+    // console.log(`🥭renderTricksByMv: ${canvasHeight}, ${height}`)
     changeCanvasHeight(canvasHeight)
 }
 
