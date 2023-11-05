@@ -39,8 +39,8 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 400  /* arbitrary value for looks */
 
-let setName = 'woe'
-let secondSetName = 'mom'
+let setName = 'lci'
+let secondSetName = 'wot'
 let combineSecondSet = false
 
 let loadJsonFromCache = true
@@ -101,9 +101,7 @@ function setup() {
     setupColorSelector()
 
     /* we need to manually keep the available backgrounds array updated */
-    const setsWithBgs = ['bro', 'one', 'mom', 'ltr', 'woe']
-    if (setsWithBgs.includes(setName))
-        populateWallpapers()
+    populateWallpapers()
 }
 
 function draw() {
@@ -120,7 +118,7 @@ function draw() {
     debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 0)
     debugCorner.showTop()
 
-    if (frameCount > 30000) /* stop refreshing the screen after 30⌚ */
+    if (frameCount > 300000) /* stop refreshing the screen after 300sw */
         noLoop()
 }
 
@@ -178,6 +176,9 @@ function setupColorSelector() {
      421 Wilds of Eldraine
             regular ends at 276
             262-266 are special full art lands
+     430 Lost Caverns of Ixalan
+            regular ends at 291
+            287-291 are full art lands. note normal basics are later!
 
  */
 function populateWallpapers() {
@@ -219,18 +220,37 @@ function populateWallpapers() {
             'kellan.jpg',
             'solitarysanctuary.jpg',
             'virtueofknowledge.jpg'
+        ],
+        'lci': [
+            'huatli.jpg',
+            'nicanzil.jpg',
+            'ridgeline.jpg',
+            'thunderhulk.jpg',
+            'courtyard.jpg',
+            'thecore.png',
+            'kutzil.png',
+            'infantry.png',
+            'raptor.png',
+            'quintorius.png',
+            'puzzledoor.png',
+            'okinec.png',
+            'matzalantli.jpg',
         ]
     }
+    const setsWithBgs = Object.keys(wallpapers)
+    if (setsWithBgs.includes(setName)) {
+        const setImgArr = wallpapers[setName]
 
-    const setImgArr = wallpapers[setName]
+        /* use the array length as a scaling factor for random's [0,1) generator */
+        const randomIndex = Math.floor(Math.random() * setImgArr.length)
+        const wallpaperFileName = setImgArr[randomIndex];
 
-    /* use the array length as a scaling factor for random's [0,1) generator */
-    const randomIndex = Math.floor(Math.random() * setImgArr.length)
-    const wallpaperFileName = setImgArr[randomIndex];
+        const bgURL = `url("backgrounds/${setName}/${wallpaperFileName}")`
+        console.log(`🐳 ${bgURL}`)
+        select('body').style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
+            ` rgba(0,0,0,0.4)), ${bgURL}`)
 
-    const bgURL = `url("backgrounds/${setName}/${wallpaperFileName}")`
-    select('body').style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
-        ` rgba(0,0,0,0.4)), ${bgURL}`)
+    }
 }
 
 /**
@@ -755,11 +775,6 @@ function getCardDataFromScryfallJSON(data) {
     console.log(`🍆 [+single cards] ${cardCount}`)
     console.log(`🍆 [+card faces] ${cardFaceCount}`)
     return results
-}
-
-/* returns true if a card satisfies the requirements of a trick */
-function isTrick(jsonElement) {
-    return true
 }
 
 /* some cards have multiple faces, so we use the front for now */
