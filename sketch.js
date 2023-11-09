@@ -246,7 +246,7 @@ function populateWallpapers() {
         const wallpaperFileName = setImgArr[randomIndex];
 
         const bgURL = `url("backgrounds/${setName}/${wallpaperFileName}")`
-        console.log(`🐳 ${bgURL}`)
+        console.log(`🖼️ ${bgURL}`)
         select('body').style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
             ` rgba(0,0,0,0.4)), ${bgURL}`)
 
@@ -758,8 +758,17 @@ function getCardDataFromScryfallJSON(data) {
                 face['collector_number'] = element['collector_number']
                 face['keywords'] = element['keywords']
                 face['rarity'] = element['rarity']
+
+                /* for double faced cards, 🔑manaCost of back face should
+                    equal that of the front face, e.g. Idol of the Deep King 2R
+                    and Sovereign's Macuahuitl */
+                let adjustedManaCost = ''
+                if (face['mana_cost'] === '')
+                    adjustedManaCost = element['card_faces'][0]['mana_cost']
+                else adjustedManaCost = face['mana_cost']
+
                 face['colors'] = getColorsFromManaCost(face['mana_cost'])
-                face['cmc'] = reduceMV(face['mana_cost'], includeGeneric = true)
+                face['cmc'] = reduceMV(adjustedManaCost, includeGeneric = true)
 
                 results.push(processCardFace(face, imgURIs))
                 cardFaceCount += 1
@@ -955,6 +964,11 @@ function populateTricks() {
                 case 'woe':
                     /* basic lands start at 262, end at 281 */
                     if (card['collector_number'] <= 276)
+                        filteredCards.push(card)
+                    break;
+                case 'lci':
+                    /* basic lands start at 262, end at 281 */
+                    if (card['collector_number'] <= 291)
                         filteredCards.push(card)
                     break;
                 default:
