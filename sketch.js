@@ -39,7 +39,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 400  /* arbitrary value for looks */
 
-let setName = 'lci'
+let setName = 'mkm'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -179,6 +179,8 @@ function setupColorSelector() {
      430 Lost Caverns of Ixalan
             regular ends at 291
             287-291 are full art lands. note normal basics are later!
+     437 Murders at Karlov Manor
+
 
  */
 function populateWallpapers() {
@@ -235,6 +237,13 @@ function populateWallpapers() {
             'puzzledoor.png',
             'okinec.png',
             'matzalantli.jpg',
+        ],
+        'mkm': [
+            'deduce.jpg',
+            'glass.jpg',
+            'helix.jpg',
+            'intrude.jpg',
+            'kellan.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
