@@ -939,10 +939,16 @@ function populateTricks() {
     let filteredCards = []
     for (let card of cards) {
         /* check only the front face of the card
-           TODO some instant speed interaction are on the back face. to
-             handle this, we'd to iterate through every face! */
+            it's possible some instant speed interaction exists on the back
+            face, but 🔑keywords applies to the entire card, not individual
+            faces. to handle this, we also check the oracle text for 'Flash\n'.
 
-        if (card['keywords'].includes('Flash') ||
+            TODO isn't this redundant with keywords.includes('Flash') though?
+         */
+        if (card['keywords'].includes('Flash') && (!card['oracle_text'].includes('Flash\n')))
+            console.log(`🫐${card['name']} includes Flash keyword but not oracle`)
+
+        if ((card['oracle_text'].includes('Flash\n')) ||
             card['type_line'].includes('Instant')) {
 
             /* sets these days have promos not part of the draft set
