@@ -982,18 +982,19 @@ function populateTricks() {
                         filteredCards.push(card)
                     break;
                 case 'ltr':
-                    /* basic lands start at 262, end at 281 */
                     if (card['collector_number'] <= 281)
                         filteredCards.push(card)
                     break;
                 case 'woe':
-                    /* basic lands start at 262, end at 281 */
                     if (card['collector_number'] <= 276)
                         filteredCards.push(card)
                     break;
                 case 'lci':
-                    /* basic lands start at 262, end at 281 */
                     if (card['collector_number'] <= 291)
+                        filteredCards.push(card)
+                    break;
+                case 'mkm':
+                    if (card['collector_number'] <= 286)
                         filteredCards.push(card)
                     break;
                 default:
