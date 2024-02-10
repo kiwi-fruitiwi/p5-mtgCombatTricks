@@ -449,10 +449,6 @@ function renderTricksByMv() {
         }
     }
 
-    /* 🐬 debug dolphin: the case of the NaN mv */
-    console.log(`${manaValues}`)
-    console.log(`${displayedTricks}`)
-
     // manaValues = [...new Set(manaValues)]
     debugCorner.setText(manaValues.sort(), 3)
 
@@ -489,9 +485,6 @@ function renderTricksByMv() {
                     xPos = X_START + MV_RIGHT_MARGIN
                     yOffset += CARD_HEIGHT + SPACING
                 }
-
-                /* debug: print out each trick to determine NaN source */
-                console.log(`${trick.name} → ${trick.mv}`)
 
                 /* setPos, render, increase xPos */
                 trick.setPos(xPos, Y + yOffset)
@@ -1034,8 +1027,17 @@ function populateTricks() {
         }
     }
 
-
+    displayTrickMvs()
     console.log(`🐳 populated tricks: ${displayedTricks.length}`)
+}
+
+/* debug 🐬 method for investigating NaN values in Trick mvs: show the mv of
+ * each Trick in displayedTricks
+ */
+function displayTrickMvs() {
+    for (const trick of displayedTricks) {
+        console.log(`${trick.name} → ${trick.mv}`)
+    }
 }
 
 /* no longer used now that we don't use wrapTricksByCard; wrapTricksByMv
