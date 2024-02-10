@@ -64,6 +64,8 @@ function preload() {
 
         initialScryfallQueryJSON = loadJSON(req)
     }
+
+    console.log(`flame javelin 🔥 {2/R}{2/R}{2/R} mv → ${reduceMV('{2/R}{2/R}{2/R}')}`)
 }
 
 function setup() {
@@ -302,8 +304,6 @@ function getColorsFromManaCost(manaCost) {
 
 /**
  *  returns the reduced mana cost of a 🔑 cmc key value from scryfall JSON.
- *  note we need "this spell costs" AND "less to cast", otherwise cards like
- *  Mindsplice Apparatus will be included in cost reduction
  *
  *  examples:
  *      {3}{W}{W}   → 2         plated onslaught
@@ -312,7 +312,7 @@ function getColorsFromManaCost(manaCost) {
  *      {4}{B}      → 1         overwhelming remorse
  *  @param {string} manaCost
  *  @param {boolean} includeGeneric includes generic casting cost
- *      {3}{W}{W}   → 5
+ *      {3}{W}{W}   → 5         plated onslaught
  */
 function reduceMV(manaCost, includeGeneric=false) {
     /*  we're guaranteed every mana value is within {}
@@ -322,8 +322,14 @@ function reduceMV(manaCost, includeGeneric=false) {
         ☒ strip opening and closing brackets
         ☒ remove all integer elements using isNaN
         ☒ count the remaining elements → that's our mv!
+
+        TODO this does not handle {2/R} flame javelin type costs yet
      */
-    let spacesAdded = ''
+
+    /** mana cost delimited by ⎵ and stripped of '{' and '}' */
+    let sanitizedManaCost = ''
+    let hybridSymbolsDetected = 0
+
     for (const character of manaCost) {
         switch (character) {
             case '{':
@@ -331,29 +337,54 @@ function reduceMV(manaCost, includeGeneric=false) {
                 break
             case '}':
                 /* skip this character but add a space */
-                spacesAdded += ' '
+                sanitizedManaCost += ' '
+                break
+            case '/':
+
+                /* add '/' detection counter in per-char case statement:
+                    inc on detection, to be subtracted later
+                    add space, for splitting later
+                 */
+                hybridSymbolsDetected += 1
+                sanitizedManaCost += ' '
                 break
             default:
-                spacesAdded += character
+                sanitizedManaCost += character
         }
     }
 
     /* we need to call trim to remove the trailing space
         otherwise it actually counts as an empty array element for split
+
+        subtract '/' detection counter from final count
+            this works out for {2/R}: 2+1 is counted, then mv is 2
+            the rules state mv of {2/R} is the higher of the two values: 2
+        add all non-wubrg integer values encountered. there should be only '2'
      */
-    let manaList = spacesAdded.trim().split(' ')
+    let manaList = sanitizedManaCost.trim().split(' ')
 
     let result = []
     let generic = 0
     for (const element of manaList) {
-        if (['W', 'U', 'B', 'R', 'G'].includes(element))
-        // if (isNaN(element)) /* isNaN returns true if it's not a number */
+        if (['W', 'U', 'B', 'R', 'G'].includes(element)) {
             result.push(element)
-        else if (includeGeneric)
-            generic = element
+        } else if (element === '2' && !includeGeneric) {
+            /* looking specifically for '2' inside a hybrid symbol */
+            console.log(`2️⃣ javelin-type {2/R} hybrid mana detected → ${element}`)
+            generic += int(element)
+        } else if (includeGeneric) {
+            generic += int(element) /* guaranteed only leading generic value */
+        }
     }
 
-    return result.length + int(generic)
+    /* result.length will equal the total number of mana symbols, which is what
+        we're counting! this is added to the integer generic cost, and we sub-
+        tract the number of hybrid symbols detected, e.g. {3}{U/G}{U/G} parses
+        to 3 U G U G, which is 3 + 4, minus 2 for each '/', giving 5!
+
+        TODO: probably does not work for phyrexian mana
+     */
+    return result.length + int(generic) - hybridSymbolsDetected
 }
 
 
@@ -783,7 +814,7 @@ function getCardDataFromScryfallJSON(data) {
                 face['cmc'] = reduceMV(adjustedManaCost, includeGeneric = true)
 
                 const mvc = getColorsFromManaCost(face['mana_cost'])
-                console.log(`🐬 ${face['name']} → ${face['mana_cost']} → ${mvc}`)
+                console.log(`🐬 ${face['name']} → ${face['mana_cost']} → ${mvc} → ${face['cmc']}`)
 
                 results.push(processCardFace(face, imgURIs))
                 cardFaceCount += 1
@@ -801,7 +832,15 @@ function getCardDataFromScryfallJSON(data) {
     return results
 }
 
-/* some cards have multiple faces, so we use the front for now */
+/**
+ *  some cards have multiple faces, so we use the front for now
+ *
+ *  note we need "this spell costs" AND "less to cast", otherwise cards like
+ *  Mindsplice Apparatus will be included in cost reduction
+ *
+ *  @return total mv of card after applying cost reductions like convoke and
+ *  'this spell costs {n} less to cast'
+ */
 function handleMvReductions(card) {
     let oracleText = card['oracle_text'].toLowerCase()
     /** ®️ regex for cost reduction logic, e.g. in set:LTR
