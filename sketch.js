@@ -268,15 +268,17 @@ function populateWallpapers() {
  * @returns {array}
  */
 function getColorsFromManaCost(manaCost) {
-    /** strip out curly braces from 🔑mana_cost */
+    /* strip out curly braces from 🔑mana_cost */
     let strippedManaCost = ''
     for (const character of manaCost) {
         switch (character) {
-            case '{':
-                /* skip this character */
+            case '{': /* skip this character */
                 break
-            case '}':
-                /* skip this character but add a space */
+            case '}': /* skip this character but add a space */
+                /* this space is used as a delimiter for splitting later */
+                strippedManaCost += ' '
+                break
+            case '/': /* for hybrid costs like {1}{U/R}{U/R} */
                 strippedManaCost += ' '
                 break
             default:
@@ -284,16 +286,17 @@ function getColorsFromManaCost(manaCost) {
         }
     }
 
-    /* trim to remove trailing space */
+    /* trim to remove trailing space, then split by ' ' → list of wubrg chars */
     let manaList = strippedManaCost.trim().split(' ')
     let wubrgArray = []
     for (const element of manaList) {
         if (['W', 'U', 'B', 'R', 'G'].includes(element))
-            // if (isNaN(element)) /* isNaN returns true if it's not a number */
             wubrgArray.push(element)
     }
 
-    return wubrgArray
+    /* remove duplicate colors which can be generated from hybrid colors */
+    const uniqueColorsOnly = new Set(wubrgArray)
+    return Array.from(uniqueColorsOnly)
 }
 
 
@@ -778,6 +781,9 @@ function getCardDataFromScryfallJSON(data) {
 
                 face['colors'] = getColorsFromManaCost(face['mana_cost'])
                 face['cmc'] = reduceMV(adjustedManaCost, includeGeneric = true)
+
+                const mvc = getColorsFromManaCost(face['mana_cost'])
+                console.log(`🐬 ${face['name']} → ${face['mana_cost']} → ${mvc}`)
 
                 results.push(processCardFace(face, imgURIs))
                 cardFaceCount += 1
