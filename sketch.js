@@ -796,15 +796,8 @@ function processCardFace(element, imgURIs) {
     cardData['cmc'] = handleMvReductions(element)
 
     /* staging ground for buildManaCostPermutations */
-    const mc = element['mana_cost']
+    // const mc = element['mana_cost']
     // console.log(`${element['name']} → ${getManaTokens(mc)}`)
-
-    /* 🐬 testing isCastable */
-    console.log(`🐬 ${cardData['name']}`)
-
-    if (isCastable(getManaTokens(cardData['mana_cost']), ['w','g'])) {
-        console.log(`${cardData['name']} is castable`)
-    }
 
     return cardData
 }
@@ -898,9 +891,10 @@ function getManaTokens(manaCost) {
  * @param manaTokens in the format [['W'], ['W','G'], ['G']], [['B','R'], ['B','R']]
  * @param selectedColors of the format ['w', 'u'] or ['w', 'u', 'b', 'r', 'g']
  * @return if the colors in selectedColors can pay for symbols in manaTokens
+ *
+ * TODO test on flame javelin type {2/R} mana costs
  */
 function isCastable(manaTokens, selectedColors) {
-    console.log(`🫐 ${JSON.stringify(manaTokens)}`)
     for (let subList of manaTokens) {
         let manaPipIsCastable = false
         for (let manaSymbol of subList) {
@@ -1182,7 +1176,8 @@ function populateTricks() {
 
         /* load image asynchronously if the trick satisfies mv requirements!
          * add to displayedTricks array when done loading */
-        if (allColorsSelected) {
+        if (isCastable(getManaTokens(card['mana_cost']), colorBar
+            .getSelectedColorChars())) {
             displayedTricks.push(
                 new Trick(
                     card['name'],
