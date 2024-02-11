@@ -794,7 +794,8 @@ function processCardFace(element, imgURIs) {
     cardData['cmc'] = handleMvReductions(element)
 
     /* staging ground for buildManaCostPermutations */
-    console.log(`${element['name']} → ${stripGenericManaCost(element['mana_cost'])}`)
+    const mc = element['mana_cost']
+    console.log(`${element['name']} → ${getManaTokens(mc)}`)
     return cardData
 }
 
@@ -810,6 +811,8 @@ function processCardFace(element, imgURIs) {
  * @param rest
  */
 function buildManaCostPermutations(results, processedSymbols, rest) {
+
+
     /*
         buildPermutations(processedSymbols, leftoverSymbols):
 
@@ -831,7 +834,6 @@ function buildManaCostPermutations(results, processedSymbols, rest) {
      */
 
     /* needs method stripGenericManaCost: removes first {} token if integer */
-
 }
 
 
@@ -849,6 +851,40 @@ function stripGenericManaCost(manaCost) {
      */
     return manaCost.replace(/^\{\d+\}/, '')
 }
+
+
+/**
+ * given a mana cost input, returns a list of lists of mana symbols
+ * @param manaCost a mana cost in the format {4}{U/B}{U/B}
+ * @return a list of mana tokens, e.g.
+ *      {1}{B/R}{B/R} → [['B','R'], ['B', 'R']]
+ *      {W}{W/G}{G}   → [['W'], [['W'],['G']], ['G']]
+ */
+function getManaTokens(manaCost) {
+    const colorsOnly = stripGenericManaCost(manaCost)
+
+    /* regex which captures anything inside curly brackets
+     * ([^}]+) matches any non '}' character inside the {} block
+     */
+    const regex = /\{([^}]+)\}/g;
+
+    /* return empty list if null, i.e. no match was found */
+    const matches = colorsOnly.match(regex) || [];
+
+    /* remove the braces with each match and return the result */
+    return matches.map(part => {
+        part = part.slice(1, -1)
+
+        /* split hybrid mana into components: a list of mana symbols */
+        if (part.includes('/')) {
+            return [part.split('/')]
+        } else /* otherwise return a list of the current symbol */
+            return [part] /* list to make processing easier with hybrid above */
+    })
+}
+
+
+
 
 
 /** populates card data list from scryfall. this is used in the callback
