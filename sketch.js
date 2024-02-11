@@ -749,27 +749,6 @@ function processCardFace(element, imgURIs) {
         typeText += `\n${element['flavor_text']}\n`
     else typeText += '\n'
 
-    /* 🐬 disguise identification and cost calculation: 🔑alternate_cost */
-    if (element['keywords'].includes('Disguise')) {
-        /* matches one or more occurrences of {} blocks.
-            \{: matches the opening brace '{'
-            [^}]*: matches any character except the closing brace '}', zero or
-             more times. allows contents to be empty. ideally should be wubrg
-             and integer though.
-            \}: matches the closing brace '}'
-            +: indicates that the preceding group (a {} block in this case)
-             can appear one or more times.
-         */
-        const regex = /Disguise ((?:\{[^}]*\})+)/
-        const match = element['oracle_text'].match(regex)
-        if (match) {
-            // console.log(`🐬 ${element['name']} →  ${match[1]} →
-            // ${getMvFromManaCost(match[1])}`)
-        } else {
-            console.log(`️️⚠️ disguise cost not found in ${element['name']}`)
-        }
-    }
-
     /* extra space makes user able to hit 'enter' at end */
     typeText += ' '
     let cardData = {
@@ -795,9 +774,32 @@ function processCardFace(element, imgURIs) {
     /* handle any cost reductions for mana value */
     cardData['cmc'] = handleMvReductions(element)
 
-    /* staging ground for buildManaCostPermutations */
-    // const mc = element['mana_cost']
-    // console.log(`${element['name']} → ${getManaTokens(mc)}`)
+    /** disguise identification and cost calculation:
+     *    disguise (and morph) happen at instant speed
+     *    currently there are no creatures with disguise and flash, which means
+     *    we don't have to process two separate card faces for one card.
+     */
+    if (element['keywords'].includes('Disguise')) {
+        /* matches one or more occurrences of {} blocks.
+            \{: matches the opening brace '{'
+            [^}]*: matches any character except the closing brace '}', zero or
+             more times. allows contents to be empty. ideally should be wubrg
+             and integer though.
+            \}: matches the closing brace '}'
+            +: indicates that the preceding group (a {} block in this case)
+             can appear one or more times.
+         */
+        const regex = /Disguise ((?:\{[^}]*\})+)/
+        const match = element['oracle_text'].match(regex)
+        if (match) {
+            // console.log(`🐬 ${element['name']} →  ${match[1]} →
+            // ${getMvFromManaCost(match[1])}`)
+            cardData['mana_cost'] = match[1]
+            cardData['cmc'] = getMvFromManaCost(cardData['mana_cost'])
+        } else {
+            console.log(`️️⚠️ disguise cost not found in ${element['name']}`)
+        }
+    }
 
     return cardData
 }
@@ -1161,21 +1163,7 @@ function populateTricks() {
     displayedTricks = [] /* reset displayedTricks */
 
     for (let card of instantSpeedCards) {
-        // console.log(`${trick.name}→${trick.colors}`)
-
-        /* see if this trick's colors are all selected in the UI. e.g.
-         * brokers charm requires w,u,g all to be selected */
-        let allColorsSelected = true
-
-        /* iterate through each of the trick's colors */
-        for (let i in card['colors']) {
-            let c = card['colors'][i].toLowerCase()
-            if (!colorBar.getSelectedColorChars().includes(c))
-                allColorsSelected = false
-        }
-
-        /* load image asynchronously if the trick satisfies mv requirements!
-         * add to displayedTricks array when done loading */
+        console.log(`🐬 ${card.name} → ${card['mana_cost']}`)
         if (isCastable(getManaTokens(card['mana_cost']), colorBar
             .getSelectedColorChars())) {
             displayedTricks.push(
