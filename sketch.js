@@ -63,8 +63,6 @@ function preload() {
 
         initialScryfallQueryJSON = loadJSON(req)
     }
-
-    console.log(`flame javelin 🔥 {2/R}{2/R}{2/R} mv → ${reduceMv('{2/R}{2/R}{2/R}')}`)
 }
 
 function setup() {
@@ -795,7 +793,61 @@ function processCardFace(element, imgURIs) {
     /* handle any cost reductions for mana value */
     cardData['cmc'] = handleMvReductions(element)
 
+    /* staging ground for buildManaCostPermutations */
+    console.log(`${element['name']} → ${stripGenericManaCost(element['mana_cost'])}`)
     return cardData
+}
+
+
+/**
+ * creates a list of mana color permutations for any given mana cost
+ *  {2}{U/R}{U/R} should give ['U', 'U'], ['R', 'U'], ['U', 'R'], ['R', 'R']
+ *  this will be reduced to a set to check if currently selected colors in
+ *  the UI can cast a card with this mana cost. if any of the list can be cast,
+ *  then the card is castable.
+ * @param results
+ * @param processedSymbols
+ * @param rest
+ */
+function buildManaCostPermutations(results, processedSymbols, rest) {
+    /*
+        buildPermutations(processedSymbols, leftoverSymbols):
+
+        base case: only one mana symbol left
+          if hybrid:
+            results.push processedSymbols.extend → manaSymbol left of '/'
+            results.push processedSymbols.extend → manaSymbol right of '/'
+          else:
+            results.push manaSymbol
+
+        recursive case:
+          split currentSymbol
+          rest = remainder
+          if hybrid:
+            buildPermutations(processedSymbols.extend → L)
+            buildPermutations(processedSymbols.extend → R)
+          else:
+            buildPermutations(processSymbols.extend → currentSymbol, rest)
+     */
+
+    /* needs method stripGenericManaCost: removes first {} token if integer */
+
+}
+
+
+/**
+ * returns mana value without leading integer value
+ * @param manaCost in the form {4}{U/B}{U/B}
+ * @return mana cost in the form {U/B}{U/B}, without any leading generic mana
+ */
+function stripGenericManaCost(manaCost) {
+    /* matches the first occurrence of a {} block that contains only an int
+        ^   ← asserts the position at the start of the string
+        \{  ← matches the opening curly brace {
+        \d+ ← matches one or more digits
+        \}  ← matches the closing curly brace }
+     */
+    return manaCost.replace(/^\{\d+\}/, '')
 }
 
 
@@ -811,7 +863,6 @@ function getCardDataFromScryfallJSON(data) {
     let cardCount = 0 /* counts cards that pass the filters, like rarity */
     let cardFaceCount = 0 /* counts adventures twice */
 
-    let includeGeneric;
     for (let element of data) {
         /** object containing URLs for various image sizes and styles */
         let imgURIs
@@ -1046,6 +1097,7 @@ function populateTricks() {
     let instantSpeedCards = filterByInstantsAndCollectorNumber()
 
     displayedTricks = [] /* reset displayedTricks */
+
     for (let card of instantSpeedCards) {
         // console.log(`${trick.name}→${trick.colors}`)
 
