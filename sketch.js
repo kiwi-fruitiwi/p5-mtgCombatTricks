@@ -22,7 +22,6 @@ let colorBar /* color selector UI. a mana symbol is highlighted when selected */
 
 let initialScryfallQueryJSON /* json file from scryfall: set=snc */
 let cards /* packed up JSON data */
-let tricksDataLastFrame /* helps check if we need to resort list */
 let displayedTricks /* list of filtered combat tricks */
 
 let scryfallData = [] /* scryfallQuery['data'] */
@@ -45,6 +44,9 @@ let combineSecondSet = false
 
 let loadJsonFromCache = true
 let saveScryfallJson = false /* saves loaded JSON after scryfall query */
+
+let displayTrickCards = true /* normal instant speed interaction, exc. disguise */
+let displayDisguiseCards = true
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -1129,26 +1131,22 @@ function keyPressed() {
         console.log(`debugCorner visibility set to ${debugCorner.visible}`)
     }
 
-    /* handleColorSelectorKeys(key) */
-    toggleSelectedColor(key)
-
-    if (key === 'x') {
-        // console.log(`sorting`)
-        // displayedTricks.sort(sortCardsByMV)
-        console.log(`${displayedTricks}: ${displayedTricks.length}`)
-
-        let manaValues = []
-        /** create a list of ascending mana values of all cards */
-        for (const c of displayedTricks) {
-            console.log(`${c.name}, ${c.mv}`)
-            if ( !(manaValues.includes(c.mv)) ) {
-                manaValues.push(c.mv)
-                console.log(`pushing ${c.mv} from ${c.name}`)
-            }
-        }
-
-        console.log(`${manaValues}`)
+    /* toggle the display of disguise cards */
+    if (key === 'd') {
+        displayDisguiseCards = !displayDisguiseCards
+        console.log(`🪶 displayDisguiseCards: ${displayDisguiseCards}`)
+        populateTricks()
     }
+
+    /* toggle the display of standard tricks cards, which don't include
+     disguise or morph */
+    if (key === 't') {
+        displayTrickCards = !displayTrickCards
+        console.log(`🪶 displayTrickCards: ${displayTrickCards}`)
+        populateTricks()
+    }
+
+    toggleSelectedColor(key)
 }
 
 
@@ -1176,7 +1174,6 @@ function populateTricks() {
         }
     }
 
-    // displayTrickMvs()
     console.log(`🐳 populated tricks: ${displayedTricks.length}`)
 }
 
@@ -1194,12 +1191,15 @@ function filterByInstantsAndCollectorNumber() {
         if (card['keywords'].includes('Flash') && (!card['oracle_text'].includes('Flash\n')))
             console.log(`🫐${card['name']} includes Flash keyword but not oracle`)
 
-        if (
-            card['oracle_text'].includes('Flash\n') ||
-            card['type_line'].includes('Instant') ||
-            card['keywords'].includes('Disguise'))
-        {
+        /* displayDisguiseCards and displayTrickCards are toggles
+         * if they are false, the conditions they are ANDed with become false,
+         * which disables that part of the filter
+         */
+        const tricks = (card['oracle_text'].includes('Flash\n') ||
+                card['type_line'].includes('Instant')) && displayTrickCards
+        const disguise = (card['keywords'].includes('Disguise') && displayDisguiseCards)
 
+        if (tricks || disguise) {
             /* sets these days have promos not part of the draft set
              * e.g. Rescue Retriever, ID 291 of 287 in BRO */
             switch (setName.toLowerCase()) {
