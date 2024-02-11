@@ -763,7 +763,8 @@ function processCardFace(element, imgURIs) {
         const regex = /Disguise ((?:\{[^}]*\})+)/
         const match = element['oracle_text'].match(regex)
         if (match) {
-            console.log(`🐬 ${element['name']} →  ${match[1]} → ${getMvFromManaCost(match[1])}`)
+            // console.log(`🐬 ${element['name']} →  ${match[1]} →
+            // ${getMvFromManaCost(match[1])}`)
         } else {
             console.log(`️️⚠️ disguise cost not found in ${element['name']}`)
         }
@@ -774,6 +775,7 @@ function processCardFace(element, imgURIs) {
     let cardData = {
         'name': element['name'],
         'colors': element['colors'],
+        'mana_cost': element['mana_cost'],
 
         /* keywords apply to both faces? see harried artisan */
         'keywords': element['keywords'],
@@ -795,7 +797,15 @@ function processCardFace(element, imgURIs) {
 
     /* staging ground for buildManaCostPermutations */
     const mc = element['mana_cost']
-    console.log(`${element['name']} → ${getManaTokens(mc)}`)
+    // console.log(`${element['name']} → ${getManaTokens(mc)}`)
+
+    /* 🐬 testing isCastable */
+    console.log(`🐬 ${cardData['name']}`)
+
+    if (isCastable(getManaTokens(cardData['mana_cost']), ['w','g'])) {
+        console.log(`${cardData['name']} is castable`)
+    }
+
     return cardData
 }
 
@@ -811,8 +821,6 @@ function processCardFace(element, imgURIs) {
  * @param rest
  */
 function buildManaCostPermutations(results, processedSymbols, rest) {
-
-
     /*
         buildPermutations(processedSymbols, leftoverSymbols):
 
@@ -857,8 +865,8 @@ function stripGenericManaCost(manaCost) {
  * given a mana cost input, returns a list of lists of mana symbols
  * @param manaCost a mana cost in the format {4}{U/B}{U/B}
  * @return a list of mana tokens, e.g.
- *      {1}{B/R}{B/R} → [['B','R'], ['B', 'R']]
- *      {W}{W/G}{G}   → [['W'], [['W'],['G']], ['G']]
+ *      {1}{B/R}{B/R} → [['B','R'], ['B','R']]
+ *      {W}{W/G}{G}   → [['W'], ['W','G'], ['G']]
  */
 function getManaTokens(manaCost) {
     const colorsOnly = stripGenericManaCost(manaCost)
@@ -877,14 +885,38 @@ function getManaTokens(manaCost) {
 
         /* split hybrid mana into components: a list of mana symbols */
         if (part.includes('/')) {
-            return [part.split('/')]
+            return part.split('/')
         } else /* otherwise return a list of the current symbol */
             return [part] /* list to make processing easier with hybrid above */
     })
 }
 
 
+/**
+ * iterates through manaTokens of a casting cost and returns whether the mana
+ * cost is castable using mana in selectedColors
+ * @param manaTokens in the format [['W'], ['W','G'], ['G']], [['B','R'], ['B','R']]
+ * @param selectedColors of the format ['w', 'u'] or ['w', 'u', 'b', 'r', 'g']
+ * @return if the colors in selectedColors can pay for symbols in manaTokens
+ */
+function isCastable(manaTokens, selectedColors) {
+    console.log(`🫐 ${JSON.stringify(manaTokens)}`)
+    for (let subList of manaTokens) {
+        let manaPipIsCastable = false
+        for (let manaSymbol of subList) {
+            if (selectedColors.includes(manaSymbol.toLowerCase()))
+                manaPipIsCastable = true
+        }
 
+        /* we've iterated through all mana symbols in subList (pip) and couldn't
+            cast with selectedColors */
+        if (!manaPipIsCastable)
+            return false
+    }
+
+    /* nothing has returned false, so must be castable! */
+    return true
+}
 
 
 /** populates card data list from scryfall. this is used in the callback
