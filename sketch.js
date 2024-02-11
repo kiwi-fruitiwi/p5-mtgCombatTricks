@@ -64,7 +64,7 @@ function preload() {
         initialScryfallQueryJSON = loadJSON(req)
     }
 
-    console.log(`flame javelin 🔥 {2/R}{2/R}{2/R} mv → ${reduceMV('{2/R}{2/R}{2/R}')}`)
+    console.log(`flame javelin 🔥 {2/R}{2/R}{2/R} mv → ${reduceMv('{2/R}{2/R}{2/R}')}`)
 }
 
 function setup() {
@@ -302,7 +302,40 @@ function getColorsFromManaCost(manaCost) {
 
 
 /**
+ * helper method that calls reduceMV to leave only number of colored mana pips
+ * works with hybrid
+ *  examples:
+ *      {3}{W}{W}   → 2         plated onslaught
+ *      {2}{R}      → 1         rebel salvo
+ *      {1}{U}      → 1         machine over matter
+ *      {4}{B}      → 1         overwhelming remorse
+ *      {1}{W/B}    → 2         push
+ * @param manaCost
+ * @return {*}
+ */
+function reduceMVtoColorsOnly(manaCost) {
+    return reduceMv(manaCost, false)
+}
+
+
+/**
+ * helper method that calls reduceMV to extract the mana value of a mana cost
+ *  examples:
+ *      {3}{W}{W}   → 5         plated onslaught
+ *      {2}{R}      → 3         rebel salvo
+ *      {1}{U}      → 2         machine over matter
+ *      {4}{B}      → 5         overwhelming remorse
+ *      {1}{W/B}    → 2         push
+ * @param manaCost
+ * @return {*}
+ */
+function getMvFromManaCost(manaCost) {
+    return reduceMv(manaCost, true)
+}
+
+/**
  *  returns the reduced mana cost of a 🔑 cmc key value from scryfall JSON.
+ *  has two options. shouldn't be called in user code
  *
  *  examples:
  *      {3}{W}{W}   → 2         plated onslaught
@@ -313,7 +346,7 @@ function getColorsFromManaCost(manaCost) {
  *  @param {boolean} includeGeneric includes generic casting cost
  *      {3}{W}{W}   → 5         plated onslaught
  */
-function reduceMV(manaCost, includeGeneric=false) {
+function reduceMv(manaCost, includeGeneric=false) {
     /*  we're guaranteed every mana value is within {}
 
         ☒ string-builder to add a space after each }
@@ -732,7 +765,7 @@ function processCardFace(element, imgURIs) {
         const regex = /Disguise ((?:\{[^}]*\})+)/
         const match = element['oracle_text'].match(regex)
         if (match) {
-            console.log(`🐬 ${element['name']} →  ${match[1]}`)
+            console.log(`🐬 ${element['name']} →  ${match[1]} → ${getMvFromManaCost(match[1])}`)
         } else {
             console.log(`️️⚠️ disguise cost not found in ${element['name']}`)
         }
@@ -830,7 +863,7 @@ function getCardDataFromScryfallJSON(data) {
                 else adjustedManaCost = face['mana_cost']
 
                 face['colors'] = getColorsFromManaCost(face['mana_cost'])
-                face['cmc'] = reduceMV(adjustedManaCost, includeGeneric = true)
+                face['cmc'] = getMvFromManaCost(adjustedManaCost)
 
                 const mvc = getColorsFromManaCost(face['mana_cost'])
                 // console.log(`🐬 ${face['name']} → ${face['mana_cost']} →
@@ -920,7 +953,7 @@ function handleMvReductions(card) {
 
         if (match(oracleText, costsOnlyColored)) {
             /* in 3WW, the generic component is 3. colored is 2 */
-            let coloredPips = reduceMV(card['mana_cost'])
+            let coloredPips = reduceMVtoColorsOnly(card['mana_cost'])
             // console.log(`${name} → reduce generic: ${coloredPips}`)
             return coloredPips
         }
