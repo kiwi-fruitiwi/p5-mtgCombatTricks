@@ -46,7 +46,6 @@ let combineSecondSet = false
 let loadJsonFromCache = true
 let saveScryfallJson = false /* saves loaded JSON after scryfall query */
 
-
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
     variableWidthFont = loadFont('data/meiryo.ttf')
@@ -718,6 +717,26 @@ function processCardFace(element, imgURIs) {
     if (element['flavor_text'])
         typeText += `\n${element['flavor_text']}\n`
     else typeText += '\n'
+
+    /* 🐬 disguise identification and cost calculation: 🔑alternate_cost */
+    if (element['keywords'].includes('Disguise')) {
+        /* matches one or more occurrences of {} blocks.
+            \{: matches the opening brace '{'
+            [^}]*: matches any character except the closing brace '}', zero or
+             more times. allows contents to be empty. ideally should be wubrg
+             and integer though.
+            \}: matches the closing brace '}'
+            +: indicates that the preceding group (a {} block in this case)
+             can appear one or more times.
+         */
+        const regex = /Disguise ((?:\{[^}]*\})+)/
+        const match = element['oracle_text'].match(regex)
+        if (match) {
+            console.log(`🐬 ${element['name']} →  ${match[1]}`)
+        } else {
+            console.log(`️️⚠️ disguise cost not found in ${element['name']}`)
+        }
+    }
 
     /* extra space makes user able to hit 'enter' at end */
     typeText += ' '
