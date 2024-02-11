@@ -814,7 +814,8 @@ function getCardDataFromScryfallJSON(data) {
                 face['cmc'] = reduceMV(adjustedManaCost, includeGeneric = true)
 
                 const mvc = getColorsFromManaCost(face['mana_cost'])
-                console.log(`🐬 ${face['name']} → ${face['mana_cost']} → ${mvc} → ${face['cmc']}`)
+                // console.log(`🐬 ${face['name']} → ${face['mana_cost']} →
+                // ${mvc} → ${face['cmc']}`)
 
                 results.push(processCardFace(face, imgURIs))
                 cardFaceCount += 1
@@ -990,14 +991,50 @@ function keyPressed() {
   */
 function populateTricks() {
     /* instant / flash cards that satisfy color requirements */
+    let instantSpeedCards = filterByInstantsAndCollectorNumber()
+
+    displayedTricks = [] /* reset displayedTricks */
+    for (let card of instantSpeedCards) {
+        // console.log(`${trick.name}→${trick.colors}`)
+
+        /* see if this trick's colors are all selected in the UI. e.g.
+         * brokers charm requires w,u,g all to be selected */
+        let allColorsSelected = true
+
+        /* iterate through each of the trick's colors */
+        for (let i in card['colors']) {
+            let c = card['colors'][i].toLowerCase()
+            if (!colorBar.getSelectedColorChars().includes(c))
+                allColorsSelected = false
+        }
+
+        /* load image asynchronously if the trick satisfies mv requirements!
+         * add to displayedTricks array when done loading */
+        if (allColorsSelected) {
+            displayedTricks.push(
+                new Trick(
+                    card['name'],
+                    card['cmc'],
+                    card['typeText'],
+                    card['border_crop_uri'],
+                    card['png_uri']))
+        }
+    }
+
+    // displayTrickMvs()
+    console.log(`🐳 populated tricks: ${displayedTricks.length}`)
+}
+
+/**
+ * @return {*[]} a List of cards that are instant-speed interaction
+ * we filter by collector ID so we don't include jumpstart cards in draft tricks
+ */
+function filterByInstantsAndCollectorNumber() {
     let filteredCards = []
     for (let card of cards) {
-        /* check only the front face of the card
-            it's possible some instant speed interaction exists on the back
-            face, but 🔑keywords applies to the entire card, not individual
-            faces. to handle this, we also check the oracle text for 'Flash\n'.
-
-            TODO isn't this redundant with keywords.includes('Flash') though?
+        /* processCardFaces puts fronts and backs of cards into the cards: List.
+            so cards actually contains card faces, and we don't need to worry
+            about front vs back face.
          */
         if (card['keywords'].includes('Flash') && (!card['oracle_text'].includes('Flash\n')))
             console.log(`🫐${card['name']} includes Flash keyword but not oracle`)
@@ -1044,36 +1081,7 @@ function populateTricks() {
         }
     }
 
-    displayedTricks = [] /* reset displayedTricks */
-    for (let card of filteredCards) {
-        // console.log(`${trick.name}→${trick.colors}`)
-
-        /* see if this trick's colors are all selected in the UI. e.g.
-         * brokers charm requires w,u,g all to be selected */
-        let allColorsSelected = true
-
-        /* iterate through each of the trick's colors */
-        for (let i in card['colors']) {
-            let c = card['colors'][i].toLowerCase()
-            if (!colorBar.getSelectedColorChars().includes(c))
-                allColorsSelected = false
-        }
-
-        /* load image asynchronously if the trick satisfies mv requirements!
-         * add to displayedTricks array when done loading */
-        if (allColorsSelected) {
-            displayedTricks.push(
-                new Trick(
-                    card['name'],
-                    card['cmc'],
-                    card['typeText'],
-                    card['border_crop_uri'],
-                    card['png_uri']))
-        }
-    }
-
-    displayTrickMvs()
-    console.log(`🐳 populated tricks: ${displayedTricks.length}`)
+    return filteredCards
 }
 
 /* debug 🐬 method for investigating NaN values in Trick mvs: show the mv of
