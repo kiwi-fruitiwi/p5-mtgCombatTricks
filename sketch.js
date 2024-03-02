@@ -319,7 +319,7 @@ function reduceMVtoColorsOnly(manaCost) {
 
 
 /**
- * helper method that calls reduceMV to extract the mana value of a mana cost
+ * helper method that calls reduceMV to extra4ct the mana value of a mana cost
  *  examples:
  *      {3}{W}{W}   → 5         plated onslaught
  *      {2}{R}      → 3         rebel salvo
@@ -405,7 +405,13 @@ function reduceMv(manaCost, includeGeneric=false) {
             console.log(`2️⃣ javelin-type {2/R} hybrid mana detected → ${element}`)
             generic += int(element)
         } else if (includeGeneric) {
-            generic += int(element) /* guaranteed only leading generic value */
+            if (element === 'X') {
+                /* don't add X to the casting cost → treat it as 0 */
+                console.log(`🍒 X cost detected in ${manaList}`)
+            } else {
+                /* guaranteed only leading generic value */
+                generic += int(element)
+            }
         }
     }
 
@@ -849,12 +855,12 @@ function buildManaCostPermutations(results, processedSymbols, rest) {
  */
 function stripGenericManaCost(manaCost) {
     /* matches the first occurrence of a {} block that contains only an int
-        ^   ← asserts the position at the start of the string
-        \{  ← matches the opening curly brace {
-        \d+ ← matches one or more digits
-        \}  ← matches the closing curly brace }
+        ^    ← asserts the position at the start of the string
+        \{   ← matches the opening curly brace {
+        \d+X ← matches one or more digits, or the character X
+        \}   ← matches the closing curly brace }
      */
-    return manaCost.replace(/^\{\d+\}/, '')
+    return manaCost.replace(/^\{[\dX]+\}/, '')
 }
 
 
@@ -1161,7 +1167,7 @@ function populateTricks() {
     displayedTricks = [] /* reset displayedTricks */
 
     for (let card of instantSpeedCards) {
-        console.log(`🐬 ${card.name} → ${card['mana_cost']}`)
+        console.log(`🐬 ${card.name} → ${card['mana_cost']} → ${getMvFromManaCost(card['mana_cost'])}`)
         if (isCastable(getManaTokens(card['mana_cost']), colorBar
             .getSelectedColorChars())) {
             displayedTricks.push(
