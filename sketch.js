@@ -407,7 +407,7 @@ function reduceMv(manaCost, includeGeneric=false) {
         } else if (includeGeneric) {
             if (element === 'X') {
                 /* don't add X to the casting cost → treat it as 0 */
-                console.log(`🍒 X cost detected in ${manaList}`)
+                // console.log(`🍒 X cost detected in ${manaList}`)
             } else {
                 /* guaranteed only leading generic value */
                 generic += int(element)
@@ -849,7 +849,7 @@ function buildManaCostPermutations(results, processedSymbols, rest) {
 
 
 /**
- * returns mana value without leading integer value
+ * returns mana value without leading integer value or any {X} values
  * @param manaCost in the form {4}{U/B}{U/B}
  * @return mana cost in the form {U/B}{U/B}, without any leading generic mana
  */
@@ -857,10 +857,10 @@ function stripGenericManaCost(manaCost) {
     /* matches the first occurrence of a {} block that contains only an int
         ^    ← asserts the position at the start of the string
         \{   ← matches the opening curly brace {
-        \d+X ← matches one or more digits, or the character X
+        \d+  ← matches one or more digits
         \}   ← matches the closing curly brace }
      */
-    return manaCost.replace(/^\{[\dX]+\}/, '')
+    return manaCost.replace('{X}', '').replace(/^\{\d+\}/, '')
 }
 
 
@@ -1167,7 +1167,8 @@ function populateTricks() {
     displayedTricks = [] /* reset displayedTricks */
 
     for (let card of instantSpeedCards) {
-        console.log(`🐬 ${card.name} → ${card['mana_cost']} → ${getMvFromManaCost(card['mana_cost'])}`)
+        // console.log(`🐬 ${card.name} → ${card['mana_cost']} →
+        // ${getMvFromManaCost(card['mana_cost'])}`)
         if (isCastable(getManaTokens(card['mana_cost']), colorBar
             .getSelectedColorChars())) {
             displayedTricks.push(
@@ -1177,10 +1178,14 @@ function populateTricks() {
                     card['typeText'],
                     card['border_crop_uri'],
                     card['png_uri']))
+        } else {
+            // console.log(`${card['name']} is not castable:
+            // ${getManaTokens(card['mana_cost'])}`)
         }
     }
 
-    console.log(`🐳 populated tricks: ${displayedTricks.length}`)
+    // console.log(`🐳 populated tricks: ${displayedTricks.length} →
+    // ${displayedTricks}`)
 }
 
 /**
