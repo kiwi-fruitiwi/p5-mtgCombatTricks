@@ -1238,6 +1238,10 @@ function filterByInstantsAndCollectorNumber() {
                     if (card['collector_number'] <= 286)
                         filteredCards.push(card)
                     break;
+                case 'otj':
+                    if (card['collector_number'] <= 276)
+                        filteredCards.push(card)
+                    break;
                 default:
                     /* TODO this triggers 'flashback', so that's bad :P */
                     filteredCards.push(card)
