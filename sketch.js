@@ -181,7 +181,9 @@ function setupColorSelector() {
             regular ends at 291
             287-291 are full art lands. note normal basics are later!
      437 Murders at Karlov Manor
-
+     441 Outlaws of Thunder Junction, OTJ
+     443 The Big Score, BIG
+     444 Breaking News, OTP
 
  */
 function populateWallpapers() {
@@ -245,6 +247,15 @@ function populateWallpapers() {
             'helix.jpg',
             'intrude.jpg',
             'kellan.jpg'
+        ],
+        'otj': [
+            'deadeye.jpg',
+            'glamer.jpg',
+            'holycow.jpg',
+            'kellan.jpg',
+            'ropemaster.jpg',
+            'selvala.jpg',
+            'nathan.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
