@@ -1173,7 +1173,7 @@ function keyPressed() {
   */
 function populateTricks() {
     /* instant / flash cards that satisfy color requirements */
-    let instantSpeedCards = filterByInstantsAndCollectorNumber()
+    let instantSpeedCards = filterByInstantsAndCn()
 
     displayedTricks = [] /* reset displayedTricks */
 
@@ -1201,10 +1201,12 @@ function populateTricks() {
 
 /**
  * @return {*[]} a List of cards that are instant-speed interaction
- * we filter by collector ID so we don't include jumpstart cards in draft tricks
+ * we filter by collector number, so we don't include Jumpstart cards in draft
+ * tricks
  */
-function filterByInstantsAndCollectorNumber() {
+function filterByInstantsAndCn() {
     let filteredCards = []
+    let spreeCount = 0
     for (let card of cards) {
         /* processCardFaces puts fronts and backs of cards into the cards: List.
             so cards actually contains card faces, and we don't need to worry
@@ -1220,6 +1222,16 @@ function filterByInstantsAndCollectorNumber() {
         const tricks = (card['oracle_text'].includes('Flash\n') ||
                 card['type_line'].includes('Instant')) && displayTrickCards
         const disguise = (card['keywords'].includes('Disguise') && displayDisguiseCards)
+
+
+        /* 🐬 apply filters to cards here for debugging, since we iterate
+         through every card */
+        if (card['keywords'].includes('Spree')) {
+            console.log(`🐬 spree detected in: ${card['name']}`)
+            spreeCount++
+        }
+
+        console.log(`${spreeCount} total cards with Spree`)
 
         if (tricks || disguise) {
             /* sets these days have promos not part of the draft set
