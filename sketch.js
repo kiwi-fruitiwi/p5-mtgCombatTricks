@@ -1227,7 +1227,23 @@ function filterByInstantsAndCn() {
         /* 🐬 apply filters to cards here for debugging, since we iterate
          through every card */
         if (card['keywords'].includes('Spree')) {
-            console.log(`🐬 spree detected in: ${card['name']}`)
+
+            /* 🏭 handle spree costs */
+            const text = card['oracle_text']
+
+            // regex pattern to find text between "+" and "—"
+            const regex = /\+\s([^—]+)\s—/g;
+
+            // extracting the matches
+            const matches = text.match(regex);
+
+            // since match returns the entire match including delimiters, we
+            // need to clean it up
+            const cleanMatches = matches && matches.map(
+                match => match.replace(/^\+\s/, '').replace(/\s—$/, '').trim()
+            );
+
+            console.log(`🐬 spree: ${card['name']}, ${card['mana_cost']}, ${cleanMatches}`)
             spreeCount++
         }
 
