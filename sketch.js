@@ -820,6 +820,62 @@ function processCardFace(element, imgURIs) {
         }
     }
 
+    /** handle spree costs by adding minimum additional cost to castingCost */
+    if (cardData['keywords'].includes('Spree')) {
+
+        /* 🏭 handle spree costs */
+        const text = cardData['oracle_text']
+
+        /* regex pattern to find text between "+" and "—"
+
+            text = "Spree (Choose one or more additional costs.)
+                {2}{R} — Untap all creatures you control. If it's your combat phase, there is an additional combat phase after this phase.
+                + {2} — Creatures you control get +1/+0 and gain first strike until end of turn.
+                + {R} — Choose target opponent. Whenever a creature you control deals combat damage to that player this turn, create a tapped Treasure token.";
+
+            let's explain the regex here: `/\+\s([^—]+)\s—/g`
+
+            `/ content /g` regex expressions start and end with `/` in js,
+                with `g` indicating we want to return all matches, not just
+                one.
+            `+` is a regex operator, so we have to escape it to get `\+`
+            `\s` matches any whitespace character after the `+`
+            `([^—]+)` is what we want to capture, which is all characters
+                other than the em dash, `\u2014` or `—`, the unicode value
+                for em dash
+            finally, match the trailing space, `\s` before the em dash,
+             `—`,
+                which doesn't have to be escaped
+         */
+        const regex = /\+\s([^—]+)\s—/g;
+
+        /* extracting the matches */
+        const matches = text.match(regex);
+
+        /* since match returns the entire match including delimiters, we
+           need to clean it up:
+                remove starting '+ '
+                remove trailing ' —'
+         */
+        const cleanMatches = matches && matches.map(
+            match => match.replace(/^\+\s/, '').replace(/\s—$/, '').trim()
+        );
+
+        /* we use && here to ensure this happens only if matches are
+         found; this prevents errors on null objects */
+        const manaValues = cleanMatches && cleanMatches.map(getMvFromManaCost);
+
+        /* Math.min doesn't accept an array, so we use the '...' spread
+         operator */
+        const minValue = manaValues && Math.min(...manaValues)
+
+        cardData['cmc'] = getMvFromManaCost(cardData['mana_cost']) + minValue
+
+        // console.log(`🐬 spree: ${cardData['name']},
+        // ${cardData['mana_cost']}, ${manaValues}→${minValue}: 🍑${cardData['cmc']}`)
+
+    }
+
     return cardData
 }
 
@@ -1222,64 +1278,6 @@ function filterByInstantsAndCn() {
         const tricks = (card['oracle_text'].includes('Flash\n') ||
                 card['type_line'].includes('Instant')) && displayTrickCards
         const disguise = (card['keywords'].includes('Disguise') && displayDisguiseCards)
-
-
-        /* 🐬 apply filters to cards here for debugging, since we iterate
-         through every card */
-        if (card['keywords'].includes('Spree')) {
-
-            /* 🏭 handle spree costs */
-            const text = card['oracle_text']
-
-            /* regex pattern to find text between "+" and "—"
-
-                text = "Spree (Choose one or more additional costs.)
-                    {2}{R} — Untap all creatures you control. If it's your combat phase, there is an additional combat phase after this phase.
-                    + {2} — Creatures you control get +1/+0 and gain first strike until end of turn.
-                    + {R} — Choose target opponent. Whenever a creature you control deals combat damage to that player this turn, create a tapped Treasure token.";
-
-                let's explain the regex here: `/\+\s([^—]+)\s—/g`
-
-                `/ content /g` regex expressions start and end with `/` in js,
-                    with `g` indicating we want to return all matches, not just
-                    one.
-                `+` is a regex operator, so we have to escape it to get `\+`
-                `\s` matches any whitespace character after the `+`
-                `([^—]+)` is what we want to capture, which is all characters
-                    other than the em dash, `\u2014` or `—`, the unicode value
-                    for em dash
-                finally, match the trailing space, `\s` before the em dash,
-                 `—`,
-                    which doesn't have to be escaped
-             */
-            const regex = /\+\s([^—]+)\s—/g;
-
-            /* extracting the matches */
-            const matches = text.match(regex);
-
-            /* since match returns the entire match including delimiters, we
-               need to clean it up:
-                    remove starting '+ '
-                    remove trailing ' —'
-             */
-            const cleanMatches = matches && matches.map(
-                match => match.replace(/^\+\s/, '').replace(/\s—$/, '').trim()
-            );
-
-            /* we use && here to ensure this happens only if matches are
-             found; this prevents errors on null objects */
-            const manaValues = cleanMatches && cleanMatches.map(getMvFromManaCost);
-
-            /* Math.min doesn't accept an array, so we use the '...' spread
-             operator */
-            const minValue = manaValues && Math.min(...manaValues)
-            console.log(`🐬 spree: ${card['name']}, ${card['mana_cost']}, ${manaValues}→${minValue}`)
-
-            /* */
-            spreeCount++
-        }
-
-        console.log(`${spreeCount} total cards with Spree`)
 
         if (tricks || disguise) {
             /* sets these days have promos not part of the draft set
