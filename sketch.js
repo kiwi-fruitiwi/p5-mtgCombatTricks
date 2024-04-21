@@ -1278,18 +1278,32 @@ function filterByInstantsAndCn() {
                 card['type_line'].includes('Instant')) && displayTrickCards
         const disguise = (card['keywords'].includes('Disguise') && displayDisguiseCards)
 
-        /** 🐬 demo for detection channel abilities like {1}{G}: Discard name: */
+        /** detect channel abilities like {1}{G}: Discard name: */
         /* match channel abilities like that of Trumpeting Carnosaur, Spinewoods
-         Armadillo, Harvester of Misery */
+            Armadillo, Harvester of Misery
+
+            (\\{[^}]*\\})+ matches characters inside braces, i.e. mana costs
+                it matches any char except the closing brace until it finds the
+                next closing brace
+
+            (?=, Discard ${card['name']}:) assert that what follows the
+                captured group is a specific string pattern that matches the
+                standard channel oracle text
+
+            .match returns an array when the 'g' flag is used
+         */
         const channelRegex = new RegExp(`(\\{[^}]*\\})+(?=, Discard ${card['name']}:)`, 'g');
         const channelManaCostMatch = card['oracle_text'].match(channelRegex)
 
         if (channelManaCostMatch) {
-            card['cmc'] = getMvFromManaCost(channelManaCostMatch[0])
-
             /* not that the match returns an array, so we must select index */
-            console.log(`🐬 ${card['name']} → ${channelManaCostMatch[0]} → ${card['mana_cost']}`)
+            // console.log(`🐬 ${card['name']} → ${channelManaCostMatch[0]} →
+            // ${card['mana_cost']}`)
+            card['cmc'] = getMvFromManaCost(channelManaCostMatch[0])
             card['mana_cost'] = channelManaCostMatch[0]
+
+            /* TODO in the future if instants have a cheaper channel cost,
+                 we'd have to make a change here to compare mv */
         }
 
         if (tricks || disguise || channelManaCostMatch) {
