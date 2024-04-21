@@ -1234,8 +1234,8 @@ function populateTricks() {
     displayedTricks = [] /* reset displayedTricks */
 
     for (let card of instantSpeedCards) {
-        // console.log(`🐬 ${card.name} → ${card['mana_cost']} →
-        // ${getMvFromManaCost(card['mana_cost'])}`)
+        console.log(`🐬 ${card.name} → ${card['mana_cost']} → ${getMvFromManaCost(card['mana_cost'])}`)
+
         if (isCastable(getManaTokens(card['mana_cost']), colorBar
             .getSelectedColorChars())) {
             displayedTricks.push(
@@ -1262,7 +1262,6 @@ function populateTricks() {
  */
 function filterByInstantsAndCn() {
     let filteredCards = []
-    let spreeCount = 0
     for (let card of cards) {
         /* processCardFaces puts fronts and backs of cards into the cards: List.
             so cards actually contains card faces, and we don't need to worry
@@ -1279,7 +1278,21 @@ function filterByInstantsAndCn() {
                 card['type_line'].includes('Instant')) && displayTrickCards
         const disguise = (card['keywords'].includes('Disguise') && displayDisguiseCards)
 
-        if (tricks || disguise) {
+        /** 🐬 demo for detection channel abilities like {1}{G}: Discard name: */
+        /* match channel abilities like that of Trumpeting Carnosaur, Spinewoods
+         Armadillo, Harvester of Misery */
+        const channelRegex = new RegExp(`(\\{[^}]*\\})+(?=, Discard ${card['name']}:)`, 'g');
+        const channelManaCostMatch = card['oracle_text'].match(channelRegex)
+
+        if (channelManaCostMatch) {
+            card['cmc'] = getMvFromManaCost(channelManaCostMatch[0])
+
+            /* not that the match returns an array, so we must select index */
+            console.log(`🐬 ${card['name']} → ${channelManaCostMatch[0]} → ${card['mana_cost']}`)
+            card['mana_cost'] = channelManaCostMatch[0]
+        }
+
+        if (tricks || disguise || channelManaCostMatch) {
             /* sets these days have promos not part of the draft set
              * e.g. Rescue Retriever, ID 291 of 287 in BRO */
             switch (setName.toLowerCase()) {
