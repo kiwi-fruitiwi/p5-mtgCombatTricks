@@ -1234,8 +1234,12 @@ function populateTricks() {
     displayedTricks = [] /* reset displayedTricks */
 
     for (let card of instantSpeedCards) {
-        console.log(`🐬 ${card.name} → ${card['mana_cost']} → ${getMvFromManaCost(card['mana_cost'])}`)
+        // console.log(`🐬 ${card.name} → ${card['mana_cost']} →
+        // ${getMvFromManaCost(card['mana_cost'])}`)
 
+        /* note only 🔑cmc matters for which mv bucket the tricks go into, but
+            checking castability relies on mana_cost
+         */
         if (isCastable(getManaTokens(card['mana_cost']), colorBar
             .getSelectedColorChars())) {
             displayedTricks.push(
@@ -1278,6 +1282,24 @@ function filterByInstantsAndCn() {
                 card['type_line'].includes('Instant')) && displayTrickCards
         const disguise = (card['keywords'].includes('Disguise') && displayDisguiseCards)
 
+        /** detect extra cost to cast as though card has flash: mystical
+              tether */
+        const addedFlashCostRegex = new RegExp(
+            `You may cast ${card['name']} as though it had flash if you pay (\\{[^}]*\\}) more to cast it`)
+        const flashCostMatch = card['oracle_text'].match(addedFlashCostRegex)
+        if (flashCostMatch) {
+            console.log(`🐬 ${card['name']} → ${flashCostMatch[1]}`)
+            card['cmc'] = getMvFromManaCost(flashCostMatch[1]) + getMvFromManaCost(card['mana_cost'])
+
+            /* TODO we'd need to modify the actual mana cost if the added cost
+                includes additional colors, e.g. if original mana cost is 2BB
+                and the additional cost is R, then new mana cost needs to be
+                2BBR. this has never happened before in magic though.
+
+                could we concatenate? see reduceMv for details
+             */
+        }
+
         /** detect channel abilities like {1}{G}: Discard name: */
         /* match channel abilities like that of Trumpeting Carnosaur, Spinewoods
             Armadillo, Harvester of Misery
@@ -1306,7 +1328,7 @@ function filterByInstantsAndCn() {
                  we'd have to make a change here to compare mv */
         }
 
-        if (tricks || disguise || channelManaCostMatch) {
+        if (tricks || disguise || channelManaCostMatch || flashCostMatch) {
             /* sets these days have promos not part of the draft set
              * e.g. Rescue Retriever, ID 291 of 287 in BRO */
             switch (setName.toLowerCase()) {
