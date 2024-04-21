@@ -1300,6 +1300,12 @@ function filterByInstantsAndCn() {
              */
         }
 
+        /** detect 'cardName has flash as long as' string in 🔑oracle_text */
+        const conditionalFlashRegex = /* 'i' flag means case insensitive */
+            new RegExp(`${card['name']} has flash as long as`, 'i')
+
+        const conditionalFlashMatch = card['oracle_text'].match(conditionalFlashRegex)
+
         /** detect channel abilities like {1}{G}: Discard name: */
         /* match channel abilities like that of Trumpeting Carnosaur, Spinewoods
             Armadillo, Harvester of Misery
@@ -1328,7 +1334,8 @@ function filterByInstantsAndCn() {
                  we'd have to make a change here to compare mv */
         }
 
-        if (tricks || disguise || channelManaCostMatch || flashCostMatch) {
+        if (tricks || disguise || channelManaCostMatch || flashCostMatch ||
+            conditionalFlashMatch) {
             /* sets these days have promos not part of the draft set
              * e.g. Rescue Retriever, ID 291 of 287 in BRO */
             switch (setName.toLowerCase()) {
