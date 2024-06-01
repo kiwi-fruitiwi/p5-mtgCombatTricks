@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 400  /* arbitrary value for looks */
 
-let setName = 'otj'
+let setName = 'mh3'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -1271,8 +1271,11 @@ function filterByInstantsAndCn() {
             so cards actually contains card faces, and we don't need to worry
             about front vs back face.
          */
-        if (card['keywords'].includes('Flash') && (!card['oracle_text'].includes('Flash\n')))
-            console.log(`🫐${card['name']} includes Flash keyword but not oracle`)
+        if (card['keywords'].includes('Flash') && (!card['oracle_text'].includes('Flash\n'))) {
+            // console.log(`🫐${card['name']} includes Flash keyword but not
+            // oracle`)
+        }
+
 
         /* displayDisguiseCards and displayTrickCards are toggles
          * if they are false, the conditions they are ANDed with become false,
@@ -1288,7 +1291,7 @@ function filterByInstantsAndCn() {
             `You may cast ${card['name']} as though it had flash if you pay (\\{[^}]*\\}) more to cast it`)
         const flashCostMatch = card['oracle_text'].match(addedFlashCostRegex)
         if (flashCostMatch) {
-            console.log(`🐬 ${card['name']} → ${flashCostMatch[1]}`)
+            // console.log(`🐬 ${card['name']} → ${flashCostMatch[1]}`)
             card['cmc'] = getMvFromManaCost(flashCostMatch[1]) + getMvFromManaCost(card['mana_cost'])
 
             /* TODO we'd need to modify the actual mana cost if the added cost
