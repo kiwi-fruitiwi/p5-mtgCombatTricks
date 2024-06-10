@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 400  /* arbitrary value for looks */
 
-let setName = 'mh3'
+let setName = 'otj'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -170,21 +170,23 @@ function setupColorSelector() {
      396 Brothers' War
      401 Brothers' War: Retro Artifacts
      406 Phyrexia: All Will Be One
-     410 March of the Machine
-     416 Lord of the Rings: Tales of Middle-Earth. regular: 281, all: 476
-            ends at 271, then some special lands
+     410 March of the Machine 🦿
+     416 Lord of the Rings: Tales of Middle-Earth.  💍ᴸᵀᴿ
+            regular: 281, all: 476
+                ends at 271, then some special lands
             does not include Knight of the Keep 291, Goblin Assailant 295
-     421 Wilds of Eldraine
+     421 Wilds of Eldraine 🍁ᵂᴼᴱ
             regular ends at 276
             262-266 are special full art lands
-     430 Lost Caverns of Ixalan
+     430 Lost Caverns of Ixalan 🧭ʟᴄɪ
             regular ends at 291
             287-291 are full art lands. note normal basics are later!
-     437 Murders at Karlov Manor
-     441 Outlaws of Thunder Junction, OTJ
-     443 The Big Score, BIG
-     444 Breaking News, OTP
-
+     437 Murders at Karlov Manor 🗡️ᴹᴷᴹ
+     441 Outlaws of Thunder Junction, OTJ 🦹‍♂️ᴼᵀᴶ
+            443 The Big Score, BIG
+            444 Breaking News, OTP
+     445 Modern Horizons 3, MH3 🐙ᴹᴴ³
+     448 Bloomburrow, BLB 🍁ᴯᴸᴯ
  */
 function populateWallpapers() {
     const wallpapers = {
