@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 400  /* arbitrary value for looks */
 
-let setName = 'otj'
+let setName = 'mh3'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -258,6 +258,14 @@ function populateWallpapers() {
             'ropemaster.jpg',
             'selvala.jpg',
             'nathan.jpg'
+        ],
+        'mh3': [
+            'cracklingFalls.jpg',
+            'floodedStrand.jpg',
+            // 'powerBalance.jpg',
+            'sorin.jpg',
+            'wingIt.jpg',
+            'woodedFoothills.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
