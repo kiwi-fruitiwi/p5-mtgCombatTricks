@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 400  /* arbitrary value for looks */
 
-let setName = 'mh3'
+let setName = 'blb'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -263,9 +263,13 @@ function populateWallpapers() {
             'cracklingFalls.jpg',
             'floodedStrand.jpg',
             // 'powerBalance.jpg',
-            'sorin.jpg',
-            'wingIt.jpg',
+            //'sorin.jpg',
+            //'wingIt.jpg',
             'woodedFoothills.jpg'
+        ],
+        'blb': [
+            'fountainport.jpg',
+            'threetreecity.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
