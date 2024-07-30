@@ -269,7 +269,9 @@ function populateWallpapers() {
         ],
         'blb': [
             'fountainport.jpg',
-            'threetreecity.jpg'
+            'threetreecity.jpg',
+            'stargaze.jpg',
+            'intrepid.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
