@@ -427,7 +427,7 @@ function reduceMv(manaCost, includeGeneric=false) {
     for (const element of manaList) {
         if (['W', 'U', 'B', 'R', 'G'].includes(element)) {
             result.push(element)
-        } else if (element === '2' && !includeGeneric) {
+        } else if (element === '2' && !includeGeneric && hybridSymbolsDetected) {
             /* looking specifically for '2' inside a hybrid symbol */
             console.log(`2️⃣ javelin-type {2/R} hybrid mana detected → ${element}`)
             generic += int(element)
@@ -1135,7 +1135,7 @@ function handleMvReductions(card) {
      */
     let costsOnlyColored = /spell costs {(\d+)} less to cast for each/
 
-    /* does the cost reduction phrase  exist in oracle text? */
+    /* does the cost reduction phrase exist in oracle text? */
     let matches = match(oracleText, generalMvReduction)
     if (matches) {
         let name = card['name']
@@ -1157,9 +1157,12 @@ function handleMvReductions(card) {
             return cmc - n
         }
 
+        console.log(`🍌 ${card['name']}`)
         if (match(oracleText, costsOnlyColored)) {
+            console.log(`🍑   ${card['name']}`)
             /* in 3WW, the generic component is 3. colored is 2 */
             let coloredPips = reduceMVtoColorsOnly(card['mana_cost'])
+            console.log(`🫐 ${card['name']} → ${coloredPips}`)
             // console.log(`${name} → reduce generic: ${coloredPips}`)
             return coloredPips
         }
