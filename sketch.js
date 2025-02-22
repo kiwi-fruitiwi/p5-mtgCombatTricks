@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 400  /* arbitrary value for looks */
 
-let setName = 'blb'
+let setName = 'dft'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -268,7 +268,6 @@ function populateWallpapers() {
             'woodedFoothills.jpg'
         ],
         'blb': [
-            'fountainport.jpg',
             'threetreecity.jpg',
             'stargaze.jpg',
             'intrepid.jpg'
@@ -1157,12 +1156,9 @@ function handleMvReductions(card) {
             return cmc - n
         }
 
-        console.log(`🍌 ${card['name']}`)
         if (match(oracleText, costsOnlyColored)) {
-            console.log(`🍑   ${card['name']}`)
             /* in 3WW, the generic component is 3. colored is 2 */
             let coloredPips = reduceMVtoColorsOnly(card['mana_cost'])
-            console.log(`🫐 ${card['name']} → ${coloredPips}`)
             // console.log(`${name} → reduce generic: ${coloredPips}`)
             return coloredPips
         }
