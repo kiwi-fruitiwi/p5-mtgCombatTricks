@@ -1291,7 +1291,6 @@ function filterByInstantsAndCn() {
             // oracle`)
         }
 
-
         /* displayDisguiseCards and displayTrickCards are toggles
          * if they are false, the conditions they are ANDed with become false,
          * which disables that part of the filter
@@ -1342,7 +1341,7 @@ function filterByInstantsAndCn() {
         const channelManaCostMatch = card['oracle_text'].match(channelRegex)
 
         if (channelManaCostMatch) {
-            /* not that the match returns an array, so we must select index */
+            /* note that the match returns an array, so we must select index */
             // console.log(`🐬 ${card['name']} → ${channelManaCostMatch[0]} →
             // ${card['mana_cost']}`)
             card['cmc'] = getMvFromManaCost(channelManaCostMatch[0])
@@ -1352,8 +1351,38 @@ function filterByInstantsAndCn() {
                  we'd have to make a change here to compare mv */
         }
 
+        /** detect cycling abilities like {2}{G}, Discard this card */
+        /* we don't want to show any cycling card, only those with effects
+            scryfall prompt: 'e:dft o:cycling o:"when you cycle"' gives 6 cards:
+                agonasaur rex
+                basri, tomorrow's champion
+                howler's heavy
+                magmakin artillerist
+                valor's flagship
+                webstrike elite
+
+            these all have 'cycling: {mana}{cost}' and the following text:
+                'when you cycle this card, '
+         */
+        const cyclingRegex = new RegExp(/Cycling\s(\{[^}]*\})+/)
+        const cyclingManaCostMatch = card['oracle_text'].match(cyclingRegex)
+
+        /* this guarantees cycling for all current mtg cards */
+        const hasCyclingEffect = card['oracle_text'].includes('When you cycle' +
+            ' this card, ')
+
+        if (hasCyclingEffect) {
+            const manaCost = cyclingManaCostMatch[0].replace('Cycling ', '')
+
+            // console.log(`🐬 ${card['name']} → ${manaCost}`)
+            card['cmc'] = getMvFromManaCost(manaCost)
+            card['mana_cost'] = manaCost
+            /* TODO if instants or flash creatures have cheaper cycling
+                 costs with effects */
+        }
+
         if (tricks || disguise || channelManaCostMatch || flashCostMatch ||
-            conditionalFlashMatch) {
+            conditionalFlashMatch || hasCyclingEffect) {
             /* sets these days have promos not part of the draft set
              * e.g. Rescue Retriever, ID 291 of 287 in BRO */
             switch (setName.toLowerCase()) {
@@ -1385,7 +1414,12 @@ function filterByInstantsAndCn() {
                     if (card['collector_number'] <= 276)
                         filteredCards.push(card)
                     break;
+                // case 'dft':
+                //     if (card['collector_number'] <= 289)
+                //         filteredCards.push(card)
+                //     break;
                 default:
+                    /* TODO do we need an SPG case too? */
                     /* TODO this triggers 'flashback', so that's bad :P */
                     filteredCards.push(card)
             }
