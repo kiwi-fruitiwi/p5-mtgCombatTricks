@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 400  /* arbitrary value for looks */
 
-let setName = 'dft'
+let setName = 'tdm'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -158,6 +158,8 @@ function setupColorSelector() {
 }
 
 /** populate wallpaper images lists for each set
+     instead of iterating through n, use https://www.mtgpics.com/sets
+
      create a list of wallpaper images for every set as we work on them:
         BRO, ONE, MOM
      wallpapers dictionary keyed by setName
@@ -187,6 +189,8 @@ function setupColorSelector() {
             444 Breaking News, OTP
      445 Modern Horizons 3, MH3 🐙ᴹᴴ³
      448 Bloomburrow, BLB 🍁ᴯᴸᴯ
+     463 Aetherdrift 🏎️ᴰꟳᵀ
+     472 Tarkir: Dragonstorm 🐲ᵀᴰᴹ
  */
 function populateWallpapers() {
     const wallpapers = {
