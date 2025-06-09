@@ -36,9 +36,9 @@ const FIXED_WIDTH_FONT_SIZE = 14
 
 /* the canvas height needs to be large enough to show all the cards */
 const CANVAS_MINIMUM_HEIGHT = 650
-const CANVAS_STARTING_HEIGHT = 400  /* arbitrary value for looks */
+const CANVAS_STARTING_HEIGHT = 650  /* arbitrary value for looks */
 
-let setName = 'tdm'
+let setName = 'fin'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -190,6 +190,7 @@ function setupColorSelector() {
      445 Modern Horizons 3, MH3 🐙ᴹᴴ³
      448 Bloomburrow, BLB 🍁ᴯᴸᴯ
      463 Aetherdrift 🏎️ᴰꟳᵀ
+     469 Final Fantasy 💎ꟳᴵᴺ
      472 Tarkir: Dragonstorm 🐲ᵀᴰᴹ
  */
 function populateWallpapers() {
@@ -280,6 +281,13 @@ function populateWallpapers() {
             'island.jpg',
             'monument.jpg',
             'raceway.jpg'
+        ],
+        'fin':[
+            'chocobo.jpg',
+            'jill.jpg',
+            'stuck.jpg',
+            'train.jpg',
+            'windy.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
@@ -292,6 +300,8 @@ function populateWallpapers() {
 
         const bgURL = `url("backgrounds/${setName}/${wallpaperFileName}")`
         console.log(`🖼️ ${bgURL}`)
+        select('html').style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
+            ` rgba(0,0,0,0.4)), ${bgURL}`)
         select('body').style('background-image', 'linear-gradient(rgba(0,0,0,0.4),' +
             ` rgba(0,0,0,0.4)), ${bgURL}`)
 
@@ -611,7 +621,10 @@ function renderTricksByMv() {
     let canvasHeight = Y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT
 
     // console.log(`🥭renderTricksByMv: ${canvasHeight}, ${height}`)
-    changeCanvasHeight(canvasHeight)
+    if (canvasHeight < CANVAS_MINIMUM_HEIGHT) {
+        changeCanvasHeight(CANVAS_MINIMUM_HEIGHT)
+    } else
+        changeCanvasHeight(canvasHeight)
 }
 
 
@@ -1273,9 +1286,12 @@ function populateTricks() {
                     card['typeText'],
                     card['border_crop_uri'],
                     card['png_uri']))
+
+            console.log(`${card['name']} is castable! 🍑
+            ${getManaTokens(card['mana_cost'])}`)
         } else {
-            // console.log(`${card['name']} is not castable:
-            // ${getManaTokens(card['mana_cost'])}`)
+            console.log(`${card['name']} is not castable:
+            ${getManaTokens(card['mana_cost'])}`)
         }
     }
 

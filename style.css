@@ -1,9 +1,5 @@
 html, body {
-    background-color: rgb(32, 33, 51);
     color: gainsboro;
-}
-
-body {
     display: flex;
     align-items: start;
     justify-content: center;
@@ -11,6 +7,9 @@ body {
     background-attachment: fixed;
     background-position: center;
     background-size: cover;
+}
+
+body {
 
     overflow-y: scroll;
 }
