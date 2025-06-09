@@ -1286,12 +1286,9 @@ function populateTricks() {
                     card['typeText'],
                     card['border_crop_uri'],
                     card['png_uri']))
-
-            console.log(`${card['name']} is castable! 🍑
-            ${getManaTokens(card['mana_cost'])}`)
         } else {
-            console.log(`${card['name']} is not castable:
-            ${getManaTokens(card['mana_cost'])}`)
+            // console.log(`${card['name']} is not castable:
+            // ${getManaTokens(card['mana_cost'])}`)
         }
     }
 
@@ -1311,9 +1308,10 @@ function filterByInstantsAndCn() {
             so cards actually contains card faces, and we don't need to worry
             about front vs back face.
          */
+        let hasFlashReminderText = false
         if (card['keywords'].includes('Flash') && (!card['oracle_text'].includes('Flash\n'))) {
-            // console.log(`🫐${card['name']} includes Flash keyword but not
-            // oracle`)
+            console.log(`🫐${card['name']} includes Flash keyword but not oracle`)
+            hasFlashReminderText = true
         }
 
         /* displayDisguiseCards and displayTrickCards are toggles
@@ -1407,7 +1405,7 @@ function filterByInstantsAndCn() {
         }
 
         if (tricks || disguise || channelManaCostMatch || flashCostMatch ||
-            conditionalFlashMatch || hasCyclingEffect) {
+            conditionalFlashMatch || hasCyclingEffect || hasFlashReminderText) {
             /* sets these days have promos not part of the draft set
              * e.g. Rescue Retriever, ID 291 of 287 in BRO */
             switch (setName.toLowerCase()) {
