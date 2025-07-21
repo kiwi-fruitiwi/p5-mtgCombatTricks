@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 650  /* arbitrary value for looks */
 
-let setName = 'fin'
+let setName = 'eoe'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -192,6 +192,7 @@ function setupColorSelector() {
      463 Aetherdrift 🏎️ᴰꟳᵀ
      469 Final Fantasy 💎ꟳᴵᴺ
      472 Tarkir: Dragonstorm 🐲ᵀᴰᴹ
+     473 Edge of Eternities 🪐ᴱᴼᴱ
  */
 function populateWallpapers() {
     const wallpapers = {
@@ -1434,6 +1435,10 @@ function filterByInstantsAndCn() {
                         filteredCards.push(card)
                     break;
                 case 'otj':
+                    if (card['collector_number'] <= 276)
+                        filteredCards.push(card)
+                    break;
+                case 'eoe':
                     if (card['collector_number'] <= 276)
                         filteredCards.push(card)
                     break;
