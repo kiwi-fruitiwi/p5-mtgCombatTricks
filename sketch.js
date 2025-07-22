@@ -289,6 +289,10 @@ function populateWallpapers() {
             'stuck.jpg',
             'train.jpg',
             'windy.jpg'
+        ],
+        'eoe':[
+            'evendo.jpg',
+            'seriema.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
