@@ -291,7 +291,9 @@ function populateWallpapers() {
             'windy.jpg'
         ],
         'eoe':[
-            'evendo.jpg',
+            'bygone.jpg',
+            'invasive.jpg',
+            'plasma.jpg',
             'seriema.jpg'
         ]
     }
