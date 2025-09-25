@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 650  /* arbitrary value for looks */
 
-let setName = 'eoe'
+let setName = 'om1'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -193,6 +193,8 @@ function setupColorSelector() {
      469 Final Fantasy 💎ꟳᴵᴺ
      472 Tarkir: Dragonstorm 🐲ᵀᴰᴹ
      473 Edge of Eternities 🪐ᴱᴼᴱ
+     486 Through the Omenpaths 🌌ᴼᴹ¹
+
  */
 function populateWallpapers() {
     const wallpapers = {
@@ -295,6 +297,9 @@ function populateWallpapers() {
             'invasive.jpg',
             'plasma.jpg',
             'seriema.jpg'
+        ],
+        'om1':[
+            'terminus.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
