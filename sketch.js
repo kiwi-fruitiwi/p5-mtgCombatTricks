@@ -376,7 +376,7 @@ function reduceMVtoColorsOnly(manaCost) {
 
 
 /**
- * helper method that calls reduceMV to extra4ct the mana value of a mana cost
+ * helper method that calls reduceMV to extract the mana value of a mana cost
  *  examples:
  *      {3}{W}{W}   → 5         plated onslaught
  *      {2}{R}      → 3         rebel salvo
@@ -1359,7 +1359,6 @@ function filterByInstantsAndCn() {
         const conditionalFlashMatch = card['oracle_text'].match(conditionalFlashRegex)
 
         /** detect channel abilities like {1}{G}: Discard this card: */
-        /* todo match om1's kephon */
         /* match channel abilities like that of Trumpeting Carnosaur, Spinewoods
             Armadillo, Harvester of Misery
 
