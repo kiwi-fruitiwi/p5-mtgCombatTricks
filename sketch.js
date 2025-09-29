@@ -1358,7 +1358,8 @@ function filterByInstantsAndCn() {
 
         const conditionalFlashMatch = card['oracle_text'].match(conditionalFlashRegex)
 
-        /** detect channel abilities like {1}{G}: Discard name: */
+        /** detect channel abilities like {1}{G}: Discard this card: */
+        /* todo match om1's kephon */
         /* match channel abilities like that of Trumpeting Carnosaur, Spinewoods
             Armadillo, Harvester of Misery
 
@@ -1370,9 +1371,11 @@ function filterByInstantsAndCn() {
                 captured group is a specific string pattern that matches the
                 standard channel oracle text
 
+                update! all oracle text has been updated to "discard this card:"
+
             .match returns an array when the 'g' flag is used
          */
-        const channelRegex = new RegExp(`(\\{[^}]*\\})+(?=, Discard ${card['name']}:)`, 'g');
+        const channelRegex = new RegExp(`(\\{[^}]*\\})+(?=, Discard this card:)`, 'g');
         const channelManaCostMatch = card['oracle_text'].match(channelRegex)
 
         if (channelManaCostMatch) {
