@@ -299,7 +299,7 @@ function populateWallpapers() {
             'seriema.jpg'
         ],
         'om1':[
-            'terminus.jpg'
+            'cityscape.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
