@@ -930,7 +930,7 @@ function processCardFace(element, imgURIs) {
         cardData['cmc'] = getMvFromManaCost(cardData['mana_cost']) + minValue
 
         // console.log(`🐬 spree: ${cardData['name']},
-        // ${cardData['mana_cost']}, ${manaValues}→${minValue}: 🍑${cardData['cmc']}`)
+        // ${cardData['mana_cost']}, ${manaValues}→${minValue}: ${cardData['cmc']}`)
 
     }
 
@@ -1329,19 +1329,22 @@ function filterByInstantsAndCn() {
             so cards actually contains card faces, and we don't need to worry
             about front vs back face.
          */
-        let hasFlashReminderText = false
-        if (card['keywords'].includes('Flash') && (!card['oracle_text'].includes('Flash\n'))) {
-            console.log(`🫐${card['name']} includes Flash keyword but not oracle`)
-            hasFlashReminderText = true
+        const keywordsIncludeFlash = card.keywords.includes("Flash");
+        const oracleTextHasFlash  = card.oracle_text.includes("Flash\n");
+        const cardFaceHasFlash = keywordsIncludeFlash && oracleTextHasFlash;
+
+        if (keywordsIncludeFlash && !oracleTextHasFlash) {
+            console.log(`🫐 ${card.name} includes Flash keyword but not oracle`);
+            /* e.g. Aang, Swift Savior // Aang and La, Ocean's Fury */
         }
 
         /* displayDisguiseCards and displayTrickCards are toggles
          * if they are false, the conditions they are ANDed with become false,
          * which disables that part of the filter
          */
-        const tricks = (card['oracle_text'].includes('Flash\n') ||
+        const isTrick = (cardFaceHasFlash ||
                 card['type_line'].includes('Instant')) && displayTrickCards
-        const disguise = (card['keywords'].includes('Disguise') && displayDisguiseCards)
+        const hasDisguise = (card['keywords'].includes('Disguise') && displayDisguiseCards)
 
         /** detect extra cost to cast as though card has flash: mystical
               tether */
@@ -1433,12 +1436,12 @@ function filterByInstantsAndCn() {
         const hasLandCycling = landCyclingRegex.test(card['oracle_text']);
 
         // if (hasLandCycling) {
-        //     console.log(`${card['name']} has landcycling! 🍑`)
+        //     console.log(`${card['name']} has landcycling!`)
         // }
 
         if (!hasLandCycling &&
-            (tricks || disguise || channelManaCostMatch || flashCostMatch ||
-            conditionalFlashMatch || hasCyclingEffect || hasFlashReminderText)
+            (isTrick || hasDisguise || channelManaCostMatch || flashCostMatch ||
+            conditionalFlashMatch || hasCyclingEffect/* || cardFacehasFlash*/)
         ) {
             /* sets these days have promos not part of the draft set
              * e.g. Rescue Retriever, ID 291 of 287 in BRO
