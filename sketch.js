@@ -1203,6 +1203,7 @@ function handleMvReductions(card) {
             /* in 3WW, the generic component is 3. colored is 2 */
             let coloredPips = reduceMVtoColorsOnly(card['mana_cost'])
             // console.log(`${name} → reduce generic: ${coloredPips}`)
+            console.log(`${card['name']} has a mvReduction 🫐`)
             return coloredPips
         }
     }
@@ -1334,9 +1335,12 @@ function filterByInstantsAndCn() {
         const cardFaceHasFlash = keywordsIncludeFlash && oracleTextHasFlash;
 
         if (keywordsIncludeFlash && !oracleTextHasFlash) {
-            console.log(`🫐 ${card.name} includes Flash keyword but not oracle`);
+            console.log(`${card.name} includes Flash keyword but not oracle`);
             /* e.g. Aang, Swift Savior // Aang and La, Ocean's Fury */
         }
+
+        const hasModalFlash = card.oracle_text.toLowerCase().includes(
+            "you may cast this spell as though it had flash")
 
         /* displayDisguiseCards and displayTrickCards are toggles
          * if they are false, the conditions they are ANDed with become false,
@@ -1347,9 +1351,10 @@ function filterByInstantsAndCn() {
         const hasDisguise = (card['keywords'].includes('Disguise') && displayDisguiseCards)
 
         /** detect extra cost to cast as though card has flash: mystical
-              tether */
+              tether, which has updated oracle text to mention "this spell"
+              instead of its actual card name */
         const addedFlashCostRegex = new RegExp(
-            `You may cast ${card['name']} as though it had flash if you pay (\\{[^}]*\\}) more to cast it`)
+            `You may cast this spell as though it had flash if you pay (\\{[^}]*\\}) more to cast it`)
         const flashCostMatch = card['oracle_text'].match(addedFlashCostRegex)
 
         if (flashCostMatch) {
@@ -1441,7 +1446,8 @@ function filterByInstantsAndCn() {
 
         if (!hasLandCycling &&
             (isTrick || hasDisguise || channelManaCostMatch || flashCostMatch ||
-            conditionalFlashMatch || hasCyclingEffect/* || cardFacehasFlash*/)
+            conditionalFlashMatch || hasCyclingEffect || hasModalFlash /* ||
+             cardFacehasFlash*/)
         ) {
             /* sets these days have promos not part of the draft set
              * e.g. Rescue Retriever, ID 291 of 287 in BRO
