@@ -1348,6 +1348,7 @@ function filterByInstantsAndCn() {
         const addedFlashCostRegex = new RegExp(
             `You may cast ${card['name']} as though it had flash if you pay (\\{[^}]*\\}) more to cast it`)
         const flashCostMatch = card['oracle_text'].match(addedFlashCostRegex)
+
         if (flashCostMatch) {
             // console.log(`🐬 ${card['name']} → ${flashCostMatch[1]}`)
             card['cmc'] = getMvFromManaCost(flashCostMatch[1]) + getMvFromManaCost(card['mana_cost'])
@@ -1427,10 +1428,26 @@ function filterByInstantsAndCn() {
                  costs with effects */
         }
 
-        if (tricks || disguise || channelManaCostMatch || flashCostMatch ||
-            conditionalFlashMatch || hasCyclingEffect || hasFlashReminderText) {
+        /* we'd prefer to exclude landscyclers from cluttering the UI */
+        const landCyclingRegex = /\n(Plains|Island|Swamp|Mountain|Forest)cycling/;
+        const hasLandCycling = landCyclingRegex.test(card['oracle_text']);
+
+        // if (hasLandCycling) {
+        //     console.log(`${card['name']} has landcycling! 🍑`)
+        // }
+
+        if (!hasLandCycling &&
+            (tricks || disguise || channelManaCostMatch || flashCostMatch ||
+            conditionalFlashMatch || hasCyclingEffect || hasFlashReminderText)
+        ) {
             /* sets these days have promos not part of the draft set
-             * e.g. Rescue Retriever, ID 291 of 287 in BRO */
+             * e.g. Rescue Retriever, ID 291 of 287 in BRO
+             *
+             * note! this is no longer necessary for new sets because
+             *  constants.py in py.magic-util creates the scryfall json
+             *  using collector's ID restrictions, e.g.:
+             *    'tla': '(e:tla cn≥1 cn≤286) OR (e:tle cn≥1 cn≤61)'
+             */
             switch (setName.toLowerCase()) {
                 case 'bro':
                     if (card['collector_number'] <= 287)
