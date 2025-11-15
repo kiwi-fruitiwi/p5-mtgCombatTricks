@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 650  /* arbitrary value for looks */
 
-let setName = 'om1'
+let setName = 'tla'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -194,6 +194,8 @@ function setupColorSelector() {
      472 Tarkir: Dragonstorm 🐲ᵀᴰᴹ
      473 Edge of Eternities 🪐ᴱᴼᴱ
      486 Through the Omenpaths 🌌ᴼᴹ¹
+     482 Avatar The Last Airbender 🔥🍃💦🌪️ᵀᴸᴬ
+     492 Avatar Art Series
 
  */
 function populateWallpapers() {
@@ -300,6 +302,13 @@ function populateWallpapers() {
         ],
         'om1':[
             'cityscape.jpg'
+        ],
+        'tla':[
+            'appatravel.webp',
+            'badgermole.jpg',
+            'ice.jpg',
+            'roku.webp',
+            'teamavatar.webp'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
