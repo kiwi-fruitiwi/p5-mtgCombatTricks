@@ -641,7 +641,7 @@ function renderTricksByMv() {
      * details */
     let canvasHeight = Y + yOffset - CARD_HEIGHT/2 - SPACING/2 - DIVIDER_HEIGHT
 
-    // console.log(`🥭renderTricksByMv: ${canvasHeight}, ${height}`)
+    // console.log(`renderTricksByMv: ${canvasHeight}, ${height}`)
     if (canvasHeight < CANVAS_MINIMUM_HEIGHT) {
         changeCanvasHeight(CANVAS_MINIMUM_HEIGHT)
     } else
@@ -1203,7 +1203,7 @@ function handleMvReductions(card) {
             /* in 3WW, the generic component is 3. colored is 2 */
             let coloredPips = reduceMVtoColorsOnly(card['mana_cost'])
             // console.log(`${name} → reduce generic: ${coloredPips}`)
-            console.log(`${card['name']} has a mvReduction 🫐`)
+            // console.log(`${card['name']} has a mvReduction`)
             return coloredPips
         }
     }
@@ -1219,6 +1219,13 @@ function handleMvReductions(card) {
      */
     if (card['keywords'].includes('Convoke')) {
         // console.log(`convoke: ${cardData['name']}`)
+        return 0
+    }
+
+    /* adjust cmc for cards like Force of Negation, Force of Will, Daze */
+    const zeroCostClause = "rather than pay this spell's mana cost"
+    if (card.oracle_text.toLowerCase().includes(zeroCostClause)) {
+        // console.log(`${card.name} has a zero cost clause`)
         return 0
     }
 
