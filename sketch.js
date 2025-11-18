@@ -724,6 +724,10 @@ function mousePressed() {
 
 function touchEnded() {
     handlePress()
+    setTimeout(() => {
+        clickedImg = null;
+    }, 5000);  // 5000 ms = 5 seconds
+
     return false // prevents double-events & prevents iOS scrolling interference
 }
 
@@ -735,9 +739,6 @@ function handlePress() {
     }
 
     detectColorIconClick()
-    if (clickedImg) {
-        clickedImg = null
-    }
 }
 
 function detectColorIconClick() {
