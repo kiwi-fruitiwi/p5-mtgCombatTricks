@@ -735,6 +735,9 @@ function handlePress() {
     }
 
     detectColorIconClick()
+    if (clickedImg) {
+        clickedImg = null
+    }
 }
 
 function detectColorIconClick() {
