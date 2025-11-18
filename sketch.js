@@ -719,6 +719,15 @@ function mouseReleased() {
 }
 
 function mousePressed() {
+    handlePress()
+}
+
+function touchEnded() {
+    handlePress()
+    return false // prevents double-events & prevents iOS scrolling interference
+}
+
+function handlePress() {
     if (displayedTricks) {
         for (const trick of displayedTricks) {
             trick.detectClick()
