@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 650  /* arbitrary value for looks */
 
-let setName = 'tla'
+let setName = 'ecl'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -309,6 +309,9 @@ function populateWallpapers() {
             'ice.jpg',
             'roku.webp',
             'teamavatar.webp'
+        ],
+        'ecl':[
+            'morningtide.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
