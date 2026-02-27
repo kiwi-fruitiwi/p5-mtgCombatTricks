@@ -312,6 +312,9 @@ function populateWallpapers() {
         ],
         'ecl':[
             'morningtide.jpg'
+        ],
+        'tmt':[
+            'sewerSamurai.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
