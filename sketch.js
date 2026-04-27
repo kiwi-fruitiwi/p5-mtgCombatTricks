@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 650  /* arbitrary value for looks */
 
-let setName = 'tmt'
+let setName = 'sos'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -196,7 +196,8 @@ function setupColorSelector() {
      486 Through the Omenpaths 🌌ᴼᴹ¹
      482 Avatar The Last Airbender 🔥🍃💦🌪️ᵀᴸᴬ
      492 Avatar Art Series
-
+     498 Secrets of Strixhaven
+     502 Secrets of Strixhaven Mystical Archive
  */
 function populateWallpapers() {
     const wallpapers = {
@@ -315,6 +316,10 @@ function populateWallpapers() {
         ],
         'tmt':[
             'sewerSamurai.jpg'
+        ],
+        'sos':[
+            '058.jpg',
+            '215.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
@@ -343,7 +348,7 @@ function populateWallpapers() {
 function getColorsFromManaCost(manaCost) {
     /* strip out curly braces from 🔑mana_cost */
     let strippedManaCost = ''
-    for (const character of manaCost) {
+    for (const character of removePhyrexian(manaCost)) {
         switch (character) {
             case '{': /* skip this character */
                 break
@@ -370,6 +375,17 @@ function getColorsFromManaCost(manaCost) {
     /* remove duplicate colors which can be generated from hybrid colors */
     const uniqueColorsOnly = new Set(wubrgArray)
     return Array.from(uniqueColorsOnly)
+}
+
+/**
+ * remove all instances of phyrexian mana from a mana cost
+ * @returns all phyrexian costs stripped, e.g. {1} from {1}{B/P}{B/P}
+ * @param manaCost → something like {1}{B/P}{B/P}
+ */
+function removePhyrexian(manaCost) {
+    // TODO does this work for single pipped phyrexian mana? we'd want {0}
+    const result = manaCost.replace(/\{[WUBRG]\/P\}/g, '');
+    return result === '' ? '{0}' : result;
 }
 
 
@@ -426,15 +442,13 @@ function reduceMv(manaCost, includeGeneric=false) {
         ☒ strip opening and closing brackets
         ☒ remove all integer elements using isNaN
         ☒ count the remaining elements → that's our mv!
-
-        TODO this does not handle {2/R} flame javelin type costs yet
      */
 
     /** mana cost delimited by ⎵ and stripped of '{' and '}' */
     let sanitizedManaCost = ''
     let hybridSymbolsDetected = 0
 
-    for (const character of manaCost) {
+    for (const character of removePhyrexian(manaCost)) {
         switch (character) {
             case '{':
                 /* skip this character */
@@ -494,6 +508,7 @@ function reduceMv(manaCost, includeGeneric=false) {
 
         TODO: probably does not work for phyrexian mana
      */
+
     return result.length + int(generic) - hybridSymbolsDetected
 }
 
@@ -1016,7 +1031,7 @@ function stripGenericManaCost(manaCost) {
  *      {W}{W/G}{G}   → [['W'], ['W','G'], ['G']]
  */
 function getManaTokens(manaCost) {
-    const colorsOnly = stripGenericManaCost(manaCost)
+    const colorsOnly = stripGenericManaCost(removePhyrexian(manaCost))
 
     /* regex which captures anything inside curly brackets
      * ([^}]+) matches any non '}' character inside the {} block
@@ -1042,7 +1057,8 @@ function getManaTokens(manaCost) {
 /**
  * iterates through manaTokens of a casting cost and returns whether the mana
  * cost is castable using mana in selectedColors
- * @param manaTokens in the format [['W'], ['W','G'], ['G']], [['B','R'], ['B','R']]
+ * @param manaTokens in the format [['W'], ['W','G'], ['G']], [['B','R'],
+ *     ['B','R']]
  * @param selectedColors of the format ['w', 'u'] or ['w', 'u', 'b', 'r', 'g']
  * @return if the colors in selectedColors can pay for symbols in manaTokens
  *
@@ -1248,7 +1264,9 @@ function handleMvReductions(card) {
         return 0
     }
 
-    return card['cmc']
+    // return card['cmc'] ← no longer json cmc. mana_cost includes
+    // removePhyrexian
+    return getMvFromManaCost(card['mana_cost'])
 }
 
 /**
