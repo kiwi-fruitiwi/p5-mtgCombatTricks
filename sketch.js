@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 650  /* arbitrary value for looks */
 
-let setName = 'sos'
+let setName = 'msh'
 let secondSetName = 'wot'
 let combineSecondSet = false
 
@@ -1481,8 +1481,9 @@ function filterByInstantsAndCn() {
         }
 
         /* we'd prefer to exclude landscyclers from cluttering the UI */
-        const landCyclingRegex = /\n(Plains|Island|Swamp|Mountain|Forest)cycling/;
+        const landCyclingRegex = /\n(Plains|Island|Swamp|Mountain|Forest|Basic land)cycling/;
         const hasLandCycling = landCyclingRegex.test(card['oracle_text']);
+
 
         // if (hasLandCycling) {
         //     console.log(`${card['name']} has landcycling!`)
