@@ -45,8 +45,10 @@ let combineSecondSet = false
 let loadJsonFromCache = true
 let saveScryfallJson = false /* saves loaded JSON after scryfall query */
 
-let displayTrickCards = true /* normal instant speed interaction, exc. disguise */
+let displayTrickCards = true /* normal instant speed interaction, exclude disguise */
 let displayDisguiseCards = true
+let displayBonusSheetCards = false
+
 
 function preload() {
     fixedWidthFont = loadFont('data/consola.ttf')
@@ -320,6 +322,11 @@ function populateWallpapers() {
         'sos':[
             '058.jpg',
             '215.jpg'
+        ],
+        'msh':[
+            'ironman.jpg',
+            'wings.jpg',
+            'wstn.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
@@ -865,6 +872,7 @@ function processCardFace(element, imgURIs) {
     let cardData = {
         'name': element['name'],
         'colors': element['colors'],
+        'set': element['set'],
         'mana_cost': element['mana_cost'],
 
         /* keywords apply to both faces? see harried artisan */
@@ -1314,6 +1322,13 @@ function keyPressed() {
         populateTricks()
     }
 
+    /* toggle for displaying bonus sheet cards */
+    if (key === 's') {
+        displayBonusSheetCards = !displayBonusSheetCards
+        console.log(`🪶 displayBonusSheetCards: ${displayBonusSheetCards}`)
+        populateTricks()
+    }
+
     /* toggle the display of standard tricks cards, which don't include
      disguise or morph */
     if (key === 't') {
@@ -1535,6 +1550,14 @@ function filterByInstantsAndCn() {
                     if (card['collector_number'] <= 276)
                         filteredCards.push(card)
                     break;
+
+                /** only add a bonus sheet card if the toggle is enabled  */
+                case 'msh':
+                    if (card['set'] === 'msh' || displayBonusSheetCards) {
+                        filteredCards.push(card)
+                    }
+                    break;
+
                 // case 'dft':
                 //     if (card['collector_number'] <= 289)
                 //         filteredCards.push(card)
