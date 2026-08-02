@@ -38,8 +38,8 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 650  /* arbitrary value for looks */
 
-let setName = 'msh'
-let secondSetName = 'wot'
+let setName = 'hob'
+let secondSetName = 'wot' /* deprecated, due to magic-util's constants.extraCardsForEachSet */
 let combineSecondSet = false
 
 let loadJsonFromCache = true
@@ -327,6 +327,13 @@ function populateWallpapers() {
             'ironman.jpg',
             'wings.jpg',
             'wstn.jpg'
+        ],
+        'hob':[
+            '029.jpg',
+            '103.jpg',
+            '114_1.jpg',
+            '165.jpg',
+            '184.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
