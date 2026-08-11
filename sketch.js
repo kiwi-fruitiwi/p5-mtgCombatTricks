@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 650  /* arbitrary value for looks */
 
-let setName = 'msh'
+let setName = 'hob'
 let secondSetName = 'wot' /* deprecated, due to magic-util's constants.extraCardsForEachSet */
 let combineSecondSet = false
 
