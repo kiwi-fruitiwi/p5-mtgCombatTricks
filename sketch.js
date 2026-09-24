@@ -38,7 +38,7 @@ const FIXED_WIDTH_FONT_SIZE = 14
 const CANVAS_MINIMUM_HEIGHT = 650
 const CANVAS_STARTING_HEIGHT = 650  /* arbitrary value for looks */
 
-let setName = 'hob'
+let setName = 'fra'
 let secondSetName = 'wot' /* deprecated, due to magic-util's constants.extraCardsForEachSet */
 let combineSecondSet = false
 
@@ -199,6 +199,7 @@ function setupColorSelector() {
      482 Avatar The Last Airbender 🔥🍃💦🌪️ᵀᴸᴬ
      492 Avatar Art Series
      498 Secrets of Strixhaven
+     499 Reality Fracture
      502 Secrets of Strixhaven Mystical Archive
  */
 function populateWallpapers() {
@@ -334,6 +335,11 @@ function populateWallpapers() {
             '114_1.jpg',
             '165.jpg',
             '184.jpg'
+        ],
+        'fra':[
+            '042.jpg',
+            '191.jpg',
+            '229.jpg'
         ]
     }
     const setsWithBgs = Object.keys(wallpapers)
